@@ -236,69 +236,57 @@ button.primary{background:#e0b44e;color:#382604}
 
 <script>
 const suits = ["万", "条", "筒"];
-const tiles = [];
-
-for (const suit of suits) {
-    for (let number = 1; number <= 9; number++) {
-        for (let copy = 0; copy < 4; copy++) {
-            tiles.push({
-                suit,
-                number,
-                text: number + suit
-            });
-        }
-    }
-}
 
 let wall = [];
 let playerHand = [];
-let northHand = [];
-let westHand = [];
-let eastHand = [];
+let aiHands = [[], [], []];
 
-let started = false;
-let phase = "waiting";
-let selectedTiles = [];
 let playerLack = null;
+let aiLacks = [null, null, null];
 
-const myHandEl = document.getElementById("myHand");
-const northHandEl = document.getElementById("northHand");
-const westHandEl = document.getElementById("westHand");
-const eastHandEl = document.getElementById("eastHand");
-const wallInfo = document.getElementById("wallInfo");
-const centerWall = document.getElementById("centerWall");
-const statusEl = document.getElementById("status");
+let phase = "waiting";
+let currentPlayer = 0;
+let selectedTiles = [];
+
+const playerHandEl = document.getElementById("playerHand");
+const wallEl = document.getElementById("wall");
 const discardsEl = document.getElementById("discards");
-const startScreen = document.getElementById("startScreen");
+const statusEl = document.getElementById("status");
 
+const startBtn = document.getElementById("startBtn");
 const drawBtn = document.getElementById("drawBtn");
+
 const pengBtn = document.getElementById("pengBtn");
 const gangBtn = document.getElementById("gangBtn");
 const huBtn = document.getElementById("huBtn");
 
-const players = [
-    {
-        name: "玩家",
-        hand: () => playerHand
-    },
-    {
-        name: "北",
-        hand: () => northHand
-    },
-    {
-        name: "西",
-        hand: () => westHand
-    },
-    {
-        name: "东",
-        hand: () => eastHand
-    }
-];
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+// =========================
+// 基础牌组
+// =========================
+
+function createTiles() {
+    const tiles = [];
+
+    for (const suit of suits) {
+        for (let n = 1; n <= 9; n++) {
+            for (let i = 0; i < 4; i++) {
+                tiles.push({
+                    suit,
+                    value: n,
+                    id: `${suit}${n}-${i}-${Math.random()}`
+                });
+            }
+        }
+    }
+
+    return tiles;
+}
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [arr[i], arr[j]] = [arr[j], arr[i]];
     }
 }
 
@@ -313,105 +301,222 @@ function sortHand(hand) {
         if (order[a.suit] !== order[b.suit]) {
             return order[a.suit] - order[b.suit];
         }
-
-        return a.number - b.number;
+        return a.value - b.value;
     });
 }
 
-function updateWall() {
-    wallInfo.textContent = "剩余牌：" + wall.length;
-    centerWall.textContent = "牌墙：" + wall.length;
-}
 
-function createBackTiles(container, count) {
-    container.innerHTML = "";
+// =========================
+// 发牌
+// =========================
 
-    for (let i = 0; i < count; i++) {
-        const tile = document.createElement("i");
-        tile.className = "ai-tile";
-        container.appendChild(tile);
+function startGame() {
+    wall = createTiles();
+    shuffle(wall);
+
+    playerHand = [];
+    aiHands = [[], [], []];
+
+    playerLack = null;
+    aiLacks = [null, null, null];
+
+    selectedTiles = [];
+    currentPlayer = 0;
+
+    phase = "exchange";
+
+    for (let i = 0; i < 13; i++) {
+        playerHand.push(wall.pop());
+
+        for (let j = 0; j < 3; j++) {
+            aiHands[j].push(wall.pop());
+        }
     }
+
+    sortHand(playerHand);
+
+    for (const hand of aiHands) {
+        sortHand(hand);
+    }
+
+    render();
+
+    statusEl.textContent =
+        "请选择3张同花色的牌进行换三张";
+
+    drawBtn.textContent = "确认换三张";
+    drawBtn.disabled = false;
+
+    pengBtn.style.display = "none";
+    gangBtn.style.display = "none";
+    huBtn.style.display = "none";
 }
 
-function renderAIHands() {
-    createBackTiles(northHandEl, northHand.length);
-    createBackTiles(westHandEl, westHand.length);
-    createBackTiles(eastHandEl, eastHand.length);
-}
 
-function renderPlayerHand() {
-    myHandEl.innerHTML = "";
+// =========================
+// 换三张
+// =========================
+
+function render() {
+    playerHandEl.innerHTML = "";
 
     playerHand.forEach((tile, index) => {
-        const element = document.createElement("div");
+        const el = document.createElement("div");
 
-        element.className = "tile";
+        el.className = "tile";
 
         if (selectedTiles.includes(index)) {
-            element.classList.add("selected");
+            el.classList.add("selected");
         }
 
-        element.textContent = tile.text;
+        el.textContent = tile.suit + tile.value;
 
-        element.addEventListener("click", () => {
-            handlePlayerTile(index);
-        });
+        el.onclick = () => {
+            if (phase !== "exchange") return;
 
-        myHandEl.appendChild(element);
+            toggleExchangeTile(index);
+        };
+
+        playerHandEl.appendChild(el);
     });
-}
 
-function handlePlayerTile(index) {
-    if (phase === "exchange") {
-        selectExchangeTile(index);
-        return;
-    }
+    wallEl.textContent = `牌墙：${wall.length}`;
 
-    if (phase === "playing") {
-        discardPlayerTile(index);
+    if (phase !== "playing") {
+        drawBtn.style.display = "";
     }
 }
 
-function selectExchangeTile(index) {
-    const existing = selectedTiles.indexOf(index);
 
-    if (existing !== -1) {
-        selectedTiles.splice(existing, 1);
-        renderPlayerHand();
-        updateExchangeStatus();
+function toggleExchangeTile(index) {
+    if (selectedTiles.includes(index)) {
+        selectedTiles =
+            selectedTiles.filter(i => i !== index);
+    } else {
+        if (selectedTiles.length >= 3) return;
+
+        if (selectedTiles.length > 0) {
+            const firstSuit =
+                playerHand[selectedTiles[0]].suit;
+
+            if (playerHand[index].suit !== firstSuit) {
+                statusEl.textContent =
+                    "换三张必须选择同一种花色";
+
+                return;
+            }
+        }
+
+        selectedTiles.push(index);
+    }
+
+    render();
+
+    if (selectedTiles.length === 3) {
+        statusEl.textContent =
+            "已选择3张，点击「确认换三张」";
+    }
+}
+
+
+function exchangeThree() {
+    if (selectedTiles.length !== 3) {
+        statusEl.textContent =
+            "必须选择3张同花色的牌";
+
         return;
     }
 
-    if (selectedTiles.length >= 3) {
-        statusEl.textContent = "最多选择 3 张牌";
+    const selected = selectedTiles
+        .map(i => playerHand[i]);
+
+    const suit = selected[0].suit;
+
+    if (!selected.every(t => t.suit === suit)) {
+        statusEl.textContent =
+            "必须选择同一种花色";
+
         return;
     }
 
-    if (selectedTiles.length > 0) {
-        const selectedSuit =
-            playerHand[selectedTiles[0]].suit;
+    const aiSelected = aiHands.map(hand =>
+        chooseAIExchange(hand)
+    );
 
-        if (playerHand[index].suit !== selectedSuit) {
-            statusEl.textContent =
-                "换三张必须选择同一花色";
-            return;
+    const directions = [
+        0,
+        1,
+        2
+    ];
+
+    // 玩家 → 北家
+    // 北家 → 西家
+    // 西家 → 东家
+    // 东家 → 玩家
+
+    const playerGive = selected;
+
+    aiHands[0] = removeTiles(
+        aiHands[0],
+        aiSelected[0]
+    );
+
+    aiHands[1] = removeTiles(
+        aiHands[1],
+        aiSelected[1]
+    );
+
+    aiHands[2] = removeTiles(
+        aiHands[2],
+        aiSelected[2]
+    );
+
+    playerHand = removeTiles(
+        playerHand,
+        playerGive
+    );
+
+    playerHand.push(...aiSelected[2]);
+
+    aiHands[0].push(...playerGive);
+    aiHands[1].push(...aiSelected[0]);
+    aiHands[2].push(...aiSelected[1]);
+
+    sortHand(playerHand);
+
+    aiHands.forEach(sortHand);
+
+    selectedTiles = [];
+
+    chooseLacks();
+
+    phase = "lack";
+
+    drawBtn.textContent = "确认定缺";
+
+    statusEl.textContent =
+        "请选择你的定缺花色";
+
+    render();
+}
+
+
+function removeTiles(hand, tiles) {
+    const result = [...hand];
+
+    for (const tile of tiles) {
+        const index = result.indexOf(tile);
+
+        if (index !== -1) {
+            result.splice(index, 1);
         }
     }
 
-    selectedTiles.push(index);
-
-    renderPlayerHand();
-    updateExchangeStatus();
+    return result;
 }
 
-function updateExchangeStatus() {
-    statusEl.textContent =
-        "换三张：请选择 3 张同一花色的牌（" +
-        selectedTiles.length +
-        "/3）";
-}
 
-function aiChooseExchange(hand) {
+function chooseAIExchange(hand) {
     const counts = {
         "万": 0,
         "条": 0,
@@ -422,135 +527,30 @@ function aiChooseExchange(hand) {
         counts[tile.suit]++;
     });
 
-    const leastSuit = Object.keys(counts).sort(
-        (a, b) => counts[a] - counts[b]
-    )[0];
+    let suit = suits[0];
 
-    let result = hand.filter(
-        tile => tile.suit === leastSuit
-    );
-
-    if (result.length < 3) {
-        result = [...hand];
-        shuffle(result);
-        return result.slice(0, 3);
-    }
-
-    shuffle(result);
-    return result.slice(0, 3);
-}
-
-function removeTiles(hand, selected) {
-    for (const tile of selected) {
-        const index = hand.indexOf(tile);
-
-        if (index !== -1) {
-            hand.splice(index, 1);
+    for (const s of suits) {
+        if (counts[s] < counts[suit]) {
+            suit = s;
         }
     }
+
+    return hand
+        .filter(t => t.suit === suit)
+        .slice(0, 3);
 }
 
-function exchangeThree() {
-    if (phase !== "exchange") {
-        return;
+
+// =========================
+// 定缺
+// =========================
+
+function chooseLacks() {
+    for (let i = 0; i < 3; i++) {
+        aiLacks[i] = chooseAILack(aiHands[i]);
     }
-
-    if (selectedTiles.length !== 3) {
-        statusEl.textContent = "请选择 3 张牌";
-        return;
-    }
-
-    const exchangeSuit =
-        playerHand[selectedTiles[0]].suit;
-
-    if (!selectedTiles.every(
-        index => playerHand[index].suit === exchangeSuit
-    )) {
-        statusEl.textContent =
-            "必须选择同一花色的 3 张牌";
-        return;
-    }
-
-    const playerExchange =
-        selectedTiles.map(index => playerHand[index]);
-
-    const northExchange =
-        aiChooseExchange(northHand);
-
-    const westExchange =
-        aiChooseExchange(westHand);
-
-    const eastExchange =
-        aiChooseExchange(eastHand);
-
-    removeTiles(playerHand, playerExchange);
-    removeTiles(northHand, northExchange);
-    removeTiles(westHand, westExchange);
-    removeTiles(eastHand, eastExchange);
-
-    /*
-     * 本局采用顺时针换三张：
-     *
-     * 玩家 → 北
-     * 北 → 西
-     * 西 → 东
-     * 东 → 玩家
-     */
-
-    playerHand.push(...eastExchange);
-    northHand.push(...playerExchange);
-    westHand.push(...northExchange);
-    eastHand.push(...westExchange);
-
-    sortHand(playerHand);
-    sortHand(northHand);
-    sortHand(westHand);
-    sortHand(eastHand);
-
-    selectedTiles = [];
-
-    renderPlayerHand();
-    renderAIHands();
-
-    phase = "lack";
-
-    drawBtn.textContent = "请选择定缺";
-
-    statusEl.textContent =
-        "换三张完成，请选择定缺";
-
-    showLackButtons();
 }
 
-function showLackButtons() {
-    let old = document.getElementById("lackControls");
-
-    if (old) {
-        old.remove();
-    }
-
-    const container = document.querySelector(".controls");
-
-    const lackControls = document.createElement("div");
-
-    lackControls.id = "lackControls";
-    lackControls.style.display = "flex";
-    lackControls.style.gap = "5px";
-
-    ["万", "条", "筒"].forEach(suit => {
-        const button = document.createElement("button");
-
-        button.textContent = "缺" + suit;
-
-        button.addEventListener("click", () => {
-            chooseLack(suit);
-        });
-
-        lackControls.appendChild(button);
-    });
-
-    container.appendChild(lackControls);
-}
 
 function chooseAILack(hand) {
     const counts = {
@@ -563,111 +563,60 @@ function chooseAILack(hand) {
         counts[tile.suit]++;
     });
 
-    return Object.keys(counts).sort(
-        (a, b) => counts[a] - counts[b]
-    )[0];
+    let lack = suits[0];
+
+    for (const suit of suits) {
+        if (counts[suit] < counts[lack]) {
+            lack = suit;
+        }
+    }
+
+    return lack;
 }
 
-function chooseLack(suit) {
-    if (phase !== "lack") {
-        return;
-    }
 
-    playerLack = suit;
+function showLackButtons() {
+    statusEl.innerHTML = "请选择定缺：";
 
-    const northLack = chooseAILack(northHand);
-    const westLack = chooseAILack(westHand);
-    const eastLack = chooseAILack(eastHand);
+    ["万", "条", "筒"].forEach(suit => {
+        const btn = document.createElement("button");
 
-    console.log("玩家定缺：", playerLack);
-    console.log("北定缺：", northLack);
-    console.log("西定缺：", westLack);
-    console.log("东定缺：", eastLack);
+        btn.textContent = `缺${suit}`;
 
-    const controls =
-        document.getElementById("lackControls");
+        btn.onclick = () => {
+            playerLack = suit;
 
-    if (controls) {
-        controls.remove();
-    }
+            phase = "playing";
 
-    phase = "playing";
+            drawBtn.style.display = "";
+            drawBtn.textContent = "摸牌";
 
-    drawBtn.textContent = "摸牌";
+            statusEl.textContent =
+                `你的定缺：${suit}，开始游戏`;
 
-    statusEl.textContent =
-        "你定缺：" + suit + "，游戏开始";
+            render();
 
-    setTimeout(() => {
-        statusEl.textContent =
-            "你的回合，请摸牌";
-    }, 900);
+            setTimeout(playerDraw, 500);
+        };
 
-    /*
-     * 四川麻将换三张结束后，
-     * 玩家此时有 13 张牌。
-     *
-     * 正常流程：
-     * 摸一张 → 14 张 → 打一张 → 13 张
-     */
-
-    renderPlayerHand();
+        statusEl.appendChild(btn);
+    });
 }
 
-function deal() {
-    wall = [...tiles];
-    shuffle(wall);
 
-    playerHand = [];
-    northHand = [];
-    westHand = [];
-    eastHand = [];
+// =========================
+// 摸牌
+// =========================
 
-    for (let i = 0; i < 13; i++) {
-        playerHand.push(wall.pop());
-        northHand.push(wall.pop());
-        westHand.push(wall.pop());
-        eastHand.push(wall.pop());
-    }
-
-    sortHand(playerHand);
-
-    selectedTiles = [];
-    playerLack = null;
-
-    phase = "exchange";
-
-    renderPlayerHand();
-    renderAIHands();
-    updateWall();
-
-    drawBtn.textContent = "换三张";
-
-    statusEl.textContent =
-        "请选择 3 张同一花色的牌";
-
-    pengBtn.style.display = "none";
-    gangBtn.style.display = "none";
-    huBtn.style.display = "none";
-}
-
-function drawForPlayer() {
-    if (phase !== "playing") {
-        return;
-    }
-
-    /*
-     * 13 张 → 摸牌 → 14 张
-     */
-
-    if (playerHand.length !== 13) {
-        statusEl.textContent =
-            "请先打出一张牌";
-        return;
-    }
+function playerDraw() {
+    if (phase !== "playing") return;
 
     if (wall.length === 0) {
-        endRound();
+        endGame("牌墙已经摸完，本局结束");
+        return;
+    }
+
+    if (playerHand.length !== 13) {
         return;
     }
 
@@ -677,242 +626,422 @@ function drawForPlayer() {
 
     sortHand(playerHand);
 
-    renderPlayerHand();
-    updateWall();
-
     statusEl.textContent =
-        "你摸到了 " + tile.text + "，请选择一张牌打出";
+        `轮到你出牌（${playerHand.length}张）`;
+
+    render();
+
+    // 自摸胡
+    if (canHu(playerHand)) {
+        huBtn.style.display = "";
+        huBtn.disabled = false;
+
+        statusEl.textContent =
+            "你已经可以胡牌！点击「胡」";
+    }
 }
 
-function discardPlayerTile(index) {
-    if (phase !== "playing") {
-        return;
-    }
 
-    /*
-     * 只有 14 张牌时才能出牌。
-     */
+// =========================
+// 玩家出牌
+// =========================
+
+function discardTile(index) {
+    if (phase !== "playing") return;
 
     if (playerHand.length !== 14) {
         statusEl.textContent =
             "请先摸牌";
+
         return;
     }
 
     const tile = playerHand[index];
 
-    /*
-     * 定缺规则：
-     * 定缺花色必须优先打掉。
-     */
-
+    // 定缺限制
     if (tile.suit !== playerLack) {
+        const hasLack =
+            playerHand.some(t => t.suit === playerLack);
 
-        const hasLackTile =
-            playerHand.some(
-                item => item.suit === playerLack
-            );
-
-        if (hasLackTile) {
+        if (hasLack) {
             statusEl.textContent =
-                "你还有定缺牌，必须先打定缺花色";
+                `你还有${playerLack}牌，必须先打定缺牌`;
+
             return;
         }
     }
 
     playerHand.splice(index, 1);
 
-    addDiscard(tile, "玩家");
+    addDiscard(tile, "你");
 
-    renderPlayerHand();
+    sortHand(playerHand);
 
-    statusEl.textContent =
-        "你打出了 " + tile.text;
+    huBtn.style.display = "none";
 
-    setTimeout(() => {
-        aiTurn(0);
-    }, 700);
+    render();
+
+    // AI行动
+    setTimeout(aiTurn, 600);
 }
 
-function addDiscard(tile, playerName) {
-    const element = document.createElement("div");
 
-    element.className = "discard";
-    element.textContent = tile.text;
-    element.title = playerName;
+// =========================
+// AI行动
+// =========================
 
-    discardsEl.appendChild(element);
-}
+function aiTurn() {
+    if (phase !== "playing") return;
 
-function aiDiscard(hand, lackSuit, name) {
-    /*
-     * AI 优先打定缺花色。
-     */
-
-    let candidates =
-        hand.filter(tile => tile.suit === lackSuit);
-
-    if (candidates.length === 0) {
-        candidates = [...hand];
-    }
-
-    /*
-     * 优先随机出牌。
-     * 后面再升级成真正的 AI 牌效算法。
-     */
-
-    const tile =
-        candidates[Math.floor(
-            Math.random() * candidates.length
-        )];
-
-    const index = hand.indexOf(tile);
-
-    hand.splice(index, 1);
-
-    addDiscard(tile, name);
-
-    return tile;
-}
-
-function aiTurn(index) {
-    if (phase !== "playing") {
-        return;
-    }
-
-    const aiPlayers = [
-        {
-            hand: northHand,
-            lack: chooseAILack(northHand),
-            name: "北"
-        },
-        {
-            hand: westHand,
-            lack: chooseAILack(westHand),
-            name: "西"
-        },
-        {
-            hand: eastHand,
-            lack: chooseAILack(eastHand),
-            name: "东"
-        }
-    ];
-
-    if (index >= aiPlayers.length) {
-        statusEl.textContent =
-            "轮到你，请摸牌";
-        return;
-    }
-
-    const ai = aiPlayers[index];
-
-    statusEl.textContent =
-        "AI · " + ai.name + " 思考中…";
-
-    setTimeout(() => {
+    for (let i = 0; i < 3; i++) {
 
         if (wall.length === 0) {
-            endRound();
+            endGame("牌墙已经摸完，本局结束");
             return;
         }
 
-        /*
-         * AI 摸牌
-         */
+        // AI摸牌
+        aiHands[i].push(wall.pop());
 
-        ai.hand.push(wall.pop());
+        sortHand(aiHands[i]);
 
-        /*
-         * AI 出牌
-         */
+        // AI自摸
+        if (canHu(aiHands[i])) {
+            endGame(
+                `AI${i + 1}（${getSeatName(i)}）自摸胡牌！`
+            );
 
-        aiDiscard(
-            ai.hand,
-            ai.lack,
-            ai.name
-        );
-
-        sortHand(ai.hand);
-
-        renderAIHands();
-        updateWall();
-
-        /*
-         * 下一个 AI
-         */
-
-        if (index + 1 < aiPlayers.length) {
-            aiTurn(index + 1);
-        } else {
-            statusEl.textContent =
-                "轮到你，请摸牌";
+            return;
         }
 
-    }, 650);
+        // AI出牌
+        const discardIndex =
+            chooseAIDiscard(aiHands[i], aiLacks[i]);
+
+        const tile =
+            aiHands[i].splice(discardIndex, 1)[0];
+
+        addDiscard(
+            tile,
+            `AI${i + 1}`
+        );
+
+        // AI出牌后检查玩家能不能胡
+        if (canHu([...playerHand, tile])) {
+            huBtn.style.display = "";
+
+            huBtn.onclick = () => {
+                endGame(
+                    `你胡牌了！胡的是AI${i + 1}打出的 ${tile.suit}${tile.value}`
+                );
+            };
+
+            statusEl.textContent =
+                `AI${i + 1}打出 ${tile.suit}${tile.value}，你可以胡！`;
+
+            return;
+        }
+    }
+
+    // AI全部行动结束
+    playerDraw();
 }
 
-function endRound() {
+
+function chooseAIDiscard(hand, lack) {
+
+    // 有定缺牌必须优先打定缺
+    const lackIndexes = [];
+
+    hand.forEach((tile, index) => {
+        if (tile.suit === lack) {
+            lackIndexes.push(index);
+        }
+    });
+
+    if (lackIndexes.length > 0) {
+        return lackIndexes[
+            Math.floor(Math.random() * lackIndexes.length)
+        ];
+    }
+
+    // 否则随机打牌
+    return Math.floor(Math.random() * hand.length);
+}
+
+
+// =========================
+// 弃牌
+// =========================
+
+function addDiscard(tile, who) {
+
+    const el = document.createElement("span");
+
+    el.className = "discard-tile";
+
+    el.textContent =
+        `${who}：${tile.suit}${tile.value}`;
+
+    discardsEl.appendChild(el);
+}
+
+
+// =========================
+// 胡牌判断
+// =========================
+
+function canHu(hand) {
+
+    if (hand.length !== 14) {
+        return false;
+    }
+
+    const counts = {};
+
+    hand.forEach(tile => {
+
+        const key =
+            tile.suit + tile.value;
+
+        counts[key] =
+            (counts[key] || 0) + 1;
+    });
+
+    const keys = Object.keys(counts);
+
+    // 尝试所有对子
+    for (const pair of keys) {
+
+        if (counts[pair] < 2) {
+            continue;
+        }
+
+        counts[pair] -= 2;
+
+        const remaining = [];
+
+        for (const key of keys) {
+            for (let i = 0; i < counts[key]; i++) {
+                remaining.push(key);
+            }
+        }
+
+        if (canFormSets(remaining)) {
+            counts[pair] += 2;
+            return true;
+        }
+
+        counts[pair] += 2;
+    }
+
+    return false;
+}
+
+
+function canFormSets(cards) {
+
+    if (cards.length === 0) {
+        return true;
+    }
+
+    const first = cards[0];
+
+    const suit = first.charAt(0);
+    const value = Number(first.slice(1));
+
+    // 刻子
+    const triple = first;
+
+    const tripleIndexes = [];
+
+    for (let i = 0; i < cards.length; i++) {
+        if (cards[i] === triple) {
+            tripleIndexes.push(i);
+        }
+    }
+
+    if (tripleIndexes.length >= 3) {
+
+        const remaining =
+            cards.slice();
+
+        let removed = 0;
+
+        for (let i = remaining.length - 1; i >= 0; i--) {
+            if (
+                remaining[i] === triple &&
+                removed < 3
+            ) {
+                remaining.splice(i, 1);
+                removed++;
+            }
+        }
+
+        if (canFormSets(remaining)) {
+            return true;
+        }
+    }
+
+    // 顺子
+    if (value <= 7) {
+
+        const second =
+            suit + (value + 1);
+
+        const third =
+            suit + (value + 2);
+
+        if (
+            cards.includes(second) &&
+            cards.includes(third)
+        ) {
+
+            const remaining =
+                cards.slice();
+
+            removeOne(remaining, first);
+            removeOne(remaining, second);
+            removeOne(remaining, third);
+
+            if (canFormSets(remaining)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+function removeOne(arr, value) {
+
+    const index =
+        arr.indexOf(value);
+
+    if (index !== -1) {
+        arr.splice(index, 1);
+    }
+}
+
+
+// =========================
+// 胡按钮
+// =========================
+
+huBtn.onclick = () => {
+
+    if (playerHand.length === 14 &&
+        canHu(playerHand)) {
+
+        endGame("你自摸胡牌！");
+
+    } else {
+
+        statusEl.textContent =
+            "这副牌目前不能胡";
+    }
+};
+
+
+// =========================
+// 结束
+// =========================
+
+function endGame(message) {
+
     phase = "ended";
 
-    statusEl.textContent =
-        "牌墙已耗尽，本局结束";
+    statusEl.textContent = message;
 
     drawBtn.disabled = true;
+
+    huBtn.style.display = "none";
+
+    pengBtn.style.display = "none";
+    gangBtn.style.display = "none";
+
+    render();
 }
 
-function startGame() {
-    started = true;
 
-    startScreen.style.display = "none";
+// =========================
+// 按钮
+// =========================
 
-    discardsEl.innerHTML = "";
+startBtn.onclick = startGame;
 
-    drawBtn.disabled = false;
-
-    deal();
-}
-
-document.getElementById("startBtn")
-    .addEventListener("click", startGame);
-
-drawBtn.addEventListener("click", () => {
+drawBtn.onclick = () => {
 
     if (phase === "exchange") {
+
         exchangeThree();
-        return;
-    }
 
-    if (phase === "lack") {
-        statusEl.textContent =
-            "请先选择定缺花色";
-        return;
-    }
+    } else if (phase === "lack") {
 
-    if (phase === "playing") {
-        drawForPlayer();
-    }
-});
+        showLackButtons();
 
-pengBtn.addEventListener("click", () => {
-    if (phase === "playing") {
-        statusEl.textContent =
-            "碰牌功能下一阶段加入";
-    }
-});
+    } else if (phase === "playing") {
 
-gangBtn.addEventListener("click", () => {
-    if (phase === "playing") {
-        statusEl.textContent =
-            "杠牌功能下一阶段加入";
+        if (playerHand.length === 13) {
+            playerDraw();
+        }
     }
-});
+};
 
-huBtn.addEventListener("click", () => {
-    if (phase === "playing") {
-        statusEl.textContent =
-            "胡牌判定下一阶段加入";
+
+// =========================
+// 点击牌
+// =========================
+
+playerHandEl.addEventListener(
+    "click",
+    e => {
+
+        if (phase !== "playing") {
+            return;
+        }
+
+        const tiles =
+            [...playerHandEl.children];
+
+        const index =
+            tiles.indexOf(e.target);
+
+        if (index === -1) {
+            return;
+        }
+
+        discardTile(index);
     }
-});
+);
+
+
+// =========================
+// 座位
+// =========================
+
+function getSeatName(index) {
+
+    return [
+        "北",
+        "西",
+        "东"
+    ][index];
+}
+
+
+// =========================
+// 初始化
+// =========================
+
+pengBtn.style.display = "none";
+gangBtn.style.display = "none";
+huBtn.style.display = "none";
+
+statusEl.textContent =
+    "点击「开始游戏」";
+
 </script>
 
 </body>
