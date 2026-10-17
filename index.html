@@ -126,7 +126,7 @@ function formatTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+Strin
 function renderBoard(){
  boardEl.innerHTML='';
  for(let i=0;i<81;i++){const r=Math.floor(i/9),c=i%9,btn=document.createElement('button');btn.type='button';btn.className='cell';btn.dataset.index=i;
-  btn.setAttribute('aria-label',fmt('cell',{r:r+1,c:c+1})+(values[i]?', '+t('number')+' '+values[i]:', '+t('emptyCell)));
+  btn.setAttribute('aria-label',fmt('cell',{r:r+1,c:c+1})+(values[i]?', '+t('number')+' '+values[i]:', '+t('emptyCell')));
   if(c===2||c===5)btn.classList.add('box-right');if(r===2||r===5)btn.classList.add('box-bottom');if(puzzle[i])btn.classList.add('given');btn.textContent=values[i]||'';
   btn.addEventListener('click',()=>{if(finished)return;selected=i;renderBoard()});boardEl.appendChild(btn)
  }
