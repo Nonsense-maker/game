@@ -77,7 +77,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),digits=[1,2,3,4,5,6,7,8,9];
+const $=id=>document.getElementById(id),digits=[1,2,3,4,5,6,7,8,9],boardEl=$('board'),padEl=$('numberPad');
 const translations={
 'zh-CN':{brand:'轻松数独',subtitle:'每天动动脑 · 轻松挑战',newGame:'↻ 新游戏',language:'语言',difficulty:'难度',easy:'入门',medium:'简单',hard:'困难',expert:'专家',time:'用时',progress:'已填数字',erase:'⌫ 擦除',hint:'✦ 提示',check:'✓ 检查',newRound:'新的一局',instruction:'点击格子，再选择下方数字。',help:'数字会自动高亮相同数字。提示会填入一个正确答案。',filled:'已填写。',filledCheck:'数字已填写；可以点击「检查」核对。',selectCell:'请先选择一个格子。',fixed:'这是题目给出的数字，不能修改。',eraseFixed:'题目给出的数字不能擦除。',erased:'已擦除。',empty:'还有 {n} 个空格未填写。',wrong:'有数字不正确，红色格子可优先检查。',hintDone:'提示已填入一个正确数字。',noHint:'没有需要提示的格子了。',complete:'全部正确！本局完成。',winTitle:'太棒了！🎉',winText:'用时 {time}。继续保持，来挑战下一局吧！',again:'再来一局',difficultyNames:['入门','简单','困难','专家'],board:'数独棋盘',cell:'第{r}行第{c}列',emptyCell:'空格',number:'数字'},
 'zh-TW':{brand:'輕鬆數獨',subtitle:'每天動動腦 · 輕鬆挑戰',newGame:'↻ 新遊戲',language:'語言',difficulty:'難度',easy:'入門',medium:'簡單',hard:'困難',expert:'專家',time:'用時',progress:'已填數字',erase:'⌫ 擦除',hint:'✦ 提示',check:'✓ 檢查',newRound:'新的一局',instruction:'點選格子，再選擇下方數字。',help:'相同數字會自動高亮。提示會填入一個正確答案。',filled:'已填寫。',filledCheck:'數字已填寫；可以點擊「檢查」核對。',selectCell:'請先選擇一個格子。',fixed:'這是題目給定的數字，不能修改。',eraseFixed:'題目給定的數字不能擦除。',erased:'已擦除。',empty:'還有 {n} 個空格未填寫。',wrong:'有數字不正確，紅色格子可優先檢查。',hintDone:'提示已填入一個正確數字。',noHint:'沒有需要提示的格子了。',complete:'全部正確！本局完成。',winTitle:'太棒了！🎉',winText:'用時 {time}。繼續保持，來挑戰下一局吧！',again:'再來一局',difficultyNames:['入門','簡單','困難','專家'],board:'數獨棋盤',cell:'第{r}行第{c}列',emptyCell:'空格',number:'數字'},
