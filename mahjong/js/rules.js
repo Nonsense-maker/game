@@ -1,0 +1,1 @@
+// Sichuan Mahjong rules
