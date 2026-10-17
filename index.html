@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f7fb">
+<title>轻松数独</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--ink:#20283a;--muted:#748096;--line:#d6dce7;--strong:#53627a;--blue:#3978e8;--blue-soft:#e5efff;--given:#243047;--selected:#cfe0ff;--peer:#f0f5ff;--same:#dce9ff;--wrong:#ffe1e1;--green:#23845b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;min-height:100dvh}
+button{font:inherit;touch-action:manipulation;cursor:pointer}
+.app{max-width:700px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-size:24px;font-weight:800;letter-spacing:.02em}
+.subtitle{font-size:13px;color:var(--muted);margin-top:3px}
+.pill{border:1px solid #dce3ee;background:#fff;border-radius:999px;padding:8px 12px;font-size:13px;color:#46536a;white-space:nowrap}
+.stats{display:flex;gap:10px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid #e6eaf1;border-radius:14px;padding:10px 14px;flex:1;min-width:0}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.stat-value{font-size:17px;font-weight:750;font-variant-numeric:tabular-nums}
+.board-wrap{background:var(--panel);padding:8px;border-radius:16px;box-shadow:0 8px 26px rgba(36,55,92,.06);border:1px solid #e5eaf2}
+.board{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));width:100%;aspect-ratio:1;border:2px solid var(--strong);overflow:hidden;background:#fff}
+.cell{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;color:var(--blue);font-size:clamp(18px,5.1vw,31px);font-weight:600;padding:0;border-radius:0;position:relative}
+.cell:nth-child(9n){border-right:0}
+.cell:nth-child(n+73){border-bottom:0}
+.cell.box-right{border-right:2px solid var(--strong)}
+.cell.box-bottom{border-bottom:2px solid var(--strong)}
+.cell.given{color:var(--given);font-weight:750}
+.cell.peer{background:var(--peer)}
+.cell.same{background:var(--same)}
+.cell.selected{background:var(--selected);box-shadow:inset 0 0 0 2px var(--blue);z-index:1}
+.cell.error{background:var(--wrong);color:#bd3434}
+.cell:focus-visible{outline:3px solid var(--blue);outline-offset:-3px;z-index:2}
+.controls{margin-top:14px}
+.number-pad{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+.num{border:1px solid #dce4f1;background:#fff;border-radius:12px;min-height:52px;color:#2d5fb8;font-size:22px;font-weight:750;box-shadow:0 2px 0 rgba(44,67,108,.04)}
+.num:active,.action:active{transform:scale(.98)}
+.num:disabled{opacity:.35}
+.actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.action{border:1px solid #dce3ee;background:#fff;border-radius:12px;min-height:44px;color:#44516a;font-size:14px;font-weight:650;padding:8px 4px}
+.action.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.action:disabled{opacity:.45}
+.message{min-height:24px;text-align:center;color:var(--muted);font-size:14px;padding:12px 4px 0}
+.message.success{color:var(--green);font-weight:700}
+.help{font-size:12px;color:#8a94a6;text-align:center;margin-top:8px;line-height:1.5}
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,31,50,.38);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal-backdrop.show{display:flex}
+.modal{width:min(100%,360px);background:#fff;border-radius:20px;padding:24px;text-align:center;box-shadow:0 20px 60px #15213b33}
+.modal h2{margin:0 0 8px;font-size:23px}
+.modal p{color:var(--muted);line-height:1.6;margin:0 0 20px}
+.modal button{width:100%;border:0;background:var(--blue);color:#fff;border-radius:12px;padding:13px;font-weight:700}
+@media(min-width:600px){.app{padding-top:28px}.board-wrap{padding:12px}.cell{font-size:clamp(24px,3.8vw,34px)}.num{min-height:58px}}
+@media(max-width:370px){.app{padding-left:9px;padding-right:9px}.board-wrap{padding:5px}.number-pad{gap:3px}.num{min-height:45px;border-radius:8px}.actions{gap:5px}.action{font-size:12px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div><div class="brand">轻松数独</div><div class="subtitle">每天动动脑 · 入门难度</div></div>
+    <button class="pill" id="newTop" type="button">↻ 新游戏</button>
+  </header>
+  <section class="stats" aria-label="游戏状态">
+    <div class="stat"><div class="stat-label">用时</div><div class="stat-value" id="timer">00:00</div></div>
+    <div class="stat"><div class="stat-label">已填数字</div><div class="stat-value" id="progress">0 / 81</div></div>
+    <div class="stat"><div class="stat-label">难度</div><div class="stat-value">入门</div></div>
+  </section>
+  <section class="board-wrap" aria-label="数独棋盘">
+    <div class="board" id="board" role="group" aria-label="数独棋盘"></div>
+  </section>
+  <section class="controls">
+    <div class="number-pad" id="numberPad" aria-label="数字键盘"></div>
+    <div class="actions">
+      <button class="action" id="erase" type="button">⌫ 擦除</button>
+      <button class="action" id="hint" type="button">✦ 提示</button>
+      <button class="action" id="check" type="button">✓ 检查</button>
+      <button class="action primary" id="newBottom" type="button">新的一局</button>
+    </div>
+    <div class="message" id="message" role="status" aria-live="polite">点击格子，再选择下方数字。</div>
+    <div class="help">数字会自动高亮相同数字。点击「提示」可填入一个正确答案。</div>
+  </section>
+</main>
+<div class="modal-backdrop" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+  <div class="modal"><h2 id="winTitle">太棒了！🎉</h2><p id="winText">你完成了这局数独。</p><button id="nextGame" type="button">再来一局</button></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const boardEl=$('board'), padEl=$('numberPad');
+let puzzle=[], solution=[], values=[], selected=-1, startedAt=Date.now(), elapsed=0, timerHandle=null, finished=false;
+const digits=[1,2,3,4,5,6,7,8,9];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function candidates(grid,r,c){
+ const used=new Set();
+ for(let i=0;i<9;i++){if(grid[r][i])used.add(grid[r][i]);if(grid[i][c])used.add(grid[i][c]);}
+ const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;
+ for(let rr=br;rr<br+3;rr++)for(let cc=bc;cc<bc+3;cc++)if(grid[rr][cc])used.add(grid[rr][cc]);
+ return digits.filter(n=>!used.has(n));
+}
+function findBestEmpty(grid){
+ let best=null,bestCands=null;
+ for(let r=0;r<9;r++)for(let c=0;c<9;c++)if(!grid[r][c]){
+   const opts=candidates(grid,r,c);
+   if(!bestCands||opts.length<bestCands.length){best=[r,c];bestCands=opts;if(opts.length<=1)return {pos:best,opts:bestCands};}
+ }
+ return best?{pos:best,opts:bestCands}:null;
+}
+function fillSolution(grid){
+ const spot=findBestEmpty(grid);if(!spot)return true;
+ const [r,c]=spot.pos;
+ for(const n of shuffle(spot.opts.slice())){grid[r][c]=n;if(fillSolution(grid))return true;grid[r][c]=0;}
+ return false;
+}
+function countSolutions(grid,limit=2){
+ const spot=findBestEmpty(grid);if(!spot)return 1;
+ if(spot.opts.length===0)return 0;
+ const [r,c]=spot.pos;let total=0;
+ for(const n of spot.opts){grid[r][c]=n;total+=countSolutions(grid,limit-total);grid[r][c]=0;if(total>=limit)return total;}
+ return total;
+}
+function makePuzzle(){
+ const solved=Array.from({length:9},()=>Array(9).fill(0));
+ fillSolution(solved);
+ const puz=solved.map(row=>row.slice());
+ // Keep roughly 40–43 clues for a gentle, beginner-friendly puzzle.
+ const cells=shuffle(Array.from({length:81},(_,i)=>i));
+ let removed=0, target=39+Math.floor(Math.random()*5);
+ for(const idx of cells){
+   if(removed>=81-target)break;
+   const r=Math.floor(idx/9),c=idx%9,old=puz[r][c];puz[r][c]=0;
+   const test=puz.map(row=>row.slice());
+   if(countSolutions(test,2)!==1)puz[r][c]=old;else removed++;
+ }
+ return {puzzle:puz,solution:solved};
+}
+function flat(g){return g.reduce((a,row)=>a.concat(row),[]);}
+function startNewGame(){
+ const game=makePuzzle();puzzle=flat(game.puzzle);solution=flat(game.solution);values=puzzle.slice();
+ selected=-1;startedAt=Date.now();elapsed=0;finished=false;
+ $('winModal').classList.remove('show');$('message').className='message';$('message').textContent='点击格子，再选择下方数字。';
+ renderBoard();renderPad();updateStats();startTimer();
+}
+function startTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=setInterval(()=>{if(!finished){elapsed=Math.floor((Date.now()-startedAt)/1000);$('timer').textContent=formatTime(elapsed);}},1000);}
+function formatTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function renderBoard(){
+ boardEl.innerHTML='';
+ for(let i=0;i<81;i++){
+  const r=Math.floor(i/9),c=i%9,btn=document.createElement('button');
+  btn.type='button';btn.className='cell';btn.dataset.index=i;
+  btn.setAttribute('aria-label',`第${r+1}行第${c+1}列${values[i]?'，数字'+values[i]:'，空格'}`);
+  if(c===2||c===5)btn.classList.add('box-right');if(r===2||r===5)btn.classList.add('box-bottom');
+  if(puzzle[i])btn.classList.add('given');
+  btn.textContent=values[i]||'';
+  btn.addEventListener('click',()=>{if(finished)return;selected=i;renderBoard();});
+  boardEl.appendChild(btn);
+ }
+ paintHighlights();updateStats();
+}
+function paintHighlights(){
+ const cells=boardEl.children;if(selected<0)return;
+ const sr=Math.floor(selected/9),sc=selected%9,sv=values[selected];
+ for(let i=0;i<81;i++){
+  const r=Math.floor(i/9),c=i%9,el=cells[i];
+  if(r===sr||c===sc||(Math.floor(r/3)===Math.floor(sr/3)&&Math.floor(c/3)===Math.floor(sc/3)))el.classList.add('peer');
+  if(sv&&values[i]===sv)el.classList.add('same');
+  if(i===selected)el.classList.add('selected');
+  if(values[i]&&puzzle[i]===0&&values[i]!==solution[i])el.classList.add('error');
+ }
+}
+function renderPad(){
+ padEl.innerHTML='';
+ for(const n of digits){const b=document.createElement('button');b.type='button';b.className='num';b.textContent=n;b.setAttribute('aria-label','填写数字'+n);b.addEventListener('click',()=>enterNumber(n));padEl.appendChild(b);}
+}
+function enterNumber(n){
+ if(finished)return;
+ if(selected<0){say('请先选择一个格子。');return;}
+ if(puzzle[selected]){say('这是题目给出的数字，不能修改。');return;}
+ values[selected]=n;renderBoard();
+ if(isComplete())finishGame();else say(values[selected]===solution[selected]?'已填写。':'数字已填写；可以点击「检查」核对。');
+}
+function eraseSelected(){
+ if(selected<0){say('请先选择一个格子。');return;}
+ if(puzzle[selected]){say('题目给出的数字不能擦除。');return;}
+ values[selected]=0;renderBoard();say('已擦除。');
+}
+function say(text,success=false){$('message').textContent=text;$('message').className='message'+(success?' success':'');}
+function updateStats(){const count=values.filter(Boolean).length;$('progress').textContent=count+' / 81';}
+function isComplete(){return values.every((v,i)=>v===solution[i]);}
+function checkBoard(){
+ if(finished)return;
+ let empty=values.filter(v=>!v).length;
+ let wrong=values.some((v,i)=>v&&v!==solution[i]);
+ if(empty){say(`还有 ${empty} 个空格未填写。`);return;}
+ if(wrong){say('有数字不正确，红色格子可优先检查。');return;}
+ finishGame();
+}
+function giveHint(){
+ if(finished)return;
+ let idx=selected;
+ if(idx<0||puzzle[idx]||values[idx]===solution[idx]){
+  const options=values.map((v,i)=>({v,i})).filter(x=>!puzzle[x.i]&&x.v!==solution[x.i]);
+  const empties=values.map((v,i)=>({v,i})).filter(x=>!puzzle[x.i]&&!x.v);
+  const pool=options.length?options:empties;
+  if(!pool.length){say('没有需要提示的格子了。');return;}
+  idx=pool[Math.floor(Math.random()*pool.length)];selected=idx.i;
+ }
+ values[selected]=solution[selected];renderBoard();
+ if(isComplete())finishGame();else say('提示已填入一个正确数字。');
+}
+function finishGame(){
+ finished=true;elapsed=Math.floor((Date.now()-startedAt)/1000);$('timer').textContent=formatTime(elapsed);
+ say('全部正确！本局完成。',true);
+ $('winText').textContent='用时 '+formatTime(elapsed)+'。继续保持，来挑战下一局吧！';
+ $('winModal').classList.add('show');$('nextGame').focus();
+}
+$('newTop').addEventListener('click',startNewGame);
+$('newBottom').addEventListener('click',startNewGame);
+$('nextGame').addEventListener('click',startNewGame);
+$('erase').addEventListener('click',eraseSelected);
+$('hint').addEventListener('click',giveHint);
+$('check').addEventListener('click',checkBoard);
+document.addEventListener('keydown',e=>{
+ if(finished)return;
+ if(e.key>='1'&&e.key<='9'){enterNumber(Number(e.key));}
+ else if(e.key==='Backspace'||e.key==='Delete'||e.key==='0'){eraseSelected();}
+ else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)&&selected>=0){
+  e.preventDefault();let r=Math.floor(selected/9),c=selected%9;
+  if(e.key==='ArrowUp')r=(r+8)%9;if(e.key==='ArrowDown')r=(r+1)%9;
+  if(e.key==='ArrowLeft')c=(c+8)%9;if(e.key==='ArrowRight')c=(c+1)%9;
+  selected=r*9+c;renderBoard();
+ }
+});
+startNewGame();
+})();
+</script>
+</body>
+</html>
