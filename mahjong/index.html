@@ -1,638 +1,452 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>四川麻将 · 血战到底</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>四川麻将 · 血战到底</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(circle,#16734d,#0b4d35 60%,#063526);
+    color:#fff;
+    overflow-x:hidden
+}
+.topbar{
+    height:60px;padding:0 18px;display:flex;align-items:center;
+    justify-content:space-between;background:rgba(0,0,0,.25)
+}
+.title{font-size:20px;font-weight:700}
+.back{
+    color:#fff;text-decoration:none;background:rgba(255,255,255,.13);
+    padding:8px 14px;border-radius:20px
+}
+.game{
+    width:min(1100px,96vw);height:calc(100vh - 70px);
+    min-height:620px;margin:auto;position:relative;
+    display:flex;justify-content:center;align-items:center
+}
+.table{
+    width:min(760px,78vw);height:520px;position:relative;
+    border:14px solid #75461f;border-radius:30px;
+    background:linear-gradient(145deg,#168254,#09603f);
+    box-shadow:0 20px 50px rgba(0,0,0,.35)
+}
+.center{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:220px;height:140px;border-radius:18px;
+    background:rgba(0,0,0,.13);display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:8px
+}
+.round{font-size:25px;font-weight:800}
+.status{font-size:14px;opacity:.85}
+.wall{font-size:13px;opacity:.7}
+.player{
+    position:absolute;display:flex;flex-direction:column;
+    align-items:center;gap:5px;z-index:5
+}
+.name{
+    padding:4px 10px;border-radius:14px;
+    background:rgba(0,0,0,.3);font-size:13px
+}
+.avatar{
+    width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(145deg,#eee,#aaa);
+    color:#333;border:3px solid rgba(255,255,255,.7);
+    display:flex;align-items:center;justify-content:center;font-weight:bold
+}
+.north{left:50%;top:12px;transform:translateX(-50%)}
+.west{left:10px;top:50%;transform:translateY(-50%)}
+.east{right:10px;top:50%;transform:translateY(-50%)}
+.south{left:50%;bottom:10px;transform:translateX(-50%)}
+.active .name{background:#d6a743;color:#382604;font-weight:bold}
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+.ai-hand{display:flex;gap:2px}
+.ai-tile{
+    width:15px;height:22px;border-radius:3px;
+    background:linear-gradient(135deg,#eee,#c8c8c8);
+    border:1px solid #999
+}
+.vertical .ai-hand{flex-direction:column}
+.vertical .ai-tile{width:22px;height:15px}
 
-        body {
-            min-height: 100vh;
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                "PingFang SC",
-                "Microsoft YaHei",
-                sans-serif;
-            background:
-                radial-gradient(circle at center, #16734d 0%, #0b4d35 55%, #063526 100%);
-            color: #fff;
-            overflow-x: hidden;
-        }
+.my-hand{
+    position:absolute;left:50%;bottom:-62px;
+    transform:translateX(-50%);display:flex;
+    gap:2px;align-items:flex-end;white-space:nowrap
+}
+.tile{
+    width:39px;height:55px;border-radius:5px;
+    background:linear-gradient(145deg,#fff,#e8e8e8);
+    border:1px solid #aaa;color:#222;
+    display:flex;align-items:center;justify-content:center;
+    font-size:25px;font-weight:bold;
+    box-shadow:0 3px 5px rgba(0,0,0,.28);
+    cursor:pointer;transition:.15s
+}
+.tile:hover{transform:translateY(-7px)}
+.tile.selected{
+    transform:translateY(-10px);
+    box-shadow:0 0 0 2px #e0b44e
+}
+.discards{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    margin-top:105px;width:300px;
+    min-height:70px;display:flex;flex-wrap:wrap;
+    justify-content:center;align-content:flex-start;gap:3px
+}
+.discard{
+    width:25px;height:34px;background:#f3f3f3;
+    color:#222;border-radius:3px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;box-shadow:0 2px 3px rgba(0,0,0,.25)
+}
+.info{
+    position:absolute;top:5px;left:50%;
+    transform:translateX(-50%);display:flex;gap:8px;
+    font-size:12px
+}
+.info span{
+    background:rgba(0,0,0,.22);
+    padding:5px 9px;border-radius:9px
+}
+.controls{
+    position:absolute;bottom:0;right:0;
+    display:flex;gap:8px
+}
+button{
+    border:0;border-radius:9px;padding:10px 18px;
+    font-weight:600;cursor:pointer;
+    background:#fff;color:#174d37;
+    box-shadow:0 3px 8px rgba(0,0,0,.25)
+}
+button.primary{background:#e0b44e;color:#382604}
+.start{
+    position:absolute;inset:0;z-index:20;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.38);backdrop-filter:blur(4px);
+    border-radius:18px
+}
+.card{
+    width:min(360px,88vw);padding:30px 25px;
+    border-radius:20px;text-align:center;
+    background:rgba(20,70,50,.97);
+    box-shadow:0 20px 50px rgba(0,0,0,.4)
+}
+.card h1{font-size:28px;margin-bottom:10px}
+.card p{line-height:1.8;opacity:.75;margin-bottom:20px}
+.start-btn{width:100%;font-size:16px;padding:13px}
 
-        /* 顶部 */
-        .topbar {
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            background: rgba(0, 0, 0, 0.25);
-            border-bottom: 1px solid rgba(255,255,255,.12);
-        }
-
-        .title {
-            font-size: 21px;
-            font-weight: 700;
-        }
-
-        .back-btn {
-            color: #fff;
-            text-decoration: none;
-            padding: 9px 15px;
-            border-radius: 20px;
-            background: rgba(255,255,255,.13);
-            transition: .2s;
-        }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,.22);
-        }
-
-        /* 游戏区域 */
-        .game {
-            width: min(1100px, 96vw);
-            height: calc(100vh - 84px);
-            min-height: 600px;
-            margin: 10px auto;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* 麻将桌 */
-        .table {
-            width: min(760px, 78vw);
-            aspect-ratio: 1 / .72;
-            min-height: 430px;
-            position: relative;
-            border-radius: 32px;
-            background:
-                linear-gradient(145deg, #168254, #09603f);
-            border: 14px solid #7a4a25;
-            box-shadow:
-                0 20px 50px rgba(0,0,0,.35),
-                inset 0 0 0 3px rgba(255,255,255,.08);
-        }
-
-        .table::before {
-            content: "";
-            position: absolute;
-            inset: 14px;
-            border: 2px solid rgba(255,255,255,.13);
-            border-radius: 22px;
-            pointer-events: none;
-        }
-
-        /* 中央区域 */
-        .center {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 230px;
-            height: 150px;
-            border-radius: 18px;
-            background: rgba(0,0,0,.13);
-            border: 1px solid rgba(255,255,255,.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .round {
-            font-size: 26px;
-            font-weight: 800;
-        }
-
-        .status {
-            font-size: 14px;
-            opacity: .8;
-        }
-
-        .wall {
-            font-size: 13px;
-            opacity: .7;
-        }
-
-        /* 玩家区域 */
-        .player {
-            position: absolute;
-            z-index: 5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .player-name {
-            padding: 5px 11px;
-            border-radius: 14px;
-            background: rgba(0,0,0,.32);
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        .player.active .player-name {
-            background: #d6a743;
-            color: #3c2607;
-            font-weight: 700;
-        }
-
-        .avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #eee, #aaa);
-            border: 3px solid rgba(255,255,255,.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,0,0,.25);
-        }
-
-        /* 上家 */
-        .north {
-            left: 50%;
-            top: 18px;
-            transform: translateX(-50%);
-        }
-
-        /* 左家 */
-        .west {
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        /* 右家 */
-        .east {
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        /* 自己 */
-        .south {
-            left: 50%;
-            bottom: 18px;
-            transform: translateX(-50%);
-        }
-
-        /* AI 手牌背面 */
-        .mini-hand {
-            display: flex;
-            gap: 2px;
-        }
-
-        .back-tile {
-            width: 16px;
-            height: 23px;
-            border-radius: 3px;
-            background: linear-gradient(135deg, #eee, #c9c9c9);
-            border: 1px solid #999;
-            box-shadow: 0 2px 3px rgba(0,0,0,.2);
-        }
-
-        .vertical-hand {
-            display: flex;
-            gap: 2px;
-        }
-
-        .vertical-hand .back-tile {
-            width: 23px;
-            height: 16px;
-        }
-
-        /* 自己的手牌 */
-        .my-hand {
-            position: absolute;
-            bottom: -70px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 3px;
-            width: max-content;
-            max-width: 96vw;
-        }
-
-        .tile {
-            width: 40px;
-            height: 55px;
-            background: linear-gradient(145deg, #fff, #e9e9e9);
-            border: 1px solid #bbb;
-            border-radius: 5px;
-            color: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            font-weight: 700;
-            box-shadow:
-                0 3px 5px rgba(0,0,0,.28),
-                inset 0 0 0 1px rgba(255,255,255,.8);
-            cursor: pointer;
-            transition: transform .15s, box-shadow .15s;
-        }
-
-        .tile:hover {
-            transform: translateY(-7px);
-            box-shadow:
-                0 8px 10px rgba(0,0,0,.3),
-                0 0 0 2px rgba(255,210,80,.7);
-        }
-
-        .tile.red {
-            color: #c52222;
-        }
-
-        /* 出牌区 */
-        .discard-area {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            margin-top: 102px;
-            width: 270px;
-            min-height: 54px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 3px;
-        }
-
-        .discard-tile {
-            width: 25px;
-            height: 34px;
-            border-radius: 3px;
-            background: #f2f2f2;
-            color: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 2px 3px rgba(0,0,0,.25);
-        }
-
-        /* 操作栏 */
-        .controls {
-            position: absolute;
-            right: 10px;
-            bottom: 5px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        button {
-            border: 0;
-            border-radius: 9px;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            background: #fff;
-            color: #174d37;
-            box-shadow: 0 3px 8px rgba(0,0,0,.25);
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-        }
-
-        button.primary {
-            background: #e0b44e;
-            color: #382604;
-        }
-
-        /* 游戏信息 */
-        .info {
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            font-size: 13px;
-        }
-
-        .info span {
-            padding: 6px 10px;
-            border-radius: 10px;
-            background: rgba(0,0,0,.22);
-        }
-
-        /* 开始覆盖层 */
-        .start-screen {
-            position: absolute;
-            inset: 0;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,.35);
-            backdrop-filter: blur(4px);
-            border-radius: 20px;
-        }
-
-        .start-card {
-            width: min(360px, 88vw);
-            padding: 32px 26px;
-            border-radius: 20px;
-            text-align: center;
-            background: rgba(20,70,50,.96);
-            border: 1px solid rgba(255,255,255,.14);
-            box-shadow: 0 20px 50px rgba(0,0,0,.35);
-        }
-
-        .start-card h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .start-card p {
-            opacity: .75;
-            line-height: 1.7;
-            margin-bottom: 22px;
-        }
-
-        .start-btn {
-            width: 100%;
-            font-size: 16px;
-            padding: 13px;
-        }
-
-        /* 手机 */
-        @media (max-width: 700px) {
-            .topbar {
-                height: 56px;
-                padding: 0 12px;
-            }
-
-            .title {
-                font-size: 17px;
-            }
-
-            .back-btn {
-                padding: 7px 11px;
-                font-size: 13px;
-            }
-
-            .game {
-                width: 100%;
-                height: calc(100vh - 66px);
-                min-height: 580px;
-                margin: 5px auto;
-            }
-
-            .table {
-                width: 92vw;
-                height: 430px;
-                aspect-ratio: auto;
-                border-width: 9px;
-                border-radius: 22px;
-            }
-
-            .center {
-                width: 170px;
-                height: 120px;
-            }
-
-            .round {
-                font-size: 21px;
-            }
-
-            .north {
-                top: 10px;
-            }
-
-            .west {
-                left: 8px;
-            }
-
-            .east {
-                right: 8px;
-            }
-
-            .south {
-                bottom: 10px;
-            }
-
-            .my-hand {
-                bottom: -60px;
-                gap: 1px;
-            }
-
-            .tile {
-                width: 25px;
-                height: 42px;
-                font-size: 19px;
-            }
-
-            .discard-area {
-                width: 200px;
-                margin-top: 78px;
-            }
-
-            .discard-tile {
-                width: 21px;
-                height: 29px;
-                font-size: 13px;
-            }
-
-            .controls {
-                left: 50%;
-                right: auto;
-                bottom: -125px;
-                transform: translateX(-50%);
-                width: 95vw;
-                justify-content: center;
-            }
-
-            button {
-                padding: 9px 13px;
-                font-size: 13px;
-            }
-
-            .info {
-                top: 2px;
-                font-size: 11px;
-            }
-        }
-    </style>
+@media(max-width:700px){
+    .topbar{height:54px;padding:0 12px}
+    .title{font-size:17px}
+    .back{font-size:13px;padding:7px 11px}
+    .game{width:100%;min-height:620px;height:calc(100vh - 60px)}
+    .table{
+        width:94vw;height:440px;border-width:9px;border-radius:22px
+    }
+    .center{width:165px;height:110px}
+    .round{font-size:20px}
+    .tile{width:25px;height:42px;font-size:18px}
+    .my-hand{bottom:-52px;gap:1px}
+    .discards{width:210px;margin-top:78px}
+    .discard{width:21px;height:29px;font-size:13px}
+    .controls{
+        bottom:-125px;right:auto;left:50%;
+        transform:translateX(-50%);width:95vw;
+        justify-content:center
+    }
+    button{padding:9px 12px;font-size:13px}
+}
+</style>
 </head>
 
 <body>
 
 <header class="topbar">
     <div class="title">🀄 四川麻将 · 血战到底</div>
-    <a class="back-btn" href="../index.html">← 游戏大厅</a>
+    <a class="back" href="../index.html">← 游戏大厅</a>
 </header>
 
 <main class="game">
 
-    <div class="table">
+<div class="table">
 
-        <!-- 游戏信息 -->
-        <div class="info">
-            <span>第 1 局</span>
-            <span>牌墙：108</span>
-        </div>
-
-        <!-- 上家 -->
-        <div class="player north">
-            <div class="player-name">AI · 北</div>
-            <div class="avatar">北</div>
-            <div class="mini-hand">
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-            </div>
-        </div>
-
-        <!-- 左家 -->
-        <div class="player west">
-            <div class="player-name">AI · 西</div>
-            <div class="avatar">西</div>
-            <div class="vertical-hand">
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-            </div>
-        </div>
-
-        <!-- 右家 -->
-        <div class="player east">
-            <div class="player-name">AI · 东</div>
-            <div class="avatar">东</div>
-            <div class="vertical-hand">
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-                <i class="back-tile"></i>
-            </div>
-        </div>
-
-        <!-- 中央 -->
-        <div class="center">
-            <div class="round">东一局</div>
-            <div class="status" id="status">等待开始</div>
-            <div class="wall">剩余牌：108</div>
-        </div>
-
-        <!-- 出牌区域 -->
-        <div class="discard-area" id="discardArea"></div>
-
-        <!-- 自己 -->
-        <div class="player south active">
-            <div class="avatar">我</div>
-            <div class="player-name">玩家</div>
-        </div>
-
-        <!-- 我的手牌 -->
-        <div class="my-hand" id="myHand">
-            <div class="tile">🀇</div>
-            <div class="tile">🀈</div>
-            <div class="tile">🀉</div>
-            <div class="tile red">🀋</div>
-            <div class="tile">🀍</div>
-            <div class="tile">🀎</div>
-            <div class="tile">🀏</div>
-            <div class="tile">🀙</div>
-            <div class="tile">🀚</div>
-            <div class="tile">🀛</div>
-            <div class="tile red">🀝</div>
-            <div class="tile">🀠</div>
-            <div class="tile">🀡</div>
-        </div>
-
+    <div class="info">
+        <span>第 1 局</span>
+        <span id="wallInfo">剩余牌：56</span>
     </div>
 
-    <!-- 操作按钮 -->
-    <div class="controls">
-        <button id="drawBtn">摸牌</button>
-        <button id="chiBtn">吃</button>
-        <button id="pengBtn">碰</button>
-        <button id="gangBtn">杠</button>
-        <button id="huBtn">胡</button>
+    <div class="player north">
+        <div class="name">AI · 北</div>
+        <div class="avatar">北</div>
+        <div class="ai-hand" id="northHand"></div>
     </div>
 
-    <!-- 开始游戏 -->
-    <div class="start-screen" id="startScreen">
-        <div class="start-card">
-            <h1>🀄 血战到底</h1>
-            <p>
-                四川麻将单机版<br>
-                你将与 3 名 AI 对手进行游戏
-            </p>
-            <button class="primary start-btn" id="startBtn">
-                开始游戏
-            </button>
-        </div>
+    <div class="player west vertical">
+        <div class="name">AI · 西</div>
+        <div class="avatar">西</div>
+        <div class="ai-hand" id="westHand"></div>
     </div>
+
+    <div class="player east vertical">
+        <div class="name">AI · 东</div>
+        <div class="avatar">东</div>
+        <div class="ai-hand" id="eastHand"></div>
+    </div>
+
+    <div class="center">
+        <div class="round">东一局</div>
+        <div class="status" id="status">等待开始</div>
+        <div class="wall" id="centerWall">牌墙：56</div>
+    </div>
+
+    <div class="discards" id="discards"></div>
+
+    <div class="player south active">
+        <div class="avatar">我</div>
+        <div class="name">玩家</div>
+    </div>
+
+    <div class="my-hand" id="myHand"></div>
+
+</div>
+
+<div class="controls">
+    <button id="drawBtn">摸牌</button>
+    <button id="pengBtn">碰</button>
+    <button id="gangBtn">杠</button>
+    <button id="huBtn">胡</button>
+</div>
+
+<div class="start" id="startScreen">
+    <div class="card">
+        <h1>🀄 血战到底</h1>
+        <p>
+            四川麻将单机版<br>
+            108 张牌 · 你 + 3 名 AI
+        </p>
+        <button class="primary start-btn" id="startBtn">开始游戏</button>
+    </div>
+</div>
 
 </main>
 
 <script>
-    const startScreen = document.getElementById("startScreen");
-    const startBtn = document.getElementById("startBtn");
-    const status = document.getElementById("status");
-    const drawBtn = document.getElementById("drawBtn");
-    const discardArea = document.getElementById("discardArea");
+const suits = ["万","条","筒"];
+const tiles = [];
 
-    let started = false;
+for (const suit of suits) {
+    for (let n = 1; n <= 9; n++) {
+        for (let i = 0; i < 4; i++) {
+            tiles.push({
+                suit,
+                number:n,
+                text:n + suit
+            });
+        }
+    }
+}
 
-    startBtn.addEventListener("click", () => {
-        started = true;
-        startScreen.style.display = "none";
-        status.textContent = "轮到你出牌";
+let wall = [];
+let playerHand = [];
+let northHand = [];
+let westHand = [];
+let eastHand = [];
+let started = false;
+let hasDrawn = false;
+
+const myHandEl = document.getElementById("myHand");
+const northHandEl = document.getElementById("northHand");
+const westHandEl = document.getElementById("westHand");
+const eastHandEl = document.getElementById("eastHand");
+const wallInfo = document.getElementById("wallInfo");
+const centerWall = document.getElementById("centerWall");
+const statusEl = document.getElementById("status");
+const discardsEl = document.getElementById("discards");
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function sortHand(hand) {
+    const suitOrder = {
+        "万":0,
+        "条":1,
+        "筒":2
+    };
+
+    hand.sort((a,b) => {
+        if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+            return suitOrder[a.suit] - suitOrder[b.suit];
+        }
+        return a.number - b.number;
     });
+}
 
-    drawBtn.addEventListener("click", () => {
-        if (!started) return;
+function createBackTiles(container, count, vertical=false) {
+    container.innerHTML = "";
 
-        status.textContent = "你摸了一张牌";
+    for (let i = 0; i < count; i++) {
+        const tile = document.createElement("i");
+        tile.className = "ai-tile";
+        container.appendChild(tile);
+    }
+}
 
-        setTimeout(() => {
-            status.textContent = "请选择一张牌打出";
-        }, 600);
-    });
+function renderPlayerHand() {
+    myHandEl.innerHTML = "";
 
-    document.querySelectorAll(".tile").forEach(tile => {
-        tile.addEventListener("click", () => {
+    playerHand.forEach((tile, index) => {
+        const el = document.createElement("div");
+        el.className = "tile";
+        el.textContent = tile.text;
+        el.dataset.index = index;
+
+        el.addEventListener("click", () => {
             if (!started) return;
 
-            const value = tile.textContent;
+            if (!hasDrawn && playerHand.length === 13) {
+                statusEl.textContent = "请先摸牌";
+                return;
+            }
 
-            const discard = document.createElement("div");
-            discard.className = "discard-tile";
-            discard.textContent = value;
-
-            discardArea.appendChild(discard);
-
-            tile.remove();
-
-            status.textContent = "已出牌";
+            discardTile(index);
         });
+
+        myHandEl.appendChild(el);
     });
+}
+
+function renderAIHands() {
+    createBackTiles(northHandEl, northHand.length);
+    createBackTiles(westHandEl, westHand.length);
+    createBackTiles(eastHandEl, eastHand.length);
+}
+
+function updateWall() {
+    wallInfo.textContent = "剩余牌：" + wall.length;
+    centerWall.textContent = "牌墙：" + wall.length;
+}
+
+function deal() {
+    wall = [...tiles];
+    shuffle(wall);
+
+    playerHand = [];
+    northHand = [];
+    westHand = [];
+    eastHand = [];
+
+    for (let i = 0; i < 13; i++) {
+        playerHand.push(wall.pop());
+        northHand.push(wall.pop());
+        westHand.push(wall.pop());
+        eastHand.push(wall.pop());
+    }
+
+    sortHand(playerHand);
+
+    renderPlayerHand();
+    renderAIHands();
+    updateWall();
+
+    hasDrawn = false;
+    statusEl.textContent = "你的回合，请摸牌";
+}
+
+function startGame() {
+    started = true;
+    document.getElementById("startScreen").style.display = "none";
+    deal();
+}
+
+function drawTile() {
+    if (!started) return;
+
+    if (hasDrawn) {
+        statusEl.textContent = "你已经摸过牌，请出牌";
+        return;
+    }
+
+    if (wall.length === 0) {
+        statusEl.textContent = "牌墙已经摸完";
+        return;
+    }
+
+    playerHand.push(wall.pop());
+    hasDrawn = true;
+
+    renderPlayerHand();
+    updateWall();
+
+    statusEl.textContent = "请选择一张牌打出";
+}
+
+function discardTile(index) {
+    if (!started || !hasDrawn) return;
+
+    const tile = playerHand.splice(index,1)[0];
+
+    const discard = document.createElement("div");
+    discard.className = "discard";
+    discard.textContent = tile.text;
+
+    discardsEl.appendChild(discard);
+
+    hasDrawn = false;
+    renderPlayerHand();
+
+    statusEl.textContent = "你打出了 " + tile.text;
+
+    setTimeout(() => {
+        if (started) aiTurn();
+    }, 500);
+}
+
+function aiTurn() {
+    if (!started) return;
+
+    statusEl.textContent = "AI 思考中…";
+
+    setTimeout(() => {
+        if (wall.length > 0) {
+            northHand.push(wall.pop());
+            northHand.pop();
+
+            westHand.push(wall.pop());
+            westHand.pop();
+
+            eastHand.push(wall.pop());
+            eastHand.pop();
+
+            renderAIHands();
+            updateWall();
+        }
+
+        statusEl.textContent = "轮到你，请摸牌";
+    }, 600);
+}
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("drawBtn").addEventListener("click", drawTile);
+
+document.getElementById("pengBtn").addEventListener("click", () => {
+    if (started) statusEl.textContent = "碰牌功能下一阶段加入";
+});
+
+document.getElementById("gangBtn").addEventListener("click", () => {
+    if (started) statusEl.textContent = "杠牌功能下一阶段加入";
+});
+
+document.getElementById("huBtn").addEventListener("click", () => {
+    if (started) statusEl.textContent = "胡牌判定下一阶段加入";
+});
 </script>
 
 </body>
