@@ -4,161 +4,409 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>四川麻将 · 血战到底</title>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0
+}
+
 body{
     min-height:100vh;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
+    "PingFang SC","Microsoft YaHei",sans-serif;
     background:radial-gradient(circle,#16734d,#0b4d35 60%,#063526);
     color:#fff;
     overflow-x:hidden
 }
+
 .topbar{
-    height:60px;padding:0 18px;display:flex;align-items:center;
-    justify-content:space-between;background:rgba(0,0,0,.25)
+    height:60px;
+    padding:0 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(0,0,0,.25)
 }
-.title{font-size:20px;font-weight:700}
+
+.title{
+    font-size:20px;
+    font-weight:700
+}
+
 .back{
-    color:#fff;text-decoration:none;background:rgba(255,255,255,.13);
-    padding:8px 14px;border-radius:20px
+    color:#fff;
+    text-decoration:none;
+    background:rgba(255,255,255,.13);
+    padding:8px 14px;
+    border-radius:20px
 }
+
 .game{
-    width:min(1100px,96vw);height:calc(100vh - 70px);
-    min-height:620px;margin:auto;position:relative;
-    display:flex;justify-content:center;align-items:center
+    width:min(1100px,96vw);
+    height:calc(100vh - 70px);
+    min-height:620px;
+    margin:auto;
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center
 }
+
 .table{
-    width:min(760px,78vw);height:520px;position:relative;
-    border:14px solid #75461f;border-radius:30px;
+    width:min(760px,78vw);
+    height:520px;
+    position:relative;
+    border:14px solid #75461f;
+    border-radius:30px;
     background:linear-gradient(145deg,#168254,#09603f);
     box-shadow:0 20px 50px rgba(0,0,0,.35)
 }
-.center{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:220px;height:140px;border-radius:18px;
-    background:rgba(0,0,0,.13);display:flex;
-    flex-direction:column;align-items:center;justify-content:center;gap:8px
-}
-.round{font-size:25px;font-weight:800}
-.status{font-size:14px;opacity:.85}
-.wall{font-size:13px;opacity:.7}
-.player{
-    position:absolute;display:flex;flex-direction:column;
-    align-items:center;gap:5px;z-index:5
-}
-.name{
-    padding:4px 10px;border-radius:14px;
-    background:rgba(0,0,0,.3);font-size:13px
-}
-.avatar{
-    width:42px;height:42px;border-radius:50%;
-    background:linear-gradient(145deg,#eee,#aaa);
-    color:#333;border:3px solid rgba(255,255,255,.7);
-    display:flex;align-items:center;justify-content:center;font-weight:bold
-}
-.north{left:50%;top:12px;transform:translateX(-50%)}
-.west{left:10px;top:50%;transform:translateY(-50%)}
-.east{right:10px;top:50%;transform:translateY(-50%)}
-.south{left:50%;bottom:10px;transform:translateX(-50%)}
-.active .name{background:#d6a743;color:#382604;font-weight:bold}
 
-.ai-hand{display:flex;gap:2px}
-.ai-tile{
-    width:15px;height:22px;border-radius:3px;
-    background:linear-gradient(135deg,#eee,#c8c8c8);
-    border:1px solid #999
+.center{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:220px;
+    height:140px;
+    border-radius:18px;
+    background:rgba(0,0,0,.13);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    text-align:center
 }
-.vertical .ai-hand{flex-direction:column}
-.vertical .ai-tile{width:22px;height:15px}
+
+.round{
+    font-size:25px;
+    font-weight:800
+}
+
+.status{
+    font-size:14px;
+    opacity:.9;
+    min-height:24px
+}
+
+.wall{
+    font-size:13px;
+    opacity:.7
+}
+
+.player{
+    position:absolute;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    z-index:5
+}
+
+.name{
+    padding:4px 10px;
+    border-radius:14px;
+    background:rgba(0,0,0,.3);
+    font-size:13px
+}
+
+.avatar{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#eee,#aaa);
+    color:#333;
+    border:3px solid rgba(255,255,255,.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold
+}
+
+.north{
+    left:50%;
+    top:12px;
+    transform:translateX(-50%)
+}
+
+.west{
+    left:10px;
+    top:50%;
+    transform:translateY(-50%)
+}
+
+.east{
+    right:10px;
+    top:50%;
+    transform:translateY(-50%)
+}
+
+.south{
+    left:50%;
+    bottom:10px;
+    transform:translateX(-50%)
+}
+
+.active .name{
+    background:#d6a743;
+    color:#382604;
+    font-weight:bold
+}
+
+.ai-hand{
+    display:flex;
+    gap:2px
+}
+
+.ai-tile{
+    width:15px;
+    height:22px;
+    border-radius:3px;
+    background:linear-gradient(135deg,#eee,#c8c8c8);
+    border:1px solid #999;
+    box-shadow:0 1px 2px rgba(0,0,0,.2)
+}
+
+.vertical .ai-hand{
+    flex-direction:column
+}
+
+.vertical .ai-tile{
+    width:22px;
+    height:15px
+}
 
 .my-hand{
-    position:absolute;left:50%;bottom:-62px;
-    transform:translateX(-50%);display:flex;
-    gap:2px;align-items:flex-end;white-space:nowrap
+    position:absolute;
+    left:50%;
+    bottom:-62px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:2px;
+    align-items:flex-end;
+    white-space:nowrap;
+    z-index:10
 }
+
 .tile{
-    width:39px;height:55px;border-radius:5px;
+    width:39px;
+    height:55px;
+    border-radius:5px;
     background:linear-gradient(145deg,#fff,#e8e8e8);
-    border:1px solid #aaa;color:#222;
-    display:flex;align-items:center;justify-content:center;
-    font-size:25px;font-weight:bold;
+    border:1px solid #aaa;
+    color:#222;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
+    font-weight:bold;
     box-shadow:0 3px 5px rgba(0,0,0,.28);
-    cursor:pointer;transition:.15s
+    cursor:pointer;
+    transition:.15s
 }
-.tile:hover{transform:translateY(-7px)}
+
+.tile:hover{
+    transform:translateY(-7px)
+}
+
 .tile.selected{
     transform:translateY(-10px);
     box-shadow:0 0 0 2px #e0b44e
 }
+
 .discards{
-    position:absolute;left:50%;top:50%;
+    position:absolute;
+    left:50%;
+    top:50%;
     transform:translate(-50%,-50%);
-    margin-top:105px;width:300px;
-    min-height:70px;display:flex;flex-wrap:wrap;
-    justify-content:center;align-content:flex-start;gap:3px
+    margin-top:105px;
+    width:300px;
+    min-height:70px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-content:flex-start;
+    gap:3px;
+    z-index:4
 }
+
 .discard{
-    width:25px;height:34px;background:#f3f3f3;
-    color:#222;border-radius:3px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:16px;box-shadow:0 2px 3px rgba(0,0,0,.25)
+    width:25px;
+    height:34px;
+    background:#f3f3f3;
+    color:#222;
+    border-radius:3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    box-shadow:0 2px 3px rgba(0,0,0,.25)
 }
-.info{
-    position:absolute;top:5px;left:50%;
-    transform:translateX(-50%);display:flex;gap:8px;
-    font-size:12px
-}
-.info span{
-    background:rgba(0,0,0,.22);
-    padding:5px 9px;border-radius:9px
-}
+
 .controls{
-    position:absolute;bottom:0;right:0;
-    display:flex;gap:8px
+    position:absolute;
+    bottom:0;
+    right:0;
+    display:flex;
+    gap:8px;
+    z-index:30
 }
+
 button{
-    border:0;border-radius:9px;padding:10px 18px;
-    font-weight:600;cursor:pointer;
-    background:#fff;color:#174d37;
+    border:0;
+    border-radius:9px;
+    padding:10px 18px;
+    font-weight:600;
+    cursor:pointer;
+    background:#fff;
+    color:#174d37;
     box-shadow:0 3px 8px rgba(0,0,0,.25)
 }
-button.primary{background:#e0b44e;color:#382604}
+
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed
+}
+
+button.primary{
+    background:#e0b44e;
+    color:#382604
+}
+
 .start{
-    position:absolute;inset:0;z-index:20;
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.38);backdrop-filter:blur(4px);
+    position:absolute;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.38);
+    backdrop-filter:blur(4px);
     border-radius:18px
 }
+
+.start.hidden{
+    display:none
+}
+
 .card{
-    width:min(360px,88vw);padding:30px 25px;
-    border-radius:20px;text-align:center;
+    width:min(360px,88vw);
+    padding:30px 25px;
+    border-radius:20px;
+    text-align:center;
     background:rgba(20,70,50,.97);
     box-shadow:0 20px 50px rgba(0,0,0,.4)
 }
-.card h1{font-size:28px;margin-bottom:10px}
-.card p{line-height:1.8;opacity:.75;margin-bottom:20px}
-.start-btn{width:100%;font-size:16px;padding:13px}
+
+.card h1{
+    font-size:28px;
+    margin-bottom:10px
+}
+
+.card p{
+    line-height:1.8;
+    opacity:.75;
+    margin-bottom:20px
+}
+
+.start-btn{
+    width:100%;
+    font-size:16px;
+    padding:13px
+}
+
+.lack-btn{
+    margin:3px;
+    padding:7px 12px;
+    font-size:12px
+}
 
 @media(max-width:700px){
-    .topbar{height:54px;padding:0 12px}
-    .title{font-size:17px}
-    .back{font-size:13px;padding:7px 11px}
-    .game{width:100%;min-height:620px;height:calc(100vh - 60px)}
-    .table{
-        width:94vw;height:440px;border-width:9px;border-radius:22px
+
+    .topbar{
+        height:54px;
+        padding:0 12px
     }
-    .center{width:165px;height:110px}
-    .round{font-size:20px}
-    .tile{width:25px;height:42px;font-size:18px}
-    .my-hand{bottom:-52px;gap:1px}
-    .discards{width:210px;margin-top:78px}
-    .discard{width:21px;height:29px;font-size:13px}
+
+    .title{
+        font-size:17px
+    }
+
+    .back{
+        font-size:13px;
+        padding:7px 11px
+    }
+
+    .game{
+        width:100%;
+        min-height:620px;
+        height:calc(100vh - 60px)
+    }
+
+    .table{
+        width:94vw;
+        height:440px;
+        border-width:9px;
+        border-radius:22px
+    }
+
+    .center{
+        width:165px;
+        height:110px
+    }
+
+    .round{
+        font-size:20px
+    }
+
+    .tile{
+        width:25px;
+        height:42px;
+        font-size:18px
+    }
+
+    .my-hand{
+        bottom:-52px;
+        gap:1px
+    }
+
+    .discards{
+        width:210px;
+        margin-top:78px
+    }
+
+    .discard{
+        width:21px;
+        height:29px;
+        font-size:13px
+    }
+
     .controls{
-        bottom:-125px;right:auto;left:50%;
-        transform:translateX(-50%);width:95vw;
+        bottom:-125px;
+        right:auto;
+        left:50%;
+        transform:translateX(-50%);
+        width:95vw;
         justify-content:center
     }
-    button{padding:9px 12px;font-size:13px}
+
+    button{
+        padding:9px 12px;
+        font-size:13px
+    }
+
+    .ai-tile{
+        width:12px;
+        height:18px
+    }
+
+    .vertical .ai-tile{
+        width:18px;
+        height:12px
+    }
 }
 </style>
 </head>
@@ -200,7 +448,7 @@ button.primary{background:#e0b44e;color:#382604}
     <div class="center">
         <div class="round">东一局</div>
         <div class="status" id="status">等待开始</div>
-        <div class="wall" id="centerWall">牌墙：56</div>
+        <div class="wall" id="centerWall">牌墙：108</div>
     </div>
 
     <div class="discards" id="discards"></div>
@@ -228,259 +476,538 @@ button.primary{background:#e0b44e;color:#382604}
             四川麻将单机版<br>
             108 张牌 · 你 + 3 名 AI
         </p>
-        <button class="primary start-btn" id="startBtn">开始游戏</button>
+        <button class="primary start-btn" id="startBtn">
+            开始游戏
+        </button>
     </div>
 </div>
 
 </main>
 
 <script>
-const suits = ["万", "条", "筒"];
+
+"use strict";
+
+const suits = ["万","条","筒"];
 
 let wall = [];
 let playerHand = [];
-let aiHands = [[], [], []];
+let aiHands = [[],[],[]];
 
 let playerLack = null;
-let aiLacks = [null, null, null];
+let aiLacks = [null,null,null];
 
 let phase = "waiting";
-let currentPlayer = 0;
+
 let selectedTiles = [];
 
-const playerHandEl = document.getElementById("myHand");
-const wallEl = document.getElementById("centerWall");
-const discardsEl = document.getElementById("discards");
-const statusEl = document.getElementById("status");
-
-const startBtn = document.getElementById("startBtn");
-const drawBtn = document.getElementById("drawBtn");
-
-const pengBtn = document.getElementById("pengBtn");
-const gangBtn = document.getElementById("gangBtn");
-const huBtn = document.getElementById("huBtn");
+let pendingHu = false;
 
 
-// =========================
-// 基础牌组
-// =========================
+// =============================
+// DOM
+// =============================
 
-function createTiles() {
+const playerHandEl =
+    document.getElementById("myHand");
+
+const wallEl =
+    document.getElementById("centerWall");
+
+const wallInfoEl =
+    document.getElementById("wallInfo");
+
+const discardsEl =
+    document.getElementById("discards");
+
+const statusEl =
+    document.getElementById("status");
+
+const startBtn =
+    document.getElementById("startBtn");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const drawBtn =
+    document.getElementById("drawBtn");
+
+const pengBtn =
+    document.getElementById("pengBtn");
+
+const gangBtn =
+    document.getElementById("gangBtn");
+
+const huBtn =
+    document.getElementById("huBtn");
+
+const northHandEl =
+    document.getElementById("northHand");
+
+const westHandEl =
+    document.getElementById("westHand");
+
+const eastHandEl =
+    document.getElementById("eastHand");
+
+
+// =============================
+// 创建牌
+// =============================
+
+function createTiles(){
+
     const tiles = [];
 
-    for (const suit of suits) {
-        for (let n = 1; n <= 9; n++) {
-            for (let i = 0; i < 4; i++) {
+    for(const suit of suits){
+
+        for(let value=1;value<=9;value++){
+
+            for(let copy=0;copy<4;copy++){
+
                 tiles.push({
                     suit,
-                    value: n,
-                    id: `${suit}${n}-${i}-${Math.random()}`
+                    value,
+                    id:
+                        suit +
+                        value +
+                        "-" +
+                        copy +
+                        "-" +
+                        Math.random()
                 });
+
             }
+
         }
+
     }
 
     return tiles;
 }
 
-function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+
+// =============================
+// 洗牌
+// =============================
+
+function shuffle(arr){
+
+    for(let i=arr.length-1;i>0;i--){
+
+        const j =
+            Math.floor(Math.random()*(i+1));
+
+        [arr[i],arr[j]] =
+            [arr[j],arr[i]];
     }
 }
 
-function sortHand(hand) {
+
+// =============================
+// 排序
+// =============================
+
+function sortHand(hand){
+
     const order = {
-        "万": 0,
-        "条": 1,
-        "筒": 2
+        "万":0,
+        "条":1,
+        "筒":2
     };
 
-    hand.sort((a, b) => {
-        if (order[a.suit] !== order[b.suit]) {
-            return order[a.suit] - order[b.suit];
+    hand.sort((a,b)=>{
+
+        if(order[a.suit] !== order[b.suit]){
+
+            return order[a.suit] -
+                   order[b.suit];
         }
-        return a.value - b.value;
+
+        return a.value-b.value;
+
     });
 }
 
 
-// =========================
-// 发牌
-// =========================
+// =============================
+// 开始游戏
+// =============================
 
-function startGame() {
+function startGame(){
+
+    // 关键：关闭开始弹窗
+    startScreen.classList.add("hidden");
+
     wall = createTiles();
+
     shuffle(wall);
 
     playerHand = [];
-    aiHands = [[], [], []];
+
+    aiHands = [
+        [],
+        [],
+        []
+    ];
 
     playerLack = null;
-    aiLacks = [null, null, null];
+
+    aiLacks = [
+        null,
+        null,
+        null
+    ];
 
     selectedTiles = [];
-    currentPlayer = 0;
+
+    pendingHu = false;
 
     phase = "exchange";
 
-    for (let i = 0; i < 13; i++) {
+    // 清空弃牌
+    discardsEl.innerHTML = "";
+
+    // 隐藏操作按钮
+    pengBtn.style.display = "none";
+    gangBtn.style.display = "none";
+    huBtn.style.display = "none";
+
+    // 发牌
+    for(let i=0;i<13;i++){
+
         playerHand.push(wall.pop());
 
-        for (let j = 0; j < 3; j++) {
+        for(let j=0;j<3;j++){
+
             aiHands[j].push(wall.pop());
+
         }
     }
 
     sortHand(playerHand);
 
-    for (const hand of aiHands) {
-        sortHand(hand);
-    }
+    aiHands.forEach(sortHand);
 
-    render();
+    drawBtn.disabled = false;
+
+    drawBtn.style.display = "";
+
+    drawBtn.textContent =
+        "确认换三张";
 
     statusEl.textContent =
         "请选择3张同花色的牌进行换三张";
 
-    drawBtn.textContent = "确认换三张";
-    drawBtn.disabled = false;
+    render();
 
-    pengBtn.style.display = "none";
-    gangBtn.style.display = "none";
-    huBtn.style.display = "none";
 }
 
 
-// =========================
-// 换三张
-// =========================
+// =============================
+// 渲染
+// =============================
 
-function render() {
+function render(){
+
+    renderPlayerHand();
+
+    renderAIHands();
+
+    wallEl.textContent =
+        `牌墙：${wall.length}`;
+
+    wallInfoEl.textContent =
+        `剩余牌：${wall.length}`;
+
+}
+
+
+// =============================
+// 玩家手牌
+// =============================
+
+function renderPlayerHand(){
+
     playerHandEl.innerHTML = "";
 
-    playerHand.forEach((tile, index) => {
-        const el = document.createElement("div");
+    playerHand.forEach((tile,index)=>{
+
+        const el =
+            document.createElement("div");
 
         el.className = "tile";
 
-        if (selectedTiles.includes(index)) {
+        if(selectedTiles.includes(index)){
+
             el.classList.add("selected");
+
         }
 
-        el.textContent = tile.suit + tile.value;
+        el.textContent =
+            tile.suit + tile.value;
 
-        el.onclick = () => {
-            if (phase !== "exchange") return;
+        el.onclick = ()=>{
+
+            if(phase !== "exchange"){
+                return;
+            }
 
             toggleExchangeTile(index);
+
         };
 
         playerHandEl.appendChild(el);
+
     });
 
-    wallEl.textContent = `牌墙：${wall.length}`;
-
-    if (phase !== "playing") {
-        drawBtn.style.display = "";
-    }
 }
 
 
-function toggleExchangeTile(index) {
-    if (selectedTiles.includes(index)) {
+// =============================
+// AI 手牌
+// =============================
+
+function renderAIHands(){
+
+    renderAIHand(
+        northHandEl,
+        aiHands[0],
+        false
+    );
+
+    renderAIHand(
+        westHandEl,
+        aiHands[1],
+        true
+    );
+
+    renderAIHand(
+        eastHandEl,
+        aiHands[2],
+        true
+    );
+
+}
+
+
+function renderAIHand(container,hand,vertical){
+
+    container.innerHTML = "";
+
+    for(let i=0;i<hand.length;i++){
+
+        const el =
+            document.createElement("div");
+
+        el.className = "ai-tile";
+
+        container.appendChild(el);
+
+    }
+
+}
+
+
+// =============================
+// 换三张选择
+// =============================
+
+function toggleExchangeTile(index){
+
+    if(selectedTiles.includes(index)){
+
         selectedTiles =
-            selectedTiles.filter(i => i !== index);
-    } else {
-        if (selectedTiles.length >= 3) return;
+            selectedTiles.filter(
+                i=>i!==index
+            );
 
-        if (selectedTiles.length > 0) {
+    }else{
+
+        if(selectedTiles.length>=3){
+            return;
+        }
+
+        if(selectedTiles.length>0){
+
             const firstSuit =
-                playerHand[selectedTiles[0]].suit;
+                playerHand[
+                    selectedTiles[0]
+                ].suit;
 
-            if (playerHand[index].suit !== firstSuit) {
+            if(
+                playerHand[index].suit !==
+                firstSuit
+            ){
+
                 statusEl.textContent =
                     "换三张必须选择同一种花色";
 
                 return;
             }
+
         }
 
         selectedTiles.push(index);
+
     }
 
-    render();
+    renderPlayerHand();
 
-    if (selectedTiles.length === 3) {
+    if(selectedTiles.length===3){
+
         statusEl.textContent =
             "已选择3张，点击「确认换三张」";
+
+    }else{
+
+        statusEl.textContent =
+            `已选择 ${selectedTiles.length} 张`;
+
     }
+
 }
 
 
-function exchangeThree() {
-    if (selectedTiles.length !== 3) {
+// =============================
+// AI选择换三张
+// =============================
+
+function chooseAIExchange(hand){
+
+    const counts = {
+        "万":0,
+        "条":0,
+        "筒":0
+    };
+
+    hand.forEach(tile=>{
+        counts[tile.suit]++;
+    });
+
+    // 必须选择至少有3张的花色
+    const available =
+        suits.filter(
+            suit=>counts[suit]>=3
+        );
+
+    let target = available[0];
+
+    for(const suit of available){
+
+        if(counts[suit] < counts[target]){
+
+            target = suit;
+
+        }
+
+    }
+
+    return hand
+        .filter(tile=>tile.suit===target)
+        .slice(0,3);
+
+}
+
+
+// =============================
+// 换三张
+// =============================
+
+function exchangeThree(){
+
+    if(selectedTiles.length!==3){
+
         statusEl.textContent =
             "必须选择3张同花色的牌";
 
         return;
     }
 
-    const selected = selectedTiles
-        .map(i => playerHand[i]);
+    const selected =
+        selectedTiles.map(
+            index=>playerHand[index]
+        );
 
-    const suit = selected[0].suit;
+    const suit =
+        selected[0].suit;
 
-    if (!selected.every(t => t.suit === suit)) {
+    if(
+        !selected.every(
+            tile=>tile.suit===suit
+        )
+    ){
+
         statusEl.textContent =
             "必须选择同一种花色";
 
         return;
     }
 
-    const aiSelected = aiHands.map(hand =>
-        chooseAIExchange(hand)
+    const aiSelected =
+        aiHands.map(
+            hand=>chooseAIExchange(hand)
+        );
+
+    if(
+        aiSelected.some(
+            tiles=>tiles.length!==3
+        )
+    ){
+
+        statusEl.textContent =
+            "AI换三张失败，请重新开始";
+
+        return;
+    }
+
+    /*
+        玩家 → 北
+        北 → 西
+        西 → 东
+        东 → 玩家
+    */
+
+    const playerGive =
+        selected.slice();
+
+    // 先从AI手牌移除
+    for(let i=0;i<3;i++){
+
+        aiHands[i] =
+            removeTiles(
+                aiHands[i],
+                aiSelected[i]
+            );
+
+    }
+
+    // 玩家移除
+    playerHand =
+        removeTiles(
+            playerHand,
+            playerGive
+        );
+
+    // 东 → 玩家
+    playerHand.push(
+        ...aiSelected[2]
     );
 
-    const directions = [
-        0,
-        1,
-        2
-    ];
-
-    // 玩家 → 北家
-    // 北家 → 西家
-    // 西家 → 东家
-    // 东家 → 玩家
-
-    const playerGive = selected;
-
-    aiHands[0] = removeTiles(
-        aiHands[0],
-        aiSelected[0]
+    // 玩家 → 北
+    aiHands[0].push(
+        ...playerGive
     );
 
-    aiHands[1] = removeTiles(
-        aiHands[1],
-        aiSelected[1]
+    // 北 → 西
+    aiHands[1].push(
+        ...aiSelected[0]
     );
 
-    aiHands[2] = removeTiles(
-        aiHands[2],
-        aiSelected[2]
+    // 西 → 东
+    aiHands[2].push(
+        ...aiSelected[1]
     );
-
-    playerHand = removeTiles(
-        playerHand,
-        playerGive
-    );
-
-    playerHand.push(...aiSelected[2]);
-
-    aiHands[0].push(...playerGive);
-    aiHands[1].push(...aiSelected[0]);
-    aiHands[2].push(...aiSelected[1]);
 
     sortHand(playerHand);
 
@@ -492,552 +1019,810 @@ function exchangeThree() {
 
     phase = "lack";
 
-    drawBtn.textContent = "确认定缺";
+    drawBtn.textContent =
+        "选择定缺";
 
     statusEl.textContent =
-        "请选择你的定缺花色";
+        "换三张完成，请选择你的定缺花色";
 
     render();
+
 }
 
 
-function removeTiles(hand, tiles) {
-    const result = [...hand];
+// =============================
+// 删除牌
+// =============================
 
-    for (const tile of tiles) {
-        const index = result.indexOf(tile);
+function removeTiles(hand,tiles){
 
-        if (index !== -1) {
-            result.splice(index, 1);
+    const result =
+        hand.slice();
+
+    for(const tile of tiles){
+
+        const index =
+            result.indexOf(tile);
+
+        if(index!==-1){
+
+            result.splice(index,1);
+
         }
+
     }
 
     return result;
 }
 
 
-function chooseAIExchange(hand) {
-    const counts = {
-        "万": 0,
-        "条": 0,
-        "筒": 0
-    };
+// =============================
+// AI定缺
+// =============================
 
-    hand.forEach(tile => {
-        counts[tile.suit]++;
-    });
+function chooseLacks(){
 
-    let suit = suits[0];
+    for(let i=0;i<3;i++){
 
-    for (const s of suits) {
-        if (counts[s] < counts[suit]) {
-            suit = s;
-        }
+        aiLacks[i] =
+            chooseAILack(
+                aiHands[i]
+            );
+
     }
 
-    return hand
-        .filter(t => t.suit === suit)
-        .slice(0, 3);
 }
 
 
-// =========================
-// 定缺
-// =========================
+function chooseAILack(hand){
 
-function chooseLacks() {
-    for (let i = 0; i < 3; i++) {
-        aiLacks[i] = chooseAILack(aiHands[i]);
-    }
-}
-
-
-function chooseAILack(hand) {
     const counts = {
-        "万": 0,
-        "条": 0,
-        "筒": 0
+        "万":0,
+        "条":0,
+        "筒":0
     };
 
-    hand.forEach(tile => {
+    hand.forEach(tile=>{
         counts[tile.suit]++;
     });
 
     let lack = suits[0];
 
-    for (const suit of suits) {
-        if (counts[suit] < counts[lack]) {
+    for(const suit of suits){
+
+        if(
+            counts[suit] <
+            counts[lack]
+        ){
+
             lack = suit;
+
         }
+
     }
 
     return lack;
 }
 
 
-function showLackButtons() {
-    statusEl.innerHTML = "请选择定缺：";
+// =============================
+// 显示定缺
+// =============================
 
-    ["万", "条", "筒"].forEach(suit => {
-        const btn = document.createElement("button");
+function showLackButtons(){
 
-        btn.textContent = `缺${suit}`;
+    statusEl.innerHTML =
+        "请选择定缺：";
 
-        btn.onclick = () => {
-            playerLack = suit;
+    suits.forEach(suit=>{
 
-            phase = "playing";
+        const btn =
+            document.createElement("button");
 
-            drawBtn.style.display = "";
-            drawBtn.textContent = "摸牌";
+        btn.className = "lack-btn";
 
-            statusEl.textContent =
-                `你的定缺：${suit}，开始游戏`;
+        btn.textContent =
+            `缺${suit}`;
 
-            render();
+        btn.onclick = ()=>{
 
-            setTimeout(playerDraw, 500);
+            choosePlayerLack(suit);
+
         };
 
         statusEl.appendChild(btn);
+
     });
+
 }
 
 
-// =========================
-// 摸牌
-// =========================
+// =============================
+// 玩家定缺
+// =============================
 
-function playerDraw() {
-    if (phase !== "playing") return;
+function choosePlayerLack(suit){
 
-    if (wall.length === 0) {
-        endGame("牌墙已经摸完，本局结束");
+    playerLack = suit;
+
+    phase = "playing";
+
+    drawBtn.textContent =
+        "摸牌";
+
+    statusEl.textContent =
+        `你的定缺：${suit}`;
+
+    render();
+
+    setTimeout(
+        playerDraw,
+        500
+    );
+
+}
+
+
+// =============================
+// 玩家摸牌
+// =============================
+
+function playerDraw(){
+
+    if(phase!=="playing"){
         return;
     }
 
-    if (playerHand.length !== 13) {
+    if(wall.length===0){
+
+        endGame(
+            "牌墙已经摸完，本局结束"
+        );
+
         return;
     }
 
-    const tile = wall.pop();
+    if(playerHand.length!==13){
+        return;
+    }
+
+    const tile =
+        wall.pop();
 
     playerHand.push(tile);
 
     sortHand(playerHand);
 
-    statusEl.textContent =
-        `轮到你出牌（${playerHand.length}张）`;
+    pendingHu =
+        canHu(playerHand);
+
+    if(pendingHu){
+
+        huBtn.style.display = "";
+
+        statusEl.textContent =
+            "你可以自摸胡牌！";
+
+    }else{
+
+        huBtn.style.display =
+            "none";
+
+        statusEl.textContent =
+            "轮到你出牌";
+
+    }
 
     render();
 
-    // 自摸胡
-    if (canHu(playerHand)) {
-        huBtn.style.display = "";
-        huBtn.disabled = false;
-
-        statusEl.textContent =
-            "你已经可以胡牌！点击「胡」";
-    }
 }
 
 
-// =========================
+// =============================
 // 玩家出牌
-// =========================
+// =============================
 
-function discardTile(index) {
-    if (phase !== "playing") return;
+function discardTile(index){
 
-    if (playerHand.length !== 14) {
+    if(phase!=="playing"){
+        return;
+    }
+
+    if(playerHand.length!==14){
+
         statusEl.textContent =
             "请先摸牌";
 
         return;
     }
 
-    const tile = playerHand[index];
+    const tile =
+        playerHand[index];
 
     // 定缺限制
-    if (tile.suit !== playerLack) {
-        const hasLack =
-            playerHand.some(t => t.suit === playerLack);
+    const hasLack =
+        playerHand.some(
+            t=>t.suit===playerLack
+        );
 
-        if (hasLack) {
-            statusEl.textContent =
-                `你还有${playerLack}牌，必须先打定缺牌`;
+    if(
+        hasLack &&
+        tile.suit!==playerLack
+    ){
 
-            return;
-        }
+        statusEl.textContent =
+            `你还有${playerLack}牌，必须先打定缺牌`;
+
+        return;
     }
 
-    playerHand.splice(index, 1);
+    playerHand.splice(
+        index,
+        1
+    );
 
-    addDiscard(tile, "你");
+    addDiscard(
+        tile,
+        "你"
+    );
 
-    sortHand(playerHand);
+    pendingHu = false;
 
-    huBtn.style.display = "none";
+    huBtn.style.display =
+        "none";
 
     render();
 
     // AI行动
-    setTimeout(aiTurn, 600);
+    setTimeout(
+        aiTurn,
+        600
+    );
+
 }
 
 
-// =========================
-// AI行动
-// =========================
-
-function aiTurn() {
-    if (phase !== "playing") return;
-
-    for (let i = 0; i < 3; i++) {
-
-        if (wall.length === 0) {
-            endGame("牌墙已经摸完，本局结束");
-            return;
-        }
-
-        // AI摸牌
-        aiHands[i].push(wall.pop());
-
-        sortHand(aiHands[i]);
-
-        // AI自摸
-        if (canHu(aiHands[i])) {
-            endGame(
-                `AI${i + 1}（${getSeatName(i)}）自摸胡牌！`
-            );
-
-            return;
-        }
-
-        // AI出牌
-        const discardIndex =
-            chooseAIDiscard(aiHands[i], aiLacks[i]);
-
-        const tile =
-            aiHands[i].splice(discardIndex, 1)[0];
-
-        addDiscard(
-            tile,
-            `AI${i + 1}`
-        );
-
-        // AI出牌后检查玩家能不能胡
-        if (canHu([...playerHand, tile])) {
-            huBtn.style.display = "";
-
-            huBtn.onclick = () => {
-                endGame(
-                    `你胡牌了！胡的是AI${i + 1}打出的 ${tile.suit}${tile.value}`
-                );
-            };
-
-            statusEl.textContent =
-                `AI${i + 1}打出 ${tile.suit}${tile.value}，你可以胡！`;
-
-            return;
-        }
-    }
-
-    // AI全部行动结束
-    playerDraw();
-}
-
-
-function chooseAIDiscard(hand, lack) {
-
-    // 有定缺牌必须优先打定缺
-    const lackIndexes = [];
-
-    hand.forEach((tile, index) => {
-        if (tile.suit === lack) {
-            lackIndexes.push(index);
-        }
-    });
-
-    if (lackIndexes.length > 0) {
-        return lackIndexes[
-            Math.floor(Math.random() * lackIndexes.length)
-        ];
-    }
-
-    // 否则随机打牌
-    return Math.floor(Math.random() * hand.length);
-}
-
-
-// =========================
-// 弃牌
-// =========================
-
-function addDiscard(tile, who) {
-
-    const el = document.createElement("span");
-
-    el.className = "discard-tile";
-
-    el.textContent =
-        `${who}：${tile.suit}${tile.value}`;
-
-    discardsEl.appendChild(el);
-}
-
-
-// =========================
-// 胡牌判断
-// =========================
-
-function canHu(hand) {
-
-    if (hand.length !== 14) {
-        return false;
-    }
-
-    const counts = {};
-
-    hand.forEach(tile => {
-
-        const key =
-            tile.suit + tile.value;
-
-        counts[key] =
-            (counts[key] || 0) + 1;
-    });
-
-    const keys = Object.keys(counts);
-
-    // 尝试所有对子
-    for (const pair of keys) {
-
-        if (counts[pair] < 2) {
-            continue;
-        }
-
-        counts[pair] -= 2;
-
-        const remaining = [];
-
-        for (const key of keys) {
-            for (let i = 0; i < counts[key]; i++) {
-                remaining.push(key);
-            }
-        }
-
-        if (canFormSets(remaining)) {
-            counts[pair] += 2;
-            return true;
-        }
-
-        counts[pair] += 2;
-    }
-
-    return false;
-}
-
-
-function canFormSets(cards) {
-
-    if (cards.length === 0) {
-        return true;
-    }
-
-    const first = cards[0];
-
-    const suit = first.charAt(0);
-    const value = Number(first.slice(1));
-
-    // 刻子
-    const triple = first;
-
-    const tripleIndexes = [];
-
-    for (let i = 0; i < cards.length; i++) {
-        if (cards[i] === triple) {
-            tripleIndexes.push(i);
-        }
-    }
-
-    if (tripleIndexes.length >= 3) {
-
-        const remaining =
-            cards.slice();
-
-        let removed = 0;
-
-        for (let i = remaining.length - 1; i >= 0; i--) {
-            if (
-                remaining[i] === triple &&
-                removed < 3
-            ) {
-                remaining.splice(i, 1);
-                removed++;
-            }
-        }
-
-        if (canFormSets(remaining)) {
-            return true;
-        }
-    }
-
-    // 顺子
-    if (value <= 7) {
-
-        const second =
-            suit + (value + 1);
-
-        const third =
-            suit + (value + 2);
-
-        if (
-            cards.includes(second) &&
-            cards.includes(third)
-        ) {
-
-            const remaining =
-                cards.slice();
-
-            removeOne(remaining, first);
-            removeOne(remaining, second);
-            removeOne(remaining, third);
-
-            if (canFormSets(remaining)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-
-function removeOne(arr, value) {
-
-    const index =
-        arr.indexOf(value);
-
-    if (index !== -1) {
-        arr.splice(index, 1);
-    }
-}
-
-
-// =========================
-// 胡按钮
-// =========================
-
-huBtn.onclick = () => {
-
-    if (playerHand.length === 14 &&
-        canHu(playerHand)) {
-
-        endGame("你自摸胡牌！");
-
-    } else {
-
-        statusEl.textContent =
-            "这副牌目前不能胡";
-    }
-};
-
-
-// =========================
-// 结束
-// =========================
-
-function endGame(message) {
-
-    phase = "ended";
-
-    statusEl.textContent = message;
-
-    drawBtn.disabled = true;
-
-    huBtn.style.display = "none";
-
-    pengBtn.style.display = "none";
-    gangBtn.style.display = "none";
-
-    render();
-}
-
-
-// =========================
-// 按钮
-// =========================
-
-startBtn.onclick = startGame;
-
-drawBtn.onclick = () => {
-
-    if (phase === "exchange") {
-
-        exchangeThree();
-
-    } else if (phase === "lack") {
-
-        showLackButtons();
-
-    } else if (phase === "playing") {
-
-        if (playerHand.length === 13) {
-            playerDraw();
-        }
-    }
-};
-
-
-// =========================
-// 点击牌
-// =========================
+// =============================
+// 玩家牌点击
+// =============================
 
 playerHandEl.addEventListener(
     "click",
-    e => {
+    event=>{
 
-        if (phase !== "playing") {
+        if(phase!=="playing"){
             return;
         }
 
         const tiles =
-            [...playerHandEl.children];
+            Array.from(
+                playerHandEl.children
+            );
 
         const index =
-            tiles.indexOf(e.target);
+            tiles.indexOf(
+                event.target
+            );
 
-        if (index === -1) {
+        if(index===-1){
             return;
         }
 
         discardTile(index);
+
     }
 );
 
 
-// =========================
-// 座位
-// =========================
+// =============================
+// AI行动
+// =============================
 
-function getSeatName(index) {
+function aiTurn(){
 
-    return [
-        "北",
-        "西",
-        "东"
-    ][index];
+    if(phase!=="playing"){
+        return;
+    }
+
+    aiTurnOne(0);
+
 }
 
 
-// =========================
-// 初始化
-// =========================
+function aiTurnOne(index){
 
-pengBtn.style.display = "none";
-gangBtn.style.display = "none";
-huBtn.style.display = "none";
+    if(
+        phase!=="playing" ||
+        index>=3
+    ){
+
+        if(phase==="playing"){
+
+            playerDraw();
+
+        }
+
+        return;
+    }
+
+    if(wall.length===0){
+
+        endGame(
+            "牌墙已经摸完，本局结束"
+        );
+
+        return;
+    }
+
+    const hand =
+        aiHands[index];
+
+    // AI摸牌
+    hand.push(
+        wall.pop()
+    );
+
+    sortHand(hand);
+
+    render();
+
+    // AI自摸
+    if(
+        canHu(hand)
+    ){
+
+        endGame(
+            `AI${index+1}（${getSeatName(index)}）自摸胡牌！`
+        );
+
+        return;
+    }
+
+    // AI出牌
+    const discardIndex =
+        chooseAIDiscard(
+            hand,
+            aiLacks[index]
+        );
+
+    const tile =
+        hand.splice(
+            discardIndex,
+            1
+        )[0];
+
+    addDiscard(
+        tile,
+        `AI${index+1}`
+    );
+
+    render();
+
+    /*
+        玩家当前有13张。
+        AI打出的牌加入后，
+        如果14张能组成胡牌，
+        玩家可以胡。
+    */
+
+    const testHand =
+        playerHand.concat([tile]);
+
+    if(
+        testHand.length===14 &&
+        canHu(testHand)
+    ){
+
+        huBtn.style.display =
+            "";
+
+        pendingHu = true;
+
+        huBtn.onclick =
+            ()=>{
+
+                endGame(
+                    `你胡牌了！胡的是 AI${index+1} 打出的 ${tile.suit}${tile.value}`
+                );
+
+            };
+
+        statusEl.textContent =
+            `AI${index+1}打出 ${tile.suit}${tile.value}，你可以胡！`;
+
+        return;
+    }
+
+    setTimeout(
+        ()=>aiTurnOne(index+1),
+        500
+    );
+
+}
+
+
+// =============================
+// AI出牌策略
+// =============================
+
+function chooseAIDiscard(hand,lack){
+
+    const lackIndexes = [];
+
+    hand.forEach(
+        (tile,index)=>{
+
+            if(tile.suit===lack){
+
+                lackIndexes.push(index);
+
+            }
+
+        }
+    );
+
+    if(lackIndexes.length){
+
+        return lackIndexes[
+            Math.floor(
+                Math.random() *
+                lackIndexes.length
+            )
+        ];
+
+    }
+
+    return Math.floor(
+        Math.random()*hand.length
+    );
+
+}
+
+
+// =============================
+// 弃牌
+// =============================
+
+function addDiscard(tile,who){
+
+    const el =
+        document.createElement("span");
+
+    el.className =
+        "discard";
+
+    el.textContent =
+        tile.suit + tile.value;
+
+    el.title =
+        who;
+
+    discardsEl.appendChild(el);
+
+}
+
+
+// =============================
+// 胡牌判断
+// =============================
+
+function canHu(hand){
+
+    if(hand.length!==14){
+        return false;
+    }
+
+    /*
+        四川麻将这里只先实现：
+        1对子 + 4组顺子/刻子
+    */
+
+    const counts = {};
+
+    hand.forEach(tile=>{
+
+        const key =
+            tile.suit +
+            tile.value;
+
+        counts[key] =
+            (counts[key]||0)+1;
+
+    });
+
+    const keys =
+        Object.keys(counts);
+
+    for(const pair of keys){
+
+        if(counts[pair]<2){
+            continue;
+        }
+
+        counts[pair]-=2;
+
+        const remaining = [];
+
+        for(const key of keys){
+
+            for(
+                let i=0;
+                i<counts[key];
+                i++
+            ){
+
+                remaining.push(key);
+
+            }
+
+        }
+
+        if(
+            canFormSets(
+                remaining
+            )
+        ){
+
+            counts[pair]+=2;
+
+            return true;
+
+        }
+
+        counts[pair]+=2;
+
+    }
+
+    return false;
+
+}
+
+
+// =============================
+// 判断剩余牌
+// =============================
+
+function canFormSets(cards){
+
+    if(cards.length===0){
+        return true;
+    }
+
+    const first =
+        cards[0];
+
+    const suit =
+        first.charAt(0);
+
+    const value =
+        Number(
+            first.slice(1)
+        );
+
+    // 刻子
+    let count=0;
+
+    for(const card of cards){
+
+        if(card===first){
+            count++;
+        }
+
+    }
+
+    if(count>=3){
+
+        const remaining =
+            cards.slice();
+
+        let removed=0;
+
+        for(
+            let i=remaining.length-1;
+            i>=0;
+            i--
+        ){
+
+            if(
+                remaining[i]===first &&
+                removed<3
+            ){
+
+                remaining.splice(i,1);
+
+                removed++;
+
+            }
+
+        }
+
+        if(
+            canFormSets(
+                remaining
+            )
+        ){
+
+            return true;
+
+        }
+
+    }
+
+    // 顺子
+    if(value<=7){
+
+        const second =
+            suit+(value+1);
+
+        const third =
+            suit+(value+2);
+
+        if(
+            cards.includes(second) &&
+            cards.includes(third)
+        ){
+
+            const remaining =
+                cards.slice();
+
+            removeOne(
+                remaining,
+                first
+            );
+
+            removeOne(
+                remaining,
+                second
+            );
+
+            removeOne(
+                remaining,
+                third
+            );
+
+            if(
+                canFormSets(
+                    remaining
+                )
+            ){
+
+                return true;
+
+            }
+
+        }
+
+    }
+
+    return false;
+
+}
+
+
+function removeOne(arr,value){
+
+    const index =
+        arr.indexOf(value);
+
+    if(index!==-1){
+
+        arr.splice(
+            index,
+            1
+        );
+
+    }
+
+}
+
+
+// =============================
+// 胡
+// =============================
+
+function playerHu(){
+
+    if(
+        playerHand.length===14 &&
+        canHu(playerHand)
+    ){
+
+        endGame(
+            "🎉 你自摸胡牌了！"
+        );
+
+        return;
+    }
+
+    statusEl.textContent =
+        "这副牌目前不能胡";
+
+}
+
+
+// =============================
+// 结束
+// =============================
+
+function endGame(message){
+
+    phase = "ended";
+
+    statusEl.textContent =
+        message;
+
+    drawBtn.disabled =
+        true;
+
+    huBtn.style.display =
+        "none";
+
+    pengBtn.style.display =
+        "none";
+
+    gangBtn.style.display =
+        "none";
+
+    render();
+
+}
+
+
+// =============================
+// 按钮
+// =============================
+
+startBtn.onclick =
+    startGame;
+
+
+drawBtn.onclick = ()=>{
+
+    if(phase==="exchange"){
+
+        exchangeThree();
+
+        return;
+    }
+
+    if(phase==="lack"){
+
+        showLackButtons();
+
+        return;
+    }
+
+    if(
+        phase==="playing" &&
+        playerHand.length===13
+    ){
+
+        playerDraw();
+
+    }
+
+};
+
+
+huBtn.onclick =
+    playerHu;
+
+
+// =============================
+// 初始化
+// =============================
+
+pengBtn.style.display =
+    "none";
+
+gangBtn.style.display =
+    "none";
+
+huBtn.style.display =
+    "none";
+
+drawBtn.disabled =
+    false;
 
 statusEl.textContent =
     "点击「开始游戏」";
