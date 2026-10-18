@@ -297,15 +297,18 @@ function declareWins(seatsToWin,message,continueGame,method="点炮",payerSeat=n
 
     const seatElements = seatInfoEls;
 
+    // 所有同一事件中的赢家共享同一份“胡牌前仍在场玩家”快照。
+    const activeAtWin = activePlayers.slice();
+
     validWinners.forEach(seat=>{
 
         const result = calculateFan(seat,method);
 
-        // 记录“胡牌发生当下”仍在场的结算对象。
-        // 已经胡牌退出的玩家不再参与后续自摸/结算分配。
+        // payerSeats 必须保存座位编号，而不是 activePlayers 的 true/false 值。
+        // 这是此前计分异常的关键原因：filter(Boolean) 会返回布尔值数组。
         const payerSeats = method === "点炮"
-            ? (payerSeat !== null && activePlayers[payerSeat] ? [payerSeat] : [])
-            : activePlayers.filter(otherSeat=>otherSeat!==seat);
+            ? (payerSeat !== null && activeAtWin[payerSeat] && payerSeat !== seat ? [payerSeat] : [])
+            : activeAtWin.map((isActive,otherSeat)=>isActive && otherSeat!==seat ? otherSeat : -1).filter(otherSeat=>otherSeat>=0);
 
         activePlayers[seat] = false;
         winners.push(seat);
@@ -416,31 +419,15 @@ function settleRoundScores(){
     });
 
     winRecords.forEach(record=>{
-
-        if(record.method==="点炮" && record.payerSeat!==null){
-
-            // 点炮只由当时仍在场的放炮者承担。
-            if(record.payerSeats?.includes(record.payerSeat)){
-                roundScores[record.seat] += record.fan;
-                roundScores[record.payerSeat] -= record.fan;
-            }
-
-        }else{
-
-            // 自摸只向“胡牌瞬间仍在场”的玩家收分。
-            // 已经胡牌退出的玩家永远不参与后续积分。
-            const payers = Array.isArray(record.payerSeats)
-                ? record.payerSeats
-                : [0,1,2,3].filter(seat=>seat!==record.seat);
-
-            payers.forEach(seat=>{
-                roundScores[seat] -= record.fan;
-                roundScores[record.seat] += record.fan;
-            });
-
-        }
-
+        applyWinRecordScores(roundScores,record);
     });
+
+    // 四川麻将本项目采用玩家间转移积分；每局总分应守恒。
+    const sum = roundScores.reduce((total,score)=>total+score,0);
+    if(!Number.isFinite(sum) || sum!==0){
+        console.error("本局积分不守恒，已停止更新累计积分",{roundScores:roundScores.slice(),sum});
+        throw new Error(`本局积分不守恒：${sum}`);
+    }
 
     totalScores = totalScores.map(
         (score,seat)=>score+roundScores[seat]
@@ -488,6 +475,8 @@ function applyDrawSettlement(){
 
 function endGame(message){
 
+    // 防止同一局因多个异步回调重复结算、累计积分重复入账。
+    if(phase==="ended") return;
     phase = "ended";
 
     if(message.includes("牌墙已经摸完")){

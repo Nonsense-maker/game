@@ -1,5 +1,33 @@
 "use strict";
 
+
+// 对单条胡牌记录应用积分变化。只接受真实座位编号，避免 boolean 被当作数组下标。
+function applyWinRecordScores(scores,record){
+    const winner=record.seat;
+    const fan=Number(record.fan);
+    if(!Number.isInteger(winner) || winner<0 || winner>3 || !Number.isFinite(fan) || fan<0){
+        throw new Error("无效的胡牌积分记录");
+    }
+    if(record.method==="点炮"){
+        const payer=record.payerSeat;
+        const payers=Array.isArray(record.payerSeats) ? record.payerSeats : [];
+        if(Number.isInteger(payer) && payer>=0 && payer<4 && payer!==winner && payers.includes(payer)){
+            scores[winner]+=fan;
+            scores[payer]-=fan;
+        }
+        return;
+    }
+    const payers=Array.isArray(record.payerSeats)
+        ? record.payerSeats
+        : [0,1,2,3].filter(seat=>seat!==winner);
+    [...new Set(payers)].forEach(payer=>{
+        if(Number.isInteger(payer) && payer>=0 && payer<4 && payer!==winner){
+            scores[payer]-=fan;
+            scores[winner]+=fan;
+        }
+    });
+}
+
 function recordScoreEvent(label,from,to,amount){
     if(from===to || amount<=0){ return; }
     scoreEvents.push({label,from,to,amount});
