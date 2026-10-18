@@ -1854,3 +1854,712 @@ body::before{
   .my-hand .tile { width:clamp(30px,4.6vh,44px) !important; height:clamp(44px,6.8vh,64px) !important; }
   .player-ui { width:min(94vw,1120px) !important; }
 }
+
+
+/* v17: iPhone landscape start/result overlays must sit above all game HUD layers.
+   Use the visible dynamic viewport and safe-area insets to avoid Safari UI overlap. */
+@media screen and (orientation: landscape) and (max-width: 900px) {
+  .start, .result {
+    position: fixed !important;
+    inset: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right))
+           max(0px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left)) !important;
+    z-index: 9998 !important;
+    box-sizing: border-box;
+    padding: clamp(8px, 2.2vh, 18px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0 !important;
+  }
+  .start .card {
+    position: relative;
+    z-index: 10000 !important;
+    width: min(620px, 92vw) !important;
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+    overflow-y: auto;
+    padding: clamp(12px, 2.5vh, 24px) clamp(16px, 3vw, 28px) !important;
+    border-radius: clamp(14px, 2.5vh, 22px) !important;
+    margin: auto;
+  }
+  .start .card h1 {
+    font-size: clamp(19px, 4.3vh, 29px) !important;
+    margin: 0 0 clamp(4px, 1vh, 10px) !important;
+  }
+  .start .card p {
+    line-height: 1.4 !important;
+    font-size: clamp(12px, 2.5vh, 17px) !important;
+    margin-bottom: clamp(8px, 1.8vh, 18px) !important;
+  }
+  .start .round-options {
+    gap: clamp(4px, 1vw, 8px) !important;
+    margin-bottom: clamp(8px, 1.7vh, 16px) !important;
+  }
+  .start .round-option {
+    min-height: clamp(34px, 7vh, 48px);
+    padding: 6px 3px !important;
+    font-size: clamp(12px, 2.5vh, 16px) !important;
+  }
+  .start .start-btn {
+    min-height: clamp(38px, 7.5vh, 50px);
+    padding: 8px 12px !important;
+    font-size: clamp(13px, 2.8vh, 17px) !important;
+  }
+  .result .result-card {
+    width: min(820px, 94vw) !important;
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px) !important;
+    margin: auto;
+  }
+}
+
+/* Short landscape viewport (including iPhone 15 Pro Max Safari): compact start card. */
+@media screen and (orientation: landscape) and (max-height: 460px) {
+  .start, .result {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 5px max(10px, env(safe-area-inset-left)) 5px max(10px, env(safe-area-inset-right)) !important;
+  }
+  .start .card {
+    width: min(560px, 88vw) !important;
+    padding: 8px 18px !important;
+  }
+  .start .card h1 { font-size: clamp(17px, 5vh, 23px) !important; margin-bottom: 2px !important; }
+  .start .card p { font-size: clamp(10px, 2.7vh, 13px) !important; line-height: 1.25 !important; margin-bottom: 6px !important; }
+  .start .round-options { margin-bottom: 6px !important; }
+  .start .round-option { min-height: 30px; font-size: 12px !important; }
+  .start .start-btn { min-height: 32px; padding: 5px 10px !important; font-size: 13px !important; }
+}
+
+
+/* v18: viewport-proportional sizing for every game element in landscape.
+   One unit scales with both viewport width and height (reference 160x90 grid).
+   This avoids fixed pixel-sized controls/tiles across phone, iPad and desktop. */
+@media screen and (orientation: landscape) {
+  :root {
+    --u: min(0.625vw, 1.111dvh);
+    --tile-w: calc(var(--u) * 3.55);
+    --tile-h: calc(var(--u) * 5.15);
+    --tile-font: calc(var(--u) * 1.75);
+    --ui-gap: calc(var(--u) * .45);
+    --ui-radius: calc(var(--u) * 1.2);
+    --ui-border: max(1px, calc(var(--u) * .13));
+  }
+
+  body { font-size: calc(var(--u) * 1.65); }
+  .topbar {
+    min-height: calc(var(--u) * 6.8);
+    padding: calc(var(--u) * .6) calc(var(--u) * 2.2);
+    gap: calc(var(--u) * 1.2);
+  }
+  .topbar .title { font-size: calc(var(--u) * 2.35); gap: calc(var(--u) * .8); }
+  .topbar button, .topbar a { font-size: calc(var(--u) * 1.45); padding: calc(var(--u) * .75) calc(var(--u) * 1.4); border-radius: calc(var(--u) * 2); }
+
+  .game {
+    width: 100%;
+    min-width: 0;
+    gap: calc(var(--u) * 1.2);
+    padding-inline: calc(var(--u) * 1.6);
+  }
+  .table {
+    width: min(96vw, calc((100dvh - var(--u) * 16) * 1.6), 1600px) !important;
+    aspect-ratio: 16 / 10 !important;
+    height: auto !important;
+    border-width: calc(var(--u) * 1.7) !important;
+    border-radius: calc(var(--u) * 3.2) !important;
+  }
+  .center {
+    width: calc(var(--u) * 24) !important;
+    height: calc(var(--u) * 18) !important;
+    border-radius: calc(var(--u) * 2.5) !important;
+    gap: calc(var(--u) * .7) !important;
+    padding: calc(var(--u) * .5);
+  }
+  .center .round { font-size: calc(var(--u) * 2.6) !important; line-height: 1.1; }
+  .center .wall-label { font-size: calc(var(--u) * 1.45) !important; }
+  .center .wall { font-size: calc(var(--u) * 3.4) !important; line-height: 1; }
+
+  .my-hand {
+    left: calc(var(--u) * 2) !important;
+    right: calc(var(--u) * 2) !important;
+    bottom: calc(var(--u) * 1.2) !important;
+    gap: calc(var(--u) * .18) !important;
+    padding: calc(var(--u) * 1.2) calc(var(--u) * .25) calc(var(--u) * .3) !important;
+  }
+  .my-hand .tile {
+    width: var(--tile-w) !important;
+    height: var(--tile-h) !important;
+    flex: 0 0 var(--tile-w) !important;
+    font-size: var(--tile-font) !important;
+    border-radius: calc(var(--u) * .42) !important;
+  }
+  .my-hand .tile.selected { transform: translateY(calc(var(--u) * -0.8)) !important; }
+  .my-melds { bottom: calc(var(--u) * 7.1) !important; gap: calc(var(--u) * .35) !important; }
+  .my-melds .meld-tile {
+    width: calc(var(--u) * 2.75) !important;
+    height: calc(var(--u) * 4.05) !important;
+    font-size: calc(var(--u) * 1.35) !important;
+  }
+
+  .player-discards { gap: calc(var(--u) * .16) !important; }
+  .player-discards .discard-slot {
+    width: calc(var(--u) * 2.65) !important;
+    height: calc(var(--u) * 3.85) !important;
+    flex: 0 0 auto !important;
+  }
+  .player-discards .discard-slot .discard {
+    width: 100% !important;
+    height: 100% !important;
+    font-size: calc(var(--u) * 1.25) !important;
+    border-radius: calc(var(--u) * .25) !important;
+  }
+  .north-discards, .south-discards {
+    width: calc(var(--u) * 29) !important;
+    grid-template-columns: repeat(7, calc(var(--u) * 2.65)) !important;
+    gap: calc(var(--u) * .16) !important;
+  }
+  .west-discards, .east-discards {
+    width: calc(var(--u) * 3.85) !important;
+    max-height: calc(var(--u) * 28) !important;
+    gap: calc(var(--u) * .16) !important;
+  }
+  .west-discards .discard-slot, .east-discards .discard-slot {
+    width: calc(var(--u) * 3.85) !important;
+    height: calc(var(--u) * 2.65) !important;
+  }
+
+  .ai-position .back, .ai-hand .back {
+    width: calc(var(--u) * 3.8) !important;
+    height: calc(var(--u) * 2.65) !important;
+    border-radius: calc(var(--u) * .4) !important;
+  }
+  .ai-position.vertical .back {
+    width: calc(var(--u) * 3.8) !important;
+    height: calc(var(--u) * 2.65) !important;
+  }
+  .table-melds { gap: calc(var(--u) * .45) !important; max-width: calc(var(--u) * 11) !important; }
+  .table-melds .meld { gap: calc(var(--u) * .12) !important; }
+  .table-melds .meld-tile, .meld-tile {
+    width: calc(var(--u) * 2.65) !important;
+    height: calc(var(--u) * 3.85) !important;
+    font-size: calc(var(--u) * 1.25) !important;
+  }
+
+  .player-ui {
+    width: min(96vw, 1600px) !important;
+    max-width: 96vw !important;
+    margin: calc(var(--u) * 1) auto 0 !important;
+    gap: calc(var(--u) * .65) !important;
+  }
+  .player-ui .bottom-status-row { gap: calc(var(--u) * .65) !important; }
+  .player-ui .bottom-status-row #southInfo.south-player-info {
+    flex-basis: 22% !important;
+    padding: calc(var(--u) * .8) calc(var(--u) * 1) !important;
+    border-radius: calc(var(--u) * 1.5) !important;
+    font-size: calc(var(--u) * 1.25) !important;
+  }
+  .player-ui .bottom-status-row .player-prompt {
+    padding: calc(var(--u) * .8) calc(var(--u) * 1.2) !important;
+    border-radius: calc(var(--u) * 1.5) !important;
+    font-size: calc(var(--u) * 1.35) !important;
+    min-height: calc(var(--u) * 5.8);
+  }
+  .controls { gap: calc(var(--u) * .45) !important; padding: calc(var(--u) * .45) !important; }
+  .controls button {
+    min-width: calc(var(--u) * 7) !important;
+    min-height: calc(var(--u) * 4.2) !important;
+    padding: calc(var(--u) * .7) calc(var(--u) * 1.2) !important;
+    font-size: calc(var(--u) * 1.4) !important;
+    border-radius: calc(var(--u) * 1) !important;
+  }
+
+  .start { padding: calc(var(--u) * 1.5) !important; }
+  .start .card {
+    width: min(calc(var(--u) * 78), 92vw) !important;
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--u) * 3) !important;
+    padding: calc(var(--u) * 2.4) calc(var(--u) * 3) !important;
+    border-radius: calc(var(--u) * 2.8) !important;
+  }
+  .start .card h1 { font-size: calc(var(--u) * 4.2) !important; margin-bottom: calc(var(--u) * 1.3) !important; }
+  .start .card p { font-size: calc(var(--u) * 2.3) !important; margin-bottom: calc(var(--u) * 2.2) !important; }
+  .start .round-options { gap: calc(var(--u) * 1) !important; margin-bottom: calc(var(--u) * 1.8) !important; }
+  .start .round-option { min-height: calc(var(--u) * 5.5) !important; padding: calc(var(--u) * .8) !important; font-size: calc(var(--u) * 1.8) !important; }
+  .start .start-btn { min-height: calc(var(--u) * 6) !important; padding: calc(var(--u) * 1) calc(var(--u) * 1.8) !important; font-size: calc(var(--u) * 2) !important; }
+
+  .result-card {
+    width: min(calc(var(--u) * 95), 94vw) !important;
+    max-height: calc(100dvh - var(--u) * 4) !important;
+    padding: calc(var(--u) * 2.2) !important;
+    border-radius: calc(var(--u) * 2.2) !important;
+  }
+  .result-modules { gap: calc(var(--u) * 1.5) !important; }
+  .result-module { padding: calc(var(--u) * 1.5) !important; border-radius: calc(var(--u) * 1.5) !important; }
+  .result-module h3 { font-size: calc(var(--u) * 2) !important; }
+  .result-list, .result-message { font-size: calc(var(--u) * 1.45) !important; }
+}
+
+/* Compact landscape phone: proportional scaling remains continuous, not fixed breakpoints. */
+@media screen and (orientation: landscape) and (max-height: 460px) {
+  :root { --u: min(0.625vw, 1.05dvh); }
+  .table { width: min(96vw, calc((100dvh - var(--u) * 14) * 1.6)) !important; }
+  .player-ui { margin-top: calc(var(--u) * .55) !important; }
+  .player-ui .bottom-status-row .player-prompt { min-height: calc(var(--u) * 5) !important; }
+}
+
+
+/* v19 hotfix: keep the hand centered inside the table (do not combine left/right with translateX).
+   Use viewport-relative sizing with practical lower bounds for very short landscape viewports. */
+@media screen and (orientation: landscape) {
+  .table { position: relative; }
+  .my-hand {
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - max(24px, 4vw)) !important;
+    max-width: calc(100% - max(24px, 4vw)) !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+  .my-hand .tile {
+    flex: 0 0 auto !important;
+    width: clamp(22px, min(2.25vw, 6.1vh), 42px) !important;
+    height: clamp(32px, min(3.25vw, 8.4vh), 60px) !important;
+    font-size: clamp(12px, min(1.05vw, 2.6vh), 20px) !important;
+  }
+  .player-ui {
+    width: min(96vw, 1600px) !important;
+    max-width: 96vw !important;
+    margin-inline: auto !important;
+  }
+  .player-ui .bottom-status-row #southInfo.south-player-info {
+    font-size: clamp(11px, min(.85vw, 2.1vh), 16px) !important;
+    line-height: 1.25 !important;
+    min-height: clamp(42px, 8vh, 66px) !important;
+    padding: 7px 10px 7px clamp(34px, 3vw, 52px) !important;
+    box-sizing: border-box !important;
+  }
+  .player-ui .bottom-status-row #southInfo.south-player-info::before {
+    width: clamp(20px, min(1.55vw, 4vh), 32px) !important;
+    height: clamp(20px, min(1.55vw, 4vh), 32px) !important;
+    left: 7px !important;
+  }
+  .player-ui .bottom-status-row .player-prompt {
+    font-size: clamp(11px, min(.9vw, 2.2vh), 16px) !important;
+    line-height: 1.3 !important;
+    min-height: clamp(42px, 8vh, 66px) !important;
+    padding: 7px 10px !important;
+    box-sizing: border-box !important;
+  }
+  .player-ui .status, .player-ui .timer {
+    font-size: clamp(10px, min(.75vw, 1.8vh), 14px) !important;
+    line-height: 1.25 !important;
+  }
+}
+
+/* Very short landscape viewports: avoid shrinking labels to unreadable sizes. */
+@media screen and (orientation: landscape) and (max-height: 430px) {
+  .my-hand {
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+    bottom: 4px !important;
+    gap: 1px !important;
+  }
+  .my-hand .tile {
+    width: clamp(21px, 3.6vh, 30px) !important;
+    height: clamp(30px, 5.8vh, 42px) !important;
+    font-size: clamp(11px, 2.15vh, 15px) !important;
+  }
+  .player-ui .bottom-status-row #southInfo.south-player-info {
+    min-height: 42px !important;
+    font-size: 11px !important;
+  }
+  .player-ui .bottom-status-row .player-prompt {
+    min-height: 42px !important;
+    font-size: 11px !important;
+  }
+}
+
+
+/* v20: anchor player HUD and every discard lane to the actual table rectangle.
+   The previous HUD was positioned against the full game viewport, so side seats drifted
+   when the table width changed. */
+@media screen and (orientation: landscape) {
+  :root {
+    --table-w: min(96vw, calc((100dvh - var(--u) * 16) * 1.6), 1600px);
+    --table-h: calc(var(--table-w) / 1.6);
+    --center-half-w: calc(var(--u) * 12);
+    --center-half-h: calc(var(--u) * 9);
+    --discard-w: calc(var(--u) * 2.65);
+    --discard-h: calc(var(--u) * 3.85);
+    --discard-gap: calc(var(--u) * .16);
+  }
+  .game { position: relative !important; }
+  .table {
+    width: var(--table-w) !important;
+    height: var(--table-h) !important;
+    aspect-ratio: 16 / 10 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Seat labels are placed against the table's own bounding rectangle, not the viewport. */
+  .seat-summary {
+    position: absolute !important;
+    inset: auto !important;
+    left: 50% !important;
+    top: calc(var(--u) * 1.1) !important;
+    width: var(--table-w) !important;
+    height: var(--table-h) !important;
+    transform: translateX(-50%) !important;
+    pointer-events: none;
+    z-index: 20;
+  }
+  #northInfo {
+    left: 50% !important;
+    right: auto !important;
+    top: 0 !important;
+    transform: translate(-50%, -112%) !important;
+  }
+  #westInfo {
+    left: 0 !important;
+    right: auto !important;
+    top: 50% !important;
+    transform: translate(-112%, -50%) !important;
+  }
+  #eastInfo {
+    right: 0 !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translate(112%, -50%) !important;
+  }
+
+  /* Keep discard rows/columns tight to the center panel, then grow outward by row/column. */
+  .north-discards {
+    left: 50% !important;
+    right: auto !important;
+    top: calc(50% - var(--center-half-h) - var(--discard-h) - var(--discard-gap)) !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(var(--u) * 29) !important;
+    grid-template-columns: repeat(7, var(--discard-w)) !important;
+    gap: var(--discard-gap) !important;
+    justify-content: center !important;
+    align-content: end !important;
+  }
+  .south-discards {
+    left: 50% !important;
+    right: auto !important;
+    bottom: calc(50% - var(--center-half-h) - var(--discard-h) - var(--discard-gap)) !important;
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(var(--u) * 29) !important;
+    grid-template-columns: repeat(7, var(--discard-w)) !important;
+    gap: var(--discard-gap) !important;
+    justify-content: center !important;
+    align-content: start !important;
+  }
+  .west-discards {
+    left: calc(50% - var(--center-half-w) - var(--discard-w) - var(--discard-gap)) !important;
+    right: auto !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    width: var(--discard-w) !important;
+    max-height: calc(var(--u) * 28) !important;
+    gap: var(--discard-gap) !important;
+    align-content: end !important;
+  }
+  .east-discards {
+    right: calc(50% - var(--center-half-w) - var(--discard-w) - var(--discard-gap)) !important;
+    left: auto !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    width: var(--discard-w) !important;
+    max-height: calc(var(--u) * 28) !important;
+    gap: var(--discard-gap) !important;
+    align-content: start !important;
+  }
+  .north-discards .discard-slot, .south-discards .discard-slot {
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+  }
+  .west-discards .discard-slot, .east-discards .discard-slot {
+    width: var(--discard-h) !important;
+    height: var(--discard-w) !important;
+  }
+
+  /* Keep player hand centered in the table; status row shares the same table width. */
+  .my-hand {
+    left: 50% !important;
+    right: auto !important;
+    width: calc(100% - var(--u) * 4) !important;
+    max-width: calc(100% - var(--u) * 4) !important;
+    transform: translateX(-50%) !important;
+    justify-content: center !important;
+  }
+  .player-ui {
+    width: var(--table-w) !important;
+    max-width: var(--table-w) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .player-ui .bottom-status-row {
+    width: 100% !important;
+    display: flex !important;
+    align-items: stretch !important;
+  }
+  .player-ui .bottom-status-row #southInfo.south-player-info {
+    flex: 0 0 22% !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+  .player-ui .bottom-status-row .player-prompt {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+  .player-ui .controls { width: 100% !important; box-sizing: border-box !important; }
+}
+
+
+/* v21: correct seat anchors, true four-sided discard lanes, and -10% hand tiles. */
+@media screen and (orientation: landscape) {
+  /* Keep the opponent's information chip inside the table at its top edge. */
+  .seat-summary {
+    top: calc(var(--u) * 1.1) !important;
+    height: var(--table-h) !important;
+  }
+  #northInfo {
+    top: calc(var(--u) * 1.2) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, 0) !important;
+    z-index: 24 !important;
+  }
+
+  /* Re-anchor all four discard zones directly to the center panel.
+     A side tile's slot matches its rotated visual footprint, preventing overlap. */
+  .north-discards, .south-discards {
+    width: calc(var(--u) * 29) !important;
+    height: calc(var(--u) * 8.2) !important;
+    grid-template-columns: none !important;
+    display: flex !important;
+    gap: var(--discard-gap) !important;
+    justify-content: center !important;
+  }
+  .north-discards {
+    top: calc(50% - var(--center-half-h) - var(--discard-h) - var(--discard-gap)) !important;
+    bottom: auto !important;
+    flex-flow: row wrap-reverse !important;
+    align-content: flex-end !important;
+    align-items: flex-start !important;
+  }
+  .south-discards {
+    bottom: calc(50% - var(--center-half-h) - var(--discard-h) - var(--discard-gap)) !important;
+    top: auto !important;
+    flex-flow: row wrap !important;
+    align-content: flex-start !important;
+    align-items: flex-start !important;
+  }
+  .north-discards .discard-slot, .south-discards .discard-slot {
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    flex: 0 0 var(--discard-w) !important;
+    margin: 0 !important;
+  }
+  .west-discards, .east-discards {
+    top: 50% !important;
+    bottom: auto !important;
+    width: calc(var(--discard-h) * 2 + var(--discard-gap)) !important;
+    height: calc(var(--u) * 28) !important;
+    max-height: calc(var(--u) * 28) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    gap: var(--discard-gap) !important;
+    align-content: flex-start !important;
+    justify-content: center !important;
+    transform: translateY(-50%) !important;
+  }
+  .west-discards {
+    left: calc(50% - var(--center-half-w) - var(--discard-h) - var(--discard-gap)) !important;
+    right: auto !important;
+    direction: rtl !important;
+  }
+  .east-discards {
+    right: calc(50% - var(--center-half-w) - var(--discard-h) - var(--discard-gap)) !important;
+    left: auto !important;
+    direction: ltr !important;
+  }
+  .west-discards .discard-slot, .east-discards .discard-slot {
+    width: var(--discard-h) !important;
+    height: var(--discard-w) !important;
+    flex: 0 0 var(--discard-w) !important;
+    margin: 0 !important;
+    position: relative !important;
+  }
+  .west-discards .discard-slot .discard, .east-discards .discard-slot .discard {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    margin: 0 !important;
+    transform-origin: center center !important;
+  }
+  .west-discards .discard-slot .discard { transform: translate(-50%,-50%) rotate(90deg) !important; }
+  .east-discards .discard-slot .discard { transform: translate(-50%,-50%) rotate(-90deg) !important; }
+
+  /* Hand tiles shrink by exactly 10%; spacing shrinks too, keeping the row centered. */
+  .my-hand { gap: calc(var(--u) * .16) !important; }
+  .my-hand .tile {
+    width: calc(var(--tile-w) * .9) !important;
+    height: calc(var(--tile-h) * .9) !important;
+    flex-basis: calc(var(--tile-w) * .9) !important;
+    font-size: calc(var(--tile-font) * .9) !important;
+  }
+}
+
+
+/* v22: shrink all four concealed hands by 10%; do not affect discards or melds. */
+@media screen and (orientation: landscape) {
+  /* Human concealed hand */
+  .my-hand .tile {
+    width: calc(var(--tile-w) * .9) !important;
+    height: calc(var(--tile-h) * .9) !important;
+    flex-basis: calc(var(--tile-w) * .9) !important;
+    font-size: calc(var(--tile-font) * .9) !important;
+  }
+
+  /* North/west/east AI concealed hands. Target hand tiles only, not discard or meld tiles. */
+  .ai-position .ai-hand .ai-tile,
+  .ai-position .ai-hand .tile,
+  .ai-north .ai-tile,
+  .ai-west .ai-tile,
+  .ai-east .ai-tile {
+    width: calc(var(--u) * 3.8 * .9) !important;
+    height: calc(var(--u) * 2.65 * .9) !important;
+    font-size: calc(var(--u) * 1.35 * .9) !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Preserve the side players' vertical hand layout while shrinking tile footprint. */
+  .ai-west .ai-hand,
+  .ai-east .ai-hand {
+    gap: calc(var(--u) * .16) !important;
+  }
+  .ai-north .ai-hand {
+    gap: calc(var(--u) * .16) !important;
+  }
+}
+
+
+/* v23: all concealed hands are only 5% smaller, and reserve a clear top lane for north info. */
+@media screen and (orientation: landscape) {
+  /* Override v22's 10% reduction: use 95% of the base hand tile size. */
+  .my-hand .tile {
+    width: calc(var(--tile-w) * .95) !important;
+    height: calc(var(--tile-h) * .95) !important;
+    flex-basis: calc(var(--tile-w) * .95) !important;
+    font-size: calc(var(--tile-font) * .95) !important;
+  }
+  .ai-position .ai-hand .ai-tile,
+  .ai-position .ai-hand .tile,
+  .ai-north .ai-tile,
+  .ai-west .ai-tile,
+  .ai-east .ai-tile {
+    width: calc(var(--u) * 3.8 * .95) !important;
+    height: calc(var(--u) * 2.65 * .95) !important;
+    font-size: calc(var(--u) * 1.35 * .95) !important;
+  }
+
+  /* Add breathing room above the table for the north player's info chip. */
+  .game {
+    padding-top: calc(var(--u) * 5) !important;
+    box-sizing: border-box !important;
+  }
+  .table {
+    margin-top: calc(var(--u) * 2.5) !important;
+  }
+  .seat-summary {
+    top: calc(var(--u) * 1.2) !important;
+  }
+  #northInfo {
+    top: calc(var(--u) * -2.8) !important;
+    transform: translate(-50%, -100%) !important;
+    z-index: 24 !important;
+  }
+}
+
+
+/* v24: restore original hand scale/orientation and anchor north info to table top edge. */
+@media screen and (orientation: landscape) {
+  /* Reserve the top margin, but align the north info chip with the table's upper edge. */
+  .seat-summary {
+    top: calc(var(--u) * 7.5) !important;
+    height: var(--table-h) !important;
+    width: var(--table-w) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  #northInfo {
+    left: 50% !important;
+    right: auto !important;
+    top: 0 !important;
+    transform: translate(-50%, 0) !important;
+    z-index: 24 !important;
+  }
+
+  /* Restore concealed hands to their original scale (undo v22/v23 reductions). */
+  .my-hand .tile {
+    width: var(--tile-w) !important;
+    height: var(--tile-h) !important;
+    flex-basis: var(--tile-w) !important;
+    font-size: var(--tile-font) !important;
+  }
+
+  /* North hand: each tile is portrait-oriented; the row itself stays horizontal. */
+  .ai-north .ai-tile,
+  .ai-position.ai-north .ai-hand .ai-tile,
+  .ai-position.ai-north .ai-hand .tile {
+    width: calc(var(--u) * 2.65) !important;
+    height: calc(var(--u) * 3.8) !important;
+    font-size: calc(var(--u) * 1.35) !important;
+  }
+
+  /* Side hands: each tile keeps its original landscape footprint, stacked vertically. */
+  .ai-west .ai-tile, .ai-east .ai-tile,
+  .ai-position.ai-west .ai-hand .ai-tile,
+  .ai-position.ai-east .ai-hand .ai-tile,
+  .ai-position.ai-west .ai-hand .tile,
+  .ai-position.ai-east .ai-hand .tile {
+    width: calc(var(--u) * 3.8) !important;
+    height: calc(var(--u) * 2.65) !important;
+    font-size: calc(var(--u) * 1.35) !important;
+  }
+  .ai-north .ai-hand, .ai-west .ai-hand, .ai-east .ai-hand {
+    gap: calc(var(--u) * .16) !important;
+  }
+}
+
+
+/* v25: north player info card's BOTTOM edge aligns with the table's TOP edge. */
+@media screen and (orientation: landscape) {
+  .seat-summary {
+    top: calc(var(--u) * 7.5) !important;
+    height: var(--table-h) !important;
+    width: var(--table-w) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  #northInfo {
+    left: 50% !important;
+    right: auto !important;
+    top: 0 !important;
+    /* Align the card's bottom edge to the table top edge, rather than its top edge. */
+    transform: translate(-50%, -100%) !important;
+    margin-top: 0 !important;
+    z-index: 24 !important;
+  }
+}
