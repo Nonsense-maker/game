@@ -173,7 +173,7 @@ function render(){
     roundInfoEl.textContent = `第 ${currentRound} / ${matchRounds} 局`;
 
     wallEl.textContent =
-        `牌库剩余：${wall.length}张`;
+        `牌墙：${wall.length}`;
 
 }
 

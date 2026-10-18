@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8df91"/><stop offset="1" stop-color="#bd7f22"/></linearGradient></defs>
+<circle cx="36" cy="36" r="33" fill="#173f31" stroke="url(#g)" stroke-width="3"/>
+<rect x="21" y="13" width="30" height="46" rx="5" fill="#fffaf0" stroke="#c49a51" stroke-width="2" transform="rotate(-6 36 36)"/>
+<text x="36" y="47" text-anchor="middle" font-family="serif" font-size="29" font-weight="700" fill="#a52d24">中</text>
+</svg>
