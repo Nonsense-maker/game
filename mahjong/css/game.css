@@ -1,10 +1,10 @@
 .controls{
-    position:absolute;
-    bottom:10px;
-    right:0;
+    position:relative;
+    bottom:auto;
+    right:auto;
     display:flex;
     gap:8px;
-    z-index:30;
+    z-index:85;
     padding:7px;
     border-radius:16px;
     background:rgba(3,27,20,.72);

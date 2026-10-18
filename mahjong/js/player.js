@@ -772,7 +772,7 @@ function offerDiscardHu(huSeats,tile,discarderSeat,continueGame){
 
     statusEl.textContent = otherWinners
         ? `可一炮多响：你与 ${otherWinners} 家可胡，请选择「胡」或「过」`
-        : `AI${discarderSeat}打出 ${tileLabel(tile)}，你可以胡，请选择「胡」或「过」`;
+        : `${getSeatName(discarderSeat)}打出 ${tileLabel(tile)}，你可以胡，请选择「胡」或「过」`;
 
     startPlayerTimer();
 
@@ -838,8 +838,8 @@ function passDiscardHu(){
 
 function resolveDiscardHu(huSeats,tile,discarderSeat,continueGame){
 
-    const names = huSeats.map(seat=>seat===0 ? "你" : `AI${seat}`);
-    const discarderName = discarderSeat===0 ? "你" : `AI${discarderSeat}`;
+    const names = huSeats.map(seat=>seat===0 ? "你" : getSeatName(seat));
+    const discarderName = discarderSeat===0 ? "你" : getSeatName(discarderSeat);
 
     declareWins(
         huSeats,
@@ -905,7 +905,7 @@ function offerPeng(tile,sourceIndex){
         findDiscardGangTiles() ? "" : "none";
 
     statusEl.textContent =
-        `AI${sourceIndex+1}打出 ${tileLabel(tile)}，请选择「碰」或「过」`;
+        `${getSeatName(sourceIndex+1)}打出 ${tileLabel(tile)}，请选择「碰」或「过」`;
 
     startPlayerTimer();
 

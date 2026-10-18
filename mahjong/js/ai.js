@@ -112,7 +112,7 @@ function tryAiClaim(tile,sourceSeat,continueGame){
         if(lastDiscardEl){ lastDiscardEl.remove(); }
         if(claim.kind==="明杠"){ recordGangScore("明杠",seat,sourceSeat); }
         activeSeat=seat;
-        statusEl.textContent=`AI${seat}${claim.kind} ${tileLabel(tile)}，${claim.kind==="明杠" ? "正在补牌" : "正在出牌"}`;
+        statusEl.textContent=`${getSeatName(seat)}${claim.kind} ${tileLabel(tile)}，${claim.kind==="明杠" ? "正在补牌" : "正在出牌"}`;
         render();
         setTimeout(()=>aiTurnOne(index,claim.kind==="碰"),aiDelay());
         return true;
@@ -190,7 +190,7 @@ function aiTurnOne(index,skipDraw=false){
         aiGangTiles.kind = "gang";
         aiGangTiles.concealed = true;
         recordGangScore("暗杠",index+1);
-        statusEl.textContent = `AI${index+1}暗杠，正在补牌`;
+        statusEl.textContent = `${getSeatName(index+1)}暗杠，正在补牌`;
         render();
 
         setTimeout(
@@ -209,7 +209,7 @@ function aiTurnOne(index,skipDraw=false){
 
         declareWin(
             index+1,
-            `AI${index+1}自摸胡牌！`,
+            `${getSeatName(index+1)}自摸胡牌！`,
             ()=>aiTurnOne(index+1)
         );
 

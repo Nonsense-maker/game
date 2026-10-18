@@ -39,6 +39,13 @@ let roundEndedByDraw = false;
 let discardHistory = [];
 
 
+
+const SEAT_NAMES = ["玩家", "建国", "谦礼", "谨珍"];
+
+function getSeatName(seat){
+    return SEAT_NAMES[seat] || `对手${seat}`;
+}
+
 // =============================
 // 开始游戏
 // =============================
@@ -178,12 +185,6 @@ function render(){
 }
 
 
-function getSeatName(seat){
-
-    return seat===0 ? "玩家" : `AI${seat}`;
-
-}
-
 
 function updateSeatInfo(){
 
@@ -191,7 +192,7 @@ function updateSeatInfo(){
 
         const lack = seat===0 ? playerLack : aiLacks[seat-1];
         const dealer = seat===dealerSeat ? " <span class=\"dealer-badge\">庄</span>" : "";
-        const name = seat===0 ? "玩家" : `AI${seat}`;
+        const name = getSeatName(seat);
 
         element.innerHTML = `${name}<span class=\"seat-info\">积分 ${totalScores[seat]} · ${lack ? `缺${lack}` : "未定缺"}${dealer}</span>`;
         element.classList.toggle("active",seat===activeSeat);
@@ -257,7 +258,7 @@ function addDiscard(tile,seat){
     el.textContent = tileLabel(tile);
 
     el.title =
-        seat===0 ? "你" : `AI${seat}`;
+        seat===0 ? "你" : getSeatName(seat);
 
     discardEls[seat].appendChild(el);
     discardHistory.push({suit:tile.suit,value:tile.value});
@@ -325,7 +326,7 @@ function declareWins(seatsToWin,message,continueGame,method="点炮",payerSeat=n
     const fanText = winRecords
         .filter(record=>validWinners.includes(record.seat))
         .map(record=>
-            `${record.seat===0 ? "你" : `AI${record.seat}`}：${record.fan}番（${record.patterns.join("、")}）`
+            `${record.seat===0 ? "你" : getSeatName(record.seat)}：${record.fan}番（${record.patterns.join("、")}）`
         )
         .join("；");
 
@@ -380,7 +381,7 @@ function showSettlement(message){
             const detail = document.createElement("small");
 
             name.textContent =
-                `${index+1}. ${record.seat===0 ? "你" : `AI${record.seat}`} · ${record.fan}番 · ${roundScores[record.seat]>=0 ? "+" : ""}${roundScores[record.seat]}`;
+                `${index+1}. ${record.seat===0 ? "你" : getSeatName(record.seat)} · ${record.fan}番 · ${roundScores[record.seat]>=0 ? "+" : ""}${roundScores[record.seat]}`;
 
             detail.textContent = record.patterns.join("、");
 
@@ -400,7 +401,7 @@ function showSettlement(message){
         const detail = document.createElement("small");
 
         name.textContent =
-            `${index+1}. ${seat===0 ? "你" : `AI${seat}`} · 总分 ${totalScores[seat]}`;
+            `${index+1}. ${seat===0 ? "你" : getSeatName(seat)} · 总分 ${totalScores[seat]}`;
         detail.textContent =
             `本局 ${roundScores[seat]>=0 ? "+" : ""}${roundScores[seat]}`;
 
