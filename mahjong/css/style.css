@@ -1688,3 +1688,169 @@ body::before{
   .my-hand .tile{width:clamp(28px,4.6vh,43px)!important;height:clamp(42px,7vh,62px)!important}
 }
 @media (prefers-reduced-motion:reduce){.rotate-icon{transform:none}}
+
+/* =============================
+   v16: 横向长方形牌桌与多端横屏布局
+   ============================= */
+@media screen and (orientation:landscape) {
+  .game {
+    width:100%;
+    min-height:0;
+    height:auto;
+    box-sizing:border-box;
+    padding:clamp(3px,1vh,12px) 1vw clamp(6px,1.4vh,16px);
+    margin:0 auto;
+    gap:clamp(5px,1.2vh,12px);
+    justify-content:center;
+    align-items:center;
+  }
+  .table {
+    width:min(94vw, calc((100dvh - 165px) * 1.6), 1320px) !important;
+    height:auto !important;
+    aspect-ratio:16 / 10 !important;
+    flex:0 0 auto;
+    margin:0 !important;
+    position:relative;
+    box-sizing:border-box;
+    border-width:clamp(8px,1.4vh,16px) !important;
+    border-radius:clamp(18px,2.8vh,34px) !important;
+    overflow:visible;
+  }
+  .table::before { inset:clamp(5px,1vw,10px); border-radius:clamp(12px,2vh,24px); }
+  .table::after { inset:clamp(-10px,-1vw,-5px); border-radius:clamp(20px,3vh,38px); }
+
+  /* Central info remains compact and roughly square on the wide table. */
+  .center {
+    width:clamp(100px,20%,190px) !important;
+    height:clamp(92px,34%,150px) !important;
+    max-width:22%;
+    border-radius:clamp(14px,2vh,24px) !important;
+    gap:clamp(3px,.7vh,8px) !important;
+  }
+  .center .round { font-size:clamp(14px,2.5vh,24px) !important; }
+  .center .wall-label { font-size:clamp(10px,1.7vh,14px) !important; }
+  .center .wall { font-size:clamp(22px,3.8vh,36px) !important; }
+
+  /* Seven tiles per side: upper/lower lanes align to the central panel edges. */
+  .north-discards, .south-discards {
+    width:208px !important;
+    grid-template-columns:repeat(7,28px) !important;
+    grid-auto-rows:38px !important;
+    gap:2px !important;
+  }
+  .north-discards {
+    top:calc(50% - clamp(46px,12.5%,75px) - 116px - 3px) !important;
+    bottom:auto !important;
+    align-content:end !important;
+  }
+  .south-discards {
+    top:calc(50% + clamp(46px,12.5%,75px) + 3px) !important;
+    bottom:auto !important;
+    align-content:start !important;
+  }
+  .west-discards, .east-discards {
+    width:158px !important;
+    height:208px !important;
+    grid-template-rows:repeat(7,28px) !important;
+    grid-auto-columns:38px !important;
+    gap:2px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    align-content:center !important;
+  }
+  .west-discards {
+    left:calc(50% - clamp(50px,10%,95px) - 158px - 3px) !important;
+    right:auto !important;
+  }
+  .east-discards {
+    right:calc(50% - clamp(50px,10%,95px) - 158px - 3px) !important;
+    left:auto !important;
+  }
+
+  /* Keep melds outside the felt but within the overall viewport where possible. */
+  .west-melds { right:calc(100% + clamp(4px,1vw,12px)) !important; left:auto !important; }
+  .north-melds, .east-melds { left:calc(100% + clamp(4px,1vw,12px)) !important; right:auto !important; }
+
+  /* Hand tiles and bottom controls use the available height, not a fixed desktop size. */
+  .my-hand {
+    left:50% !important;
+    right:auto !important;
+    bottom:clamp(7px,1.4vh,16px) !important;
+    width:calc(100% - clamp(28px,5vw,64px)) !important;
+    max-width:none !important;
+    justify-content:center !important;
+    gap:clamp(1px,.22vw,4px) !important;
+    padding:7px 2px 2px !important;
+  }
+  .my-hand .tile {
+    width:clamp(22px,4.1vh,42px) !important;
+    height:clamp(32px,6.6vh,60px) !important;
+    font-size:clamp(13px,2.6vh,25px) !important;
+    flex:0 1 auto !important;
+  }
+  .my-hand .tile.selected { transform:translateY(-6px) !important; }
+  .my-melds { bottom:clamp(48px,8vh,78px) !important; }
+
+  .player-ui {
+    position:relative !important;
+    inset:auto !important;
+    transform:none !important;
+    width:min(94vw,1100px) !important;
+    max-width:94vw !important;
+    margin:0 auto !important;
+    gap:clamp(4px,.8vh,8px) !important;
+  }
+  .controls { width:100%; max-width:100%; box-sizing:border-box; flex-wrap:wrap; gap:clamp(4px,.6vw,8px) !important; padding:5px !important; }
+  .controls button { min-height:clamp(30px,5.2vh,46px); padding:clamp(5px,.8vh,10px) clamp(9px,1.2vw,18px) !important; font-size:clamp(11px,1.7vh,15px) !important; touch-action:manipulation; }
+  .player-ui .bottom-status-row { display:flex !important; width:100% !important; gap:6px !important; align-items:stretch !important; }
+  .player-ui .bottom-status-row #southInfo.south-player-info { flex:0 0 clamp(120px,20%,210px) !important; min-width:0 !important; width:auto !important; padding:7px 9px 7px 36px !important; font-size:clamp(10px,1.5vh,13px) !important; }
+  .player-ui .bottom-status-row .player-prompt { flex:1 1 auto !important; width:auto !important; max-width:none !important; min-width:0 !important; min-height:0 !important; padding:7px 10px !important; font-size:clamp(11px,1.6vh,14px) !important; }
+  .result-card { width:min(820px,94vw) !important; max-height:88dvh !important; overflow-y:auto; }
+  .result-modules { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+}
+
+/* Landscape phones: reserve enough height for controls while keeping tiles tappable. */
+@media screen and (orientation:landscape) and (max-width:700px) {
+  .topbar { height:clamp(34px,8vh,46px); padding:0 9px; }
+  .title { font-size:clamp(12px,2.7vw,16px); gap:4px; }
+  .title::before { width:clamp(22px,5vh,30px); height:clamp(22px,5vh,30px); }
+  .back { padding:5px 8px; font-size:11px; }
+  .game { gap:4px; padding:3px 1vw 5px; }
+  .table { width:min(96vw, calc((100dvh - 132px) * 1.6)) !important; border-width:clamp(6px,1.8vh,10px) !important; border-radius:16px !important; }
+  .center { width:clamp(76px,19%,116px) !important; height:clamp(64px,34%,88px) !important; gap:2px !important; border-radius:12px !important; }
+  .center .round { font-size:clamp(11px,2.8vh,16px) !important; }
+  .center .wall-label { font-size:clamp(8px,1.8vh,11px) !important; }
+  .center .wall { font-size:clamp(17px,3.5vh,24px) !important; }
+  .north-discards, .south-discards { width:clamp(140px,48%,208px) !important; grid-template-columns:repeat(7,clamp(18px,3.4vh,28px)) !important; grid-auto-rows:clamp(25px,4.8vh,38px) !important; gap:1px !important; }
+  .player-discards .discard-slot { width:clamp(18px,3.4vh,28px) !important; height:clamp(25px,4.8vh,38px) !important; }
+  .player-discards .discard-slot .discard { width:100% !important; height:100% !important; font-size:clamp(9px,1.7vh,12px) !important; }
+  .north-discards { top:calc(50% - clamp(32px,12%,45px) - 76px) !important; }
+  .south-discards { top:calc(50% + clamp(32px,12%,45px) + 2px) !important; }
+  .west-discards, .east-discards { width:clamp(78px,22%,158px) !important; height:clamp(130px,50%,208px) !important; grid-template-rows:repeat(7,clamp(18px,3.4vh,28px)) !important; grid-auto-columns:clamp(25px,4.8vh,38px) !important; gap:1px !important; }
+  .west-discards { left:calc(50% - clamp(38px,10%,55px) - clamp(78px,22%,158px) - 2px) !important; }
+  .east-discards { right:calc(50% - clamp(38px,10%,55px) - clamp(78px,22%,158px) - 2px) !important; }
+  .ai-north { top:4px !important; }
+  .ai-west { left:4px !important; }
+  .ai-east { right:4px !important; }
+  .ai-tile { width:clamp(12px,2.7vh,19px) !important; height:clamp(18px,4.1vh,27px) !important; }
+  .vertical .ai-tile { width:clamp(18px,4.1vh,27px) !important; height:clamp(12px,2.7vh,19px) !important; }
+  .table-melds .meld-tile, .meld-tile { width:clamp(15px,3.1vh,23px) !important; height:clamp(21px,4.3vh,31px) !important; font-size:clamp(9px,1.6vh,13px) !important; }
+  .table-melds { max-width:20vw; gap:2px !important; }
+  .my-hand { bottom:4px !important; width:calc(100% - 22px) !important; gap:1px !important; }
+  .my-hand .tile { width:clamp(17px,4.8vw,29px) !important; height:clamp(27px,7.2vh,38px) !important; font-size:clamp(11px,2.2vh,17px) !important; }
+  .my-melds { bottom:clamp(31px,7vh,47px) !important; gap:2px !important; }
+  .player-ui { width:96vw !important; max-width:96vw !important; gap:3px !important; }
+  .controls { gap:3px !important; padding:3px !important; }
+  .controls button { min-width:0; min-height:28px; padding:4px 7px !important; font-size:11px !important; }
+  .player-ui .bottom-status-row { gap:4px !important; }
+  .player-ui .bottom-status-row #southInfo.south-player-info { flex-basis:27% !important; padding:5px 5px 5px 29px !important; font-size:10px !important; }
+  .player-ui .bottom-status-row .player-prompt { padding:5px 7px !important; font-size:10px !important; }
+}
+
+/* iPad landscape: wider table and larger tiles, still bounded by viewport height. */
+@media screen and (orientation:landscape) and (min-width:701px) and (max-width:1100px) {
+  .table { width:min(94vw,calc((100dvh - 178px) * 1.6),1120px) !important; }
+  .center { width:clamp(130px,20%,190px) !important; height:clamp(110px,34%,150px) !important; }
+  .my-hand .tile { width:clamp(30px,4.6vh,44px) !important; height:clamp(44px,6.8vh,64px) !important; }
+  .player-ui { width:min(94vw,1120px) !important; }
+}
