@@ -2563,3 +2563,597 @@ body::before{
     z-index: 24 !important;
   }
 }
+
+
+/* v26: enlarge all four players' concealed hand tiles by 5% from v25. */
+@media screen and (orientation: landscape) {
+  .my-hand .tile {
+    width: calc(var(--tile-w) * 1.05) !important;
+    height: calc(var(--tile-h) * 1.05) !important;
+    flex-basis: calc(var(--tile-w) * 1.05) !important;
+    font-size: calc(var(--tile-font) * 1.05) !important;
+  }
+  .ai-north .ai-tile,
+  .ai-position.ai-north .ai-hand .ai-tile,
+  .ai-position.ai-north .ai-hand .tile {
+    width: calc(var(--u) * 2.65 * 1.05) !important;
+    height: calc(var(--u) * 3.8 * 1.05) !important;
+    font-size: calc(var(--u) * 1.35 * 1.05) !important;
+  }
+  .ai-west .ai-tile, .ai-east .ai-tile,
+  .ai-position.ai-west .ai-hand .ai-tile,
+  .ai-position.ai-east .ai-hand .ai-tile,
+  .ai-position.ai-west .ai-hand .tile,
+  .ai-position.ai-east .ai-hand .tile {
+    width: calc(var(--u) * 3.8 * 1.05) !important;
+    height: calc(var(--u) * 2.65 * 1.05) !important;
+    font-size: calc(var(--u) * 1.35 * 1.05) !important;
+  }
+}
+
+
+/* v27: final landscape geometry — all seat/discard coordinates use the table box,
+   and the entire game fits inside the visible viewport without page scrolling. */
+@media screen and (orientation: landscape) {
+  html, body {
+    height: 100%;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  .topbar {
+    flex: 0 0 auto;
+    min-height: clamp(38px, 7.5dvh, 62px) !important;
+    height: clamp(38px, 7.5dvh, 62px) !important;
+    box-sizing: border-box !important;
+    padding-block: clamp(3px, .8dvh, 8px) !important;
+  }
+  .game {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: calc(100dvh - clamp(38px, 7.5dvh, 62px)) !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - clamp(38px, 7.5dvh, 62px)) !important;
+    padding: clamp(3px, .7dvh, 8px) 1vw clamp(3px, .7dvh, 8px) !important;
+    gap: clamp(3px, .7dvh, 8px) !important;
+    overflow: hidden !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+  .table {
+    width: min(96vw, calc((100dvh - clamp(38px, 7.5dvh, 62px) - 116px) * 1.6), 1500px) !important;
+    height: auto !important;
+    aspect-ratio: 16 / 10 !important;
+    flex: 0 0 auto !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+  .player-ui {
+    width: min(96vw, 1500px) !important;
+    max-width: 96vw !important;
+    flex: 0 0 auto !important;
+    margin: 0 auto !important;
+    gap: clamp(2px, .45dvh, 5px) !important;
+  }
+  .player-ui .controls {
+    min-height: 0 !important;
+    padding: 0 !important;
+    gap: clamp(3px, .45vw, 8px) !important;
+  }
+  .player-ui .controls button {
+    min-height: clamp(25px, 4.8dvh, 42px) !important;
+    padding: clamp(2px, .45dvh, 6px) clamp(7px, .8vw, 14px) !important;
+    font-size: clamp(10px, 1.45dvh, 15px) !important;
+  }
+  .player-ui .bottom-status-row {
+    gap: clamp(3px, .5vw, 8px) !important;
+    min-height: clamp(34px, 7dvh, 58px) !important;
+  }
+  .player-ui .bottom-status-row #southInfo.south-player-info,
+  .player-ui .bottom-status-row .player-prompt {
+    min-height: clamp(34px, 7dvh, 58px) !important;
+    padding-block: clamp(3px, .7dvh, 8px) !important;
+    box-sizing: border-box !important;
+  }
+
+  /* The center card defines the discard ring. Seven columns/rows, all with one footprint. */
+  .center {
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: clamp(100px, 16%, 190px) !important;
+    height: clamp(90px, 30%, 150px) !important;
+  }
+  .north-discards, .south-discards {
+    width: calc(var(--u) * 29) !important;
+    height: calc(var(--discard-h) * 2 + var(--discard-gap)) !important;
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-content: flex-start !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: var(--discard-gap) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+  }
+  .north-discards {
+    top: calc(50% - clamp(45px, 15%, 75px) - var(--discard-h) - var(--discard-gap)) !important;
+    bottom: auto !important;
+    flex-wrap: wrap-reverse !important;
+    align-content: flex-end !important;
+  }
+  .south-discards {
+    top: calc(50% + clamp(45px, 15%, 75px) + var(--discard-gap)) !important;
+    bottom: auto !important;
+  }
+  .north-discards .discard-slot, .south-discards .discard-slot {
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    flex: 0 0 var(--discard-w) !important;
+    margin: 0 !important;
+  }
+  .west-discards, .east-discards {
+    top: 50% !important;
+    bottom: auto !important;
+    width: calc(var(--discard-h) * 2 + var(--discard-gap)) !important;
+    height: calc(var(--u) * 28) !important;
+    max-height: calc(var(--u) * 28) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    align-content: center !important;
+    justify-content: center !important;
+    gap: var(--discard-gap) !important;
+    transform: translateY(-50%) !important;
+  }
+  .west-discards {
+    left: calc(50% - clamp(50px, 10%, 95px) - var(--discard-h) - var(--discard-gap)) !important;
+    right: auto !important;
+    direction: rtl !important;
+  }
+  .east-discards {
+    right: calc(50% - clamp(50px, 10%, 95px) - var(--discard-h) - var(--discard-gap)) !important;
+    left: auto !important;
+    direction: ltr !important;
+  }
+  .west-discards .discard-slot, .east-discards .discard-slot {
+    width: var(--discard-h) !important;
+    height: var(--discard-w) !important;
+    flex: 0 0 var(--discard-w) !important;
+    position: relative !important;
+    margin: 0 !important;
+  }
+  .west-discards .discard-slot .discard, .east-discards .discard-slot .discard {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    margin: 0 !important;
+    transform-origin: center center !important;
+  }
+  .west-discards .discard-slot .discard { transform: translate(-50%,-50%) rotate(90deg) !important; }
+  .east-discards .discard-slot .discard { transform: translate(-50%,-50%) rotate(-90deg) !important; }
+}
+
+/* v29: discard lanes size themselves from the actual center panel edge.
+   Tile orientation rules are intentionally left unchanged. */
+@media screen and (orientation: landscape) {
+  .table {
+    --discard-gap: max(1px, calc(var(--u) * .16));
+    --discard-w: calc(var(--u) * 2.65);
+    --discard-h: calc(var(--u) * 3.85);
+  }
+
+  /* Match the dimensions of the center panel exactly, so capacity follows its edge length. */
+  .north-discards, .south-discards {
+    display: flex !important;
+    position: absolute !important;
+    width: clamp(100px, 16%, 190px) !important;
+    height: max-content !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: none !important;
+    grid-auto-rows: auto !important;
+    gap: var(--discard-gap) !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    align-content: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translateX(-50%) !important;
+    left: 50% !important;
+    right: auto !important;
+  }
+  .north-discards {
+    top: auto !important;
+    bottom: calc(50% + clamp(45px, 15%, 75px) + var(--discard-gap)) !important;
+    flex-flow: row wrap-reverse !important;
+  }
+  .south-discards {
+    top: calc(50% + clamp(45px, 15%, 75px) + var(--discard-gap)) !important;
+    bottom: auto !important;
+    flex-flow: row wrap !important;
+  }
+  .north-discards .discard-slot, .south-discards .discard-slot {
+    display: flex !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 var(--discard-w) !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    direction: ltr !important;
+  }
+  .north-discards .discard-slot .discard, .south-discards .discard-slot .discard {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    flex: none !important;
+    margin: 0 !important;
+  }
+
+  /* Side lanes use the center panel's height; each overflow column grows outward. */
+  .west-discards, .east-discards {
+    display: flex !important;
+    position: absolute !important;
+    top: 50% !important;
+    bottom: auto !important;
+    width: max-content !important;
+    height: clamp(90px, 30%, 150px) !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    grid-template-rows: none !important;
+    grid-auto-columns: auto !important;
+    flex-flow: column wrap !important;
+    gap: var(--discard-gap) !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translateY(-50%) !important;
+  }
+  .west-discards {
+    left: auto !important;
+    right: calc(50% + clamp(50px, 8%, 95px) + var(--discard-gap)) !important;
+    direction: rtl !important;
+  }
+  .east-discards {
+    left: calc(50% + clamp(50px, 8%, 95px) + var(--discard-gap)) !important;
+    right: auto !important;
+    direction: ltr !important;
+  }
+  .west-discards .discard-slot, .east-discards .discard-slot {
+    display: flex !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 var(--discard-w) !important;
+    width: var(--discard-h) !important;
+    height: var(--discard-w) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    direction: ltr !important;
+  }
+  .west-discards .discard-slot .discard, .east-discards .discard-slot .discard {
+    box-sizing: border-box !important;
+    position: relative !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    flex: none !important;
+    margin: 0 !important;
+  }
+  /* Keep original orientation: north 180°, west 90°, east -90°, south upright. */
+  .north-discards .discard-slot .discard { transform: rotate(180deg) !important; }
+  .west-discards .discard-slot .discard { transform: rotate(90deg) !important; }
+  .east-discards .discard-slot .discard { transform: rotate(-90deg) !important; }
+  .south-discards .discard-slot .discard { transform: none !important; }
+}
+
+
+/* v30: make each discard lane's inner edge exactly touch the center panel.
+   Keep tile-facing transforms unchanged; use a centered transform box for side tiles. */
+@media screen and (orientation: landscape) {
+  .table {
+    --discard-gap: max(1px, calc(var(--u) * .16));
+    --discard-w: calc(var(--u) * 2.65);
+    --discard-h: calc(var(--u) * 3.85);
+    --center-w: clamp(100px, 16%, 190px);
+    --center-h: clamp(90px, 30%, 150px);
+  }
+
+  .center {
+    width: var(--center-w) !important;
+    height: var(--center-h) !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  /* North: inner/bottom edge of first row touches the north edge of center. */
+  .north-discards, .south-discards {
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    width: var(--center-w) !important;
+    height: max-content !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    gap: var(--discard-gap) !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    align-content: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translateX(-50%) !important;
+  }
+  .north-discards {
+    top: auto !important;
+    bottom: calc(50% + var(--center-h) / 2 + var(--discard-gap)) !important;
+    flex-flow: row wrap-reverse !important;
+  }
+  .south-discards {
+    top: calc(50% + var(--center-h) / 2 + var(--discard-gap)) !important;
+    bottom: auto !important;
+    flex-flow: row wrap !important;
+  }
+  .north-discards .discard-slot, .south-discards .discard-slot {
+    display: block !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 var(--discard-w) !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .north-discards .discard-slot .discard, .south-discards .discard-slot .discard {
+    display: flex !important;
+    box-sizing: border-box !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    margin: 0 !important;
+    flex: none !important;
+  }
+  /* Preserve the established directions: north rotated 180°, south upright. */
+  .north-discards .discard-slot .discard { transform: rotate(180deg) !important; }
+  .south-discards .discard-slot .discard { transform: none !important; }
+
+  /* Side lanes have the same height as center. Wrapped columns grow outward. */
+  .west-discards, .east-discards {
+    position: absolute !important;
+    top: 50% !important;
+    bottom: auto !important;
+    width: max-content !important;
+    height: var(--center-h) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--discard-gap) !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: translateY(-50%) !important;
+  }
+  .west-discards {
+    left: auto !important;
+    right: calc(50% + var(--center-w) / 2 + var(--discard-gap)) !important;
+    flex-wrap: wrap-reverse !important;
+    direction: rtl !important;
+  }
+  .east-discards {
+    left: calc(50% + var(--center-w) / 2 + var(--discard-gap)) !important;
+    right: auto !important;
+    flex-wrap: wrap !important;
+    direction: ltr !important;
+  }
+  .west-discards .discard-slot, .east-discards .discard-slot {
+    display: block !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    flex: 0 0 var(--discard-w) !important;
+    width: var(--discard-h) !important;
+    height: var(--discard-w) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .west-discards .discard-slot .discard, .east-discards .discard-slot .discard {
+    display: flex !important;
+    box-sizing: border-box !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: var(--discard-w) !important;
+    height: var(--discard-h) !important;
+    margin: 0 !important;
+    flex: none !important;
+    transform-origin: center center !important;
+  }
+  /* Keep the existing side tile orientations exactly as requested. */
+  .west-discards .discard-slot .discard { transform: translate(-50%, -50%) rotate(90deg) !important; }
+  .east-discards .discard-slot .discard { transform: translate(-50%, -50%) rotate(-90deg) !important; }
+}
+
+
+/* v31: west player's overflow columns grow OUTWARD to the left, never toward center. */
+@media screen and (orientation: landscape) {
+  .west-discards {
+    direction: rtl !important;
+    flex-direction: column !important;
+    flex-wrap: wrap-reverse !important;
+    justify-content: flex-start !important;
+    align-content: flex-end !important;
+    align-items: flex-end !important;
+    left: auto !important;
+    right: calc(50% + var(--center-w) / 2 + var(--discard-gap)) !important;
+  }
+  .west-discards .discard-slot {
+    direction: ltr !important;
+  }
+}
+
+
+/* v32: west discard overflow column is adjacent to the already-filled column.
+   Keep the first column at the center's west edge; each new column grows farther left. */
+@media screen and (orientation: landscape) {
+  .west-discards {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    align-content: flex-end !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    direction: ltr !important;
+    left: auto !important;
+    right: calc(50% + var(--center-w) / 2 + var(--discard-gap)) !important;
+  }
+  .west-discards .discard-slot {
+    direction: ltr !important;
+  }
+}
+
+
+/* v33: east discard overflow mirrors the intended inward-first column flow.
+   First column starts at the center's east edge; when full, the next column is
+   placed immediately to its right, with no gap inserted toward the center. */
+@media screen and (orientation: landscape) {
+  .east-discards {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
+    align-content: flex-start !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    direction: ltr !important;
+    left: calc(50% + var(--center-w) / 2 + var(--discard-gap)) !important;
+    right: auto !important;
+  }
+  .east-discards .discard-slot {
+    direction: ltr !important;
+  }
+}
+
+
+/* v34: west-side overflow must grow left from the already-filled first column.
+   Anchor the first column beside the center, reverse cross-axis wrapping so each
+   additional column is placed immediately to the LEFT of the previous column. */
+@media screen and (orientation: landscape) {
+  .west-discards {
+    position: absolute !important;
+    top: 50% !important;
+    left: auto !important;
+    right: calc(50% + var(--center-w) / 2 + var(--discard-gap)) !important;
+    width: max-content !important;
+    height: var(--center-h) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: wrap-reverse !important;
+    align-content: flex-start !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    direction: ltr !important;
+    gap: var(--discard-gap) !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .west-discards .discard-slot {
+    direction: ltr !important;
+  }
+}
+
+
+/* v35: relocate meld groups per requested seat mapping.
+   south/player -> former east position; east -> former north position;
+   north -> outside table upper-left; west stays where it was. */
+@media screen and (orientation: landscape) {
+  .table { position: relative !important; }
+
+  /* Player's own melds use the former east player's outer-right/bottom anchor. */
+  .my-melds {
+    position: absolute !important;
+    left: calc(100% + clamp(4px, 1vw, 12px)) !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: clamp(18px, 4vh, 34px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    gap: calc(var(--u) * .45) !important;
+    max-width: calc(var(--u) * 11) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* Right player's melds move to the former north player's position (outside right, top). */
+  .east-melds {
+    position: absolute !important;
+    left: calc(100% + clamp(4px, 1vw, 12px)) !important;
+    right: auto !important;
+    top: clamp(8px, 2vh, 18px) !important;
+    bottom: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: calc(var(--u) * .45) !important;
+    max-width: calc(var(--u) * 11) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* North player's melds sit just outside the table's upper-left corner. */
+  .north-melds {
+    position: absolute !important;
+    left: auto !important;
+    right: calc(100% + clamp(4px, 1vw, 12px)) !important;
+    top: clamp(8px, 2vh, 18px) !important;
+    bottom: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    gap: calc(var(--u) * .45) !important;
+    max-width: calc(var(--u) * 11) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* All four meld groups use the same meld/tile orientation and group layout. */
+  .my-melds .meld, .north-melds .meld, .west-melds .meld, .east-melds .meld {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: calc(var(--u) * .12) !important;
+    margin: 0 !important;
+  }
+  .my-melds .meld-tile, .north-melds .meld-tile,
+  .west-melds .meld-tile, .east-melds .meld-tile {
+    width: calc(var(--u) * 2.65) !important;
+    height: calc(var(--u) * 3.85) !important;
+    font-size: calc(var(--u) * 1.25) !important;
+    flex: 0 0 auto !important;
+  }
+}
