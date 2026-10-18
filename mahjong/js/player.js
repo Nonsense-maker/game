@@ -173,13 +173,19 @@ function renderPlayerHand(){
 
         el.textContent = tileLabel(tile);
 
-        el.onclick = ()=>{
+        el.onclick = (event)=>{
 
-            if(phase !== "exchange"){
+            event.preventDefault();
+            event.stopPropagation();
+
+            if(phase === "exchange"){
+                toggleExchangeTile(index);
                 return;
             }
 
-            toggleExchangeTile(index);
+            if(phase === "playing"){
+                discardTile(index);
+            }
 
         };
 

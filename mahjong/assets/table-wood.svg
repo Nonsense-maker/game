@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+<defs>
+ <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#8b5428"/><stop offset=".45" stop-color="#6b3d1d"/><stop offset="1" stop-color="#4a2916"/>
+ </linearGradient>
+ <pattern id="grain" width="180" height="42" patternUnits="userSpaceOnUse">
+  <path d="M-20 18 C20 2 50 32 92 15 S160 8 205 24" fill="none" stroke="#d79a58" stroke-opacity=".22" stroke-width="3"/>
+  <path d="M-10 31 C30 16 62 40 108 25 S170 20 210 34" fill="none" stroke="#32180d" stroke-opacity=".28" stroke-width="2"/>
+  <path d="M0 8 C35 0 58 18 96 9 S160 2 190 12" fill="none" stroke="#efbd78" stroke-opacity=".10" stroke-width="2"/>
+ </pattern>
+</defs>
+<rect width="900" height="900" fill="url(#wood)"/>
+<rect width="900" height="900" fill="url(#grain)"/>
+</svg>

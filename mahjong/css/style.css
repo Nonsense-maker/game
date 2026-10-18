@@ -319,3 +319,1197 @@ body::before{
     .discards{width:210px;margin-top:78px}.player-ui{top:500px;width:96vw}.player-prompt{width:min(94vw,520px)}.player-discards .discard{width:18px;height:24px;font-size:11px}.north-discards{top:88px;width:135px}.west-discards{left:48px;width:24px}.east-discards{right:48px;width:24px}.south-discards{bottom:85px;width:150px}.discard{width:21px;height:29px;font-size:13px}
     .controls{position:relative;bottom:auto;right:auto;left:auto;transform:none;width:95vw;justify-content:center}.ai-tile{width:17px;height:25px}.vertical .ai-tile{width:25px;height:17px}
 }
+
+
+/* =============================
+   AI牌墙 / 座位方向优化 v3
+   ============================= */
+.ai-north{
+    left:50%;
+    top:22px;
+    transform:translateX(-50%) rotate(180deg);
+}
+
+.ai-west{
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.ai-east{
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.ai-hand{
+    display:flex;
+    gap:4px;
+}
+
+.ai-position.vertical .ai-hand{
+    flex-direction:column;
+}
+
+/* 对家：麻将牌竖直放置，牌的长边作为底边 */
+.ai-north .ai-tile{
+    width:38px;
+    height:54px;
+}
+
+/* 左右两家：牌堆竖向排列，但每张牌保持横向长边 */
+.ai-west .ai-tile,
+.ai-east .ai-tile{
+    width:54px;
+    height:38px;
+}
+
+.ai-tile{
+    flex:none;
+    border-radius:5px;
+    background-color:#f2eadb;
+    background-image:url("../assets/tile-back.svg");
+    background-position:center;
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    border:1px solid #8d7a5e;
+    box-shadow:0 3px 7px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.82);
+}
+
+/* 中央信息只显示“剩余张数 + 数字” */
+.center .wall-label{
+    font-size:13px;
+    color:rgba(255,255,255,.76);
+    letter-spacing:.08em;
+    margin-top:2px;
+}
+
+.center .wall{
+    font-size:30px;
+    line-height:1;
+    font-weight:900;
+    color:var(--gold-light);
+    opacity:1;
+    letter-spacing:.03em;
+    text-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+
+@media(max-width:700px){
+    .ai-north .ai-tile{
+        width:30px;
+        height:43px;
+    }
+
+    .ai-west .ai-tile,
+    .ai-east .ai-tile{
+        width:43px;
+        height:30px;
+    }
+
+    .ai-hand{gap:2px}
+
+    .center .wall-label{font-size:11px}
+    .center .wall{font-size:24px}
+}
+
+/* =============================
+   v4 修正：玩家操作区独立布局
+   ============================= */
+.game{
+    width:min(1220px,96vw);
+    min-height:auto;
+    height:auto;
+    padding:24px 0 42px;
+    margin:auto;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+}
+
+.table{
+    flex:none;
+    margin-top:18px;
+}
+
+/* 三个 AI 座位信息固定在牌桌外围，不再压住玩家操作区 */
+.seat-summary{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:20;
+}
+#northInfo{
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+#westInfo{
+    left:max(0px,calc(50% - 510px));
+    top:calc(24px + 34px + 270px);
+    transform:translateY(-50%);
+}
+#eastInfo{
+    right:max(0px,calc(50% - 510px));
+    top:calc(24px + 34px + 270px);
+    transform:translateY(-50%);
+}
+
+/* 玩家区域全部进入正常文档流：信息 → 提示 → 手牌 → 操作 */
+.player-ui{
+    position:relative;
+    left:auto;
+    top:auto;
+    right:auto;
+    bottom:auto;
+    transform:none;
+    width:min(900px,94vw);
+    min-height:0;
+    margin-top:14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    z-index:90;
+}
+
+.south-player-info{
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    bottom:auto;
+    transform:none;
+    min-width:118px;
+    padding-left:40px;
+    pointer-events:none;
+    z-index:91;
+}
+.south-player-info::before{
+    content:"";
+    position:absolute;
+    left:8px;
+    top:50%;
+    width:25px;
+    height:25px;
+    transform:translateY(-50%);
+    border-radius:50%;
+    background:url("../assets/avatar-player.svg") center/contain no-repeat;
+    box-shadow:0 2px 7px rgba(0,0,0,.3);
+}
+
+.player-prompt{
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    bottom:auto;
+    transform:none;
+    width:min(760px,94vw);
+    min-height:58px;
+    padding:10px 18px;
+    z-index:92;
+    pointer-events:none;
+}
+.player-prompt .lack-btn{
+    pointer-events:auto;
+}
+
+.my-hand{
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    bottom:auto;
+    transform:none;
+    width:100%;
+    min-height:64px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:3px;
+    padding:4px 10px 8px;
+    overflow-x:auto;
+    overflow-y:visible;
+    white-space:nowrap;
+    z-index:95;
+    pointer-events:auto;
+}
+
+.my-melds{
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    bottom:auto;
+    transform:none;
+    min-height:0;
+    display:flex;
+    justify-content:center;
+    z-index:94;
+}
+
+.controls{
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    bottom:auto;
+    transform:none;
+    z-index:100;
+    pointer-events:auto;
+}
+
+/* =============================
+   v4：左右牌背方向
+   牌组上下排列，但每张牌保持横向长边作为底边；
+   背面图案单独旋转 90°。
+   ============================= */
+.ai-north{
+    left:50%;
+    top:22px;
+    transform:translateX(-50%) rotate(180deg);
+}
+.ai-west{
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+}
+.ai-east{
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.ai-position.vertical .ai-hand{
+    flex-direction:column;
+}
+
+.ai-north .ai-tile{
+    width:42px;
+    height:58px;
+}
+
+.ai-west .ai-tile,
+.ai-east .ai-tile{
+    width:58px;
+    height:42px;
+    background-image:url("../assets/tile-back-horizontal.svg");
+    background-size:100% 100%;
+}
+
+.ai-tile{
+    flex:none;
+    border-radius:6px;
+    background-color:#f2eadb;
+    background-image:url("../assets/tile-back.svg");
+    background-position:center;
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    border:1px solid #8d7a5e;
+    box-shadow:0 3px 8px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.82);
+}
+
+.center .wall-label{
+    font-size:13px;
+    color:rgba(255,255,255,.76);
+    letter-spacing:.08em;
+    margin-top:2px;
+}
+.center .wall{
+    font-size:30px;
+    line-height:1;
+    font-weight:900;
+    color:var(--gold-light);
+    opacity:1;
+    letter-spacing:.03em;
+    text-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+
+@media(max-width:700px){
+    .game{
+        width:100%;
+        min-height:auto;
+        padding:20px 0 36px;
+    }
+    .table{
+        width:94vw;
+        height:440px;
+        margin-top:18px;
+    }
+    .player-ui{
+        width:96vw;
+        margin-top:12px;
+    }
+    #northInfo{top:2px}
+    #westInfo{left:2px;top:240px}
+    #eastInfo{right:2px;top:240px}
+    .seat-summary-item{min-width:96px;padding:6px 8px 6px 32px;font-size:11px}
+    .seat-summary-item::before{width:21px;height:21px;left:6px}
+    .south-player-info{min-width:96px}
+    .south-player-info::before{width:21px;height:21px;left:6px}
+    .player-prompt{width:96vw}
+    .my-hand{justify-content:flex-start;overflow-x:auto}
+    .tile{width:34px;height:48px;font-size:21px}
+    .ai-north .ai-tile{width:34px;height:47px}
+    .ai-west .ai-tile,.ai-east .ai-tile{width:47px;height:34px}
+    .center{width:170px;height:112px}
+    .center .wall-label{font-size:11px}
+    .center .wall{font-size:24px}
+}
+
+/* =============================
+   v5：桌面与玩家操作区重新布局
+   ============================= */
+.game{
+    width:min(1180px,96vw);
+    min-height:0;
+    padding:28px 0 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.table{
+    width:min(800px,78vw);
+    height:auto;
+    aspect-ratio:1 / 1;
+    margin-top:18px;
+    border:18px solid transparent;
+    border-radius:38px;
+    /* 只让木纹出现在桌框，桌面保持经典绿色绒布 */
+    background:
+        url("../assets/table-wood.svg") border-box,
+        url("../assets/table-felt.svg") padding-box;
+    background-size:cover,cover;
+    background-position:center,center;
+    background-repeat:no-repeat;
+    background-clip:border-box,padding-box;
+    box-shadow:0 26px 70px rgba(0,0,0,.48),inset 0 0 0 2px rgba(255,255,255,.08),inset 0 0 70px rgba(0,0,0,.30);
+}
+
+.table::before{
+    inset:10px;
+    border-radius:25px;
+    border:1px solid rgba(248,225,161,.18);
+}
+.table::after{
+    inset:-10px;
+    border-radius:40px;
+    border:1px solid rgba(255,214,130,.22);
+}
+
+/* 玩家信息、手牌、副露全部属于牌桌内部 */
+#southInfo.south-player-info{
+    position:absolute;
+    left:50%;
+    top:auto;
+    right:auto;
+    bottom:108px;
+    transform:translateX(-50%);
+    z-index:52;
+    pointer-events:none;
+}
+
+.my-melds{
+    position:absolute;
+    left:50%;
+    right:auto;
+    top:auto;
+    bottom:78px;
+    transform:translateX(-50%);
+    z-index:51;
+    pointer-events:none;
+}
+
+.my-hand{
+    position:absolute;
+    left:50%;
+    right:auto;
+    top:auto;
+    bottom:16px;
+    transform:translateX(-50%);
+    width:calc(100% - 52px);
+    min-height:68px;
+    padding:4px 4px 2px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:4px;
+    overflow:visible;
+    white-space:nowrap;
+    z-index:60;
+    pointer-events:auto;
+}
+
+.player-ui{
+    position:relative;
+    left:auto;
+    top:auto;
+    right:auto;
+    bottom:auto;
+    transform:none;
+    width:min(800px,94vw);
+    margin-top:14px;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    z-index:120;
+}
+
+/* 明确顺序：牌桌 → 操作按钮 → 提示 */
+.player-ui .controls{order:1;}
+.player-ui .player-prompt{order:2;}
+
+.controls{
+    position:relative;
+    inset:auto;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:8px;
+    z-index:130;
+    pointer-events:auto;
+}
+
+.player-prompt{
+    position:relative;
+    inset:auto;
+    transform:none;
+    width:min(760px,94vw);
+    min-height:54px;
+    padding:9px 16px;
+    z-index:125;
+    pointer-events:auto;
+}
+
+.player-prompt .lack-btn{
+    pointer-events:auto;
+    position:relative;
+    z-index:131;
+}
+
+/* 左右牌墙：竖向排列；单张牌横向，长边为底 */
+.ai-west,.ai-east{
+    top:50%;
+    transform:translateY(-50%);
+}
+.ai-west{left:10px}
+.ai-east{right:10px}
+.ai-position.vertical .ai-hand{flex-direction:column;gap:5px}
+.ai-west .ai-tile,.ai-east .ai-tile{
+    width:58px;
+    height:42px;
+    background-image:url("../assets/tile-back-horizontal.svg");
+    background-size:100% 100%;
+}
+.ai-north .ai-tile{
+    width:42px;
+    height:58px;
+}
+
+/* AI 信息卡不要压住牌桌内容 */
+#westInfo{left:max(0px,calc(50% - 570px));top:50%;transform:translateY(-50%)}
+#eastInfo{right:max(0px,calc(50% - 570px));top:50%;transform:translateY(-50%)}
+#northInfo{left:50%;top:2px;transform:translateX(-50%)}
+
+@media(max-width:900px){
+    .table{width:min(92vw,760px)}
+    #westInfo{left:0}
+    #eastInfo{right:0}
+}
+
+@media(max-width:700px){
+    .game{width:100%;padding:18px 0 28px}
+    .table{width:96vw;border-width:12px;border-radius:28px}
+    .center{width:170px;height:112px}
+    .my-hand{width:calc(100% - 24px);gap:2px;overflow-x:auto;justify-content:flex-start}
+    #southInfo.south-player-info{bottom:102px}
+    .my-melds{bottom:72px}
+    .ai-north .ai-tile{width:34px;height:47px}
+    .ai-west .ai-tile,.ai-east .ai-tile{width:47px;height:34px}
+    .ai-position.vertical .ai-hand{gap:2px}
+    #westInfo{left:2px;top:240px}
+    #eastInfo{right:2px;top:240px}
+    .player-ui{width:96vw;margin-top:12px}
+    .player-prompt{width:96vw}
+}
+
+
+/* =============================
+   v6：经典绿绒桌面 + 中央方形牌区 + 弃牌贴边
+   ============================= */
+.table{
+    border:18px solid transparent;
+    border-radius:38px;
+    /* 第一层只负责木框，第二层只负责绒布桌面 */
+    background-image:url("../assets/table-wood.svg"),url("../assets/table-felt.svg");
+    background-origin:border-box,padding-box;
+    background-clip:border-box,padding-box;
+    background-size:cover,cover;
+    background-position:center,center;
+    background-repeat:no-repeat;
+}
+
+.center{
+    width:230px;
+    height:230px;
+    border-radius:30px;
+    gap:10px;
+    background:linear-gradient(145deg,rgba(2,37,27,.88),rgba(5,53,39,.78));
+    border:1px solid rgba(226,187,99,.30);
+    box-shadow:0 18px 42px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);
+    z-index:8;
+}
+.center .round{font-size:27px}
+.center .wall-label{font-size:15px;color:rgba(255,255,255,.78);letter-spacing:.12em}
+.center .wall{font-size:34px;font-weight:900;color:var(--gold-light);opacity:1;line-height:1}
+
+/* 四家的弃牌只围着中央方形区域排列 */
+.player-discards{z-index:9;gap:3px}
+.north-discards{
+    left:50%;
+    top:calc(50% - 110px - 43px);
+    transform:translateX(-50%);
+    width:210px;
+    min-height:40px;
+    justify-content:center;
+    align-content:flex-end;
+}
+.south-discards{
+    left:50%;
+    bottom:calc(50% - 110px - 43px);
+    transform:translateX(-50%);
+    width:210px;
+    min-height:40px;
+    justify-content:center;
+    align-content:flex-start;
+}
+.west-discards{
+    left:calc(50% - 110px - 43px);
+    top:50%;
+    transform:translateY(-50%);
+    width:40px;
+    max-height:210px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+.east-discards{
+    right:calc(50% - 110px - 43px);
+    top:50%;
+    transform:translateY(-50%);
+    width:40px;
+    max-height:210px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+/* 牌面朝向对应座位 */
+.north-discards .discard{transform:rotate(180deg)}
+.west-discards .discard{transform:rotate(90deg);margin:2px 0}
+.east-discards .discard{transform:rotate(-90deg);margin:2px 0}
+.south-discards .discard{transform:none}
+
+/* 玩家手牌继续放在桌面下沿内侧，操作区在桌外 */
+#southInfo.south-player-info{
+    bottom:118px;
+}
+.my-hand{
+    bottom:14px;
+}
+.my-melds{
+    bottom:86px;
+}
+
+/* 牌桌外：操作按钮 -> 最底部提示 */
+.player-ui{margin-top:14px;gap:8px}
+.player-ui .controls{order:1}
+.player-ui .player-prompt{order:2}
+
+@media(max-width:700px){
+    .table{border-width:12px;border-radius:28px}
+    .center{width:180px;height:180px;border-radius:24px}
+    .center .round{font-size:21px}
+    .center .wall-label{font-size:12px}
+    .center .wall{font-size:28px}
+    .north-discards{top:calc(50% - 90px - 34px);width:160px}
+    .south-discards{bottom:calc(50% - 90px - 34px);width:160px}
+    .west-discards{left:calc(50% - 90px - 34px);max-height:160px}
+    .east-discards{right:calc(50% - 90px - 34px);max-height:160px}
+    #southInfo.south-player-info{bottom:96px}
+    .my-melds{bottom:70px}
+    .my-hand{bottom:10px}
+}
+
+/* =============================
+   v7：经典绒布桌面 + 更紧凑的弃牌
+   ============================= */
+.table{
+    /* 桌面恢复原版经典绿色绒布，仅边框保留木质纹理 */
+    background-color:#0c6547;
+    background-image:url("../assets/table-wood.svg"),url("../assets/table-felt.svg");
+    background-origin:border-box,padding-box;
+    background-clip:border-box,padding-box;
+    background-size:cover,cover;
+    background-position:center,center;
+    background-repeat:no-repeat;
+}
+
+/* 四家弃牌统一稍微放大，并统一为同一间距 */
+.player-discards{
+    gap:2px;
+}
+.player-discards .discard,
+.discard{
+    width:28px;
+    height:38px;
+    font-size:17px;
+}
+.north-discards .discard,
+.south-discards .discard,
+.west-discards .discard,
+.east-discards .discard{
+    margin:0;
+}
+
+/* 左右两家的竖向弃牌也使用和玩家相同的 2px 间距 */
+.west-discards,
+.east-discards{
+    gap:2px;
+}
+
+@media(max-width:700px){
+    .player-discards .discard,
+    .discard{
+        width:23px;
+        height:31px;
+        font-size:14px;
+    }
+    .west-discards,
+    .east-discards{
+        gap:2px;
+    }
+}
+
+
+/* =============================
+   v8：木框/绿绒彻底分离 + 弃牌换行方向 + 底部信息条
+   ============================= */
+.table{
+    border:18px solid transparent;
+    border-radius:38px;
+    background-color:#0c6547;
+    background-image:url("../assets/table-felt.svg");
+    background-origin:padding-box;
+    background-clip:padding-box;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    /* 木纹只作为真正的边框图像，避免背景层覆盖绿色桌面 */
+    border-image-source:url("../assets/table-wood.svg");
+    border-image-slice:18;
+    border-image-width:18px;
+    border-image-repeat:round;
+}
+
+/* 四家弃牌：统一视觉尺寸与 2px 间距 */
+.player-discards{
+    gap:2px;
+}
+.player-discards .discard,
+.discard{
+    width:28px;
+    height:38px;
+    font-size:17px;
+    margin:0 !important;
+}
+
+/* 南家：排满一行后，从下方继续起第二行 */
+.south-discards{
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    justify-content:center;
+}
+
+/* 北家：第一行靠近中央，排满后向上增加新行 */
+.north-discards{
+    flex-direction:row;
+    flex-wrap:wrap-reverse;
+    align-content:flex-start;
+    justify-content:center;
+}
+
+/* 西家：第一列排满后，新列从左侧继续 */
+.west-discards{
+    flex-direction:column;
+    flex-wrap:wrap-reverse;
+    align-content:flex-start;
+    justify-content:center;
+    align-items:center;
+}
+
+/* 东家：第一列排满后，新列从右侧继续 */
+.east-discards{
+    flex-direction:column;
+    flex-wrap:wrap;
+    direction:rtl;
+    align-content:flex-start;
+    justify-content:center;
+    align-items:center;
+}
+.east-discards .discard{direction:ltr;}
+
+/* 底部信息条 + 提示条：合计宽度保持原来的 760px */
+.player-ui .bottom-status-row{
+    width:min(760px,94vw);
+    display:flex;
+    align-items:stretch;
+    gap:8px;
+    order:2;
+}
+.player-ui .bottom-status-row .south-player-info{
+    position:relative;
+    left:auto;
+    right:auto;
+    top:auto;
+    bottom:auto;
+    transform:none;
+    flex:0 0 118px;
+    width:118px;
+    min-width:118px;
+    min-height:54px;
+    margin:0;
+    padding:8px 8px 8px 39px;
+    pointer-events:none;
+}
+.player-ui .bottom-status-row .player-prompt{
+    flex:1 1 auto;
+    width:auto;
+    min-width:0;
+    margin:0;
+}
+/* 信息条移出牌桌后，不再占用桌面底部空间 */
+.table > #southInfo{
+    display:none;
+}
+
+@media(max-width:700px){
+    .table{
+        border-width:12px;
+        border-radius:28px;
+        border-image-width:12px;
+    }
+    .player-discards .discard,
+    .discard{
+        width:23px;
+        height:31px;
+        font-size:14px;
+    }
+    .player-ui .bottom-status-row{
+        width:96vw;
+        gap:6px;
+    }
+    .player-ui .bottom-status-row .south-player-info{
+        flex-basis:96px;
+        width:96px;
+        min-width:96px;
+        padding-left:32px;
+    }
+}
+
+
+/* =============================
+   v9：弃牌精确对齐 + 底部信息/提示并排
+   ============================= */
+
+/* 中央方块四条边作为弃牌的基准线：首行/列紧贴方块，后续向外扩展 */
+.player-discards{
+    gap:2px !important;
+}
+.player-discards .discard,
+.discard{
+    width:28px !important;
+    height:38px !important;
+    margin:0 !important;
+    font-size:17px;
+}
+
+/* 对家：第一行贴中央方块上边，第二行向上 */
+.north-discards{
+    left:50%;
+    top:calc(50% - 115px - 78px - 2px);
+    width:210px;
+    height:78px;
+    transform:translateX(-50%);
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap-reverse;
+    align-content:flex-end;
+    justify-content:center;
+    align-items:flex-start;
+    gap:2px;
+}
+
+/* 我方：第一行贴中央方块下边，第二行向下 */
+.south-discards{
+    left:50%;
+    top:calc(50% + 115px + 2px);
+    bottom:auto;
+    width:210px;
+    height:78px;
+    transform:translateX(-50%);
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    justify-content:center;
+    align-items:flex-start;
+    gap:2px;
+}
+
+/* 左家：第一列贴中央方块左边，第二列向左 */
+.west-discards{
+    left:calc(50% - 115px - 58px - 2px);
+    top:50%;
+    width:58px;
+    height:210px;
+    max-height:none;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    flex-wrap:wrap-reverse;
+    align-content:flex-start;
+    justify-content:center;
+    align-items:flex-start;
+    gap:2px;
+}
+
+/* 右家：第一列贴中央方块右边，第二列向右 */
+.east-discards{
+    right:calc(50% - 115px - 58px - 2px);
+    top:50%;
+    width:58px;
+    height:210px;
+    max-height:none;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    justify-content:center;
+    align-items:flex-start;
+    gap:2px;
+    direction:ltr;
+}
+.east-discards .discard{direction:ltr;}
+
+/* 保证旋转后的牌仍以牌框为基准，视觉间距与我方完全一致 */
+.north-discards .discard{transform:rotate(180deg)}
+.west-discards .discard{transform:rotate(90deg)}
+.east-discards .discard{transform:rotate(-90deg)}
+.south-discards .discard{transform:none}
+
+/* 信息条和提示条必须处于同一行，总宽度保持原来的 760px。
+   #southInfo 的旧 ID 定位规则优先级很高，因此这里明确清掉。 */
+.player-ui .bottom-status-row{
+    width:min(760px,94vw);
+    display:flex;
+    flex-direction:row;
+    align-items:stretch;
+    gap:8px;
+    order:2;
+}
+.player-ui .bottom-status-row #southInfo.south-player-info{
+    position:relative !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    transform:none !important;
+    flex:0 0 118px;
+    width:118px;
+    min-width:118px;
+    min-height:54px;
+    margin:0;
+    padding:8px 8px 8px 39px;
+    z-index:92;
+}
+.player-ui .bottom-status-row .player-prompt{
+    flex:1 1 0;
+    width:auto;
+    min-width:0;
+    margin:0;
+}
+
+@media(max-width:700px){
+    .player-discards .discard,
+    .discard{
+        width:23px !important;
+        height:31px !important;
+        font-size:14px;
+    }
+    .north-discards{
+        top:calc(50% - 90px - 64px - 2px);
+        width:160px;
+        height:64px;
+    }
+    .south-discards{
+        top:calc(50% + 90px + 2px);
+        width:160px;
+        height:64px;
+    }
+    .west-discards{
+        left:calc(50% - 90px - 48px - 2px);
+        width:48px;
+        height:160px;
+    }
+    .east-discards{
+        right:calc(50% - 90px - 48px - 2px);
+        width:48px;
+        height:160px;
+    }
+    .player-ui .bottom-status-row{
+        width:96vw;
+        gap:6px;
+    }
+    .player-ui .bottom-status-row #southInfo.south-player-info{
+        flex:0 0 96px;
+        width:96px;
+        min-width:96px;
+        padding-left:32px;
+    }
+}
+
+/* =============================
+   v10：弃牌贴边、侧边紧密排列、碰杠牌统一尺寸
+   ============================= */
+/* 对家第一排必须贴着中央方块上边；新的一排从下往上增加 */
+.north-discards{
+    top:calc(50% - 115px - 78px - 2px) !important;
+    height:78px !important;
+    flex-wrap:wrap-reverse !important;
+    align-content:flex-start !important;
+    justify-content:center !important;
+    gap:2px !important;
+}
+/* 左右两侧旋转后，牌面视觉高度比布局盒子少 10px；用负外边距抵消，视觉间距保持 2px */
+.west-discards,
+.east-discards{
+    height:210px !important;
+    max-height:none !important;
+    gap:2px !important;
+    justify-content:center !important;
+    align-content:flex-start !important;
+}
+.west-discards{
+    flex-wrap:wrap-reverse !important;
+}
+.east-discards{
+    flex-wrap:wrap !important;
+}
+.west-discards .discard,
+.east-discards .discard{
+    margin:0 0 -10px 0 !important;
+    flex:0 0 38px;
+}
+/* 四边一行/列按 7 张容量计算；每张弃牌保持统一 28×38 的布局尺寸 */
+.north-discards,
+.south-discards{width:210px !important;}
+.west-discards,
+.east-discards{width:58px !important;}
+
+/* 碰牌、杠牌中的每张牌与弃牌同尺寸 */
+.meld-tile{
+    width:28px !important;
+    height:38px !important;
+    font-size:17px !important;
+    border-radius:4px;
+}
+.meld{gap:2px !important;padding:0 !important;}
+.table-melds .meld{padding:0 !important;gap:2px !important;}
+
+@media(max-width:700px){
+    .north-discards,
+    .south-discards{width:160px !important;}
+    .west-discards,
+    .east-discards{width:48px !important;height:160px !important;}
+    .west-discards .discard,
+    .east-discards .discard{margin:0 0 -8px 0 !important;}
+    .meld-tile{width:23px !important;height:31px !important;font-size:14px !important;}
+}
+
+/* v11: side discards use fixed visual slots so rotated tiles never overlap. */
+.player-discards .discard-slot{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:none;
+    width:28px;
+    height:38px;
+    margin:0 !important;
+    padding:0;
+    overflow:visible;
+}
+.player-discards .discard-slot .discard{
+    position:relative;
+    flex:none;
+    width:28px !important;
+    height:38px !important;
+    margin:0 !important;
+}
+.north-discards,
+.south-discards{
+    display:grid !important;
+    grid-template-columns:repeat(7, 28px);
+    grid-auto-rows:38px;
+    grid-auto-flow:row;
+    gap:2px !important;
+    width:208px !important;
+    height:auto !important;
+    min-height:0;
+    justify-content:center;
+    align-content:start;
+}
+.north-discards{
+    top:calc(50% - 115px - 78px - 2px) !important;
+    bottom:auto !important;
+    grid-auto-flow:row dense;
+    align-content:end;
+    direction:ltr;
+}
+.north-discards .discard-slot:nth-child(n+8){ direction:ltr; }
+.south-discards{
+    top:calc(50% + 115px + 2px) !important;
+    bottom:auto !important;
+    align-content:start;
+}
+/* Side slots are 38×28 while their tile faces are rotated from 28×38. */
+.west-discards,
+.east-discards{
+    display:grid !important;
+    grid-template-rows:repeat(7, 28px);
+    grid-auto-columns:38px;
+    grid-auto-flow:column;
+    gap:2px !important;
+    width:158px !important;
+    height:208px !important;
+    max-height:none !important;
+    align-content:center;
+    justify-content:start;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+}
+.west-discards{
+    left:calc(50% - 115px - 158px - 2px) !important;
+    right:auto !important;
+    direction:rtl;
+}
+.east-discards{
+    right:calc(50% - 115px - 158px - 2px) !important;
+    left:auto !important;
+    direction:ltr;
+}
+.west-discards .discard-slot,
+.east-discards .discard-slot{
+    width:38px !important;
+    height:28px !important;
+    direction:ltr;
+}
+.west-discards .discard,
+.east-discards .discard{
+    width:28px !important;
+    height:38px !important;
+    transform-origin:center center;
+    margin:0 !important;
+}
+.west-discards .discard{transform:rotate(90deg) !important;}
+.east-discards .discard{transform:rotate(-90deg) !important;}
+.north-discards .discard{transform:rotate(180deg) !important;}
+.south-discards .discard{transform:none !important;}
+/* Move exposed melds outside the table so the player's hand cannot cover them. */
+.table-melds{z-index:20;}
+.west-melds{
+    left:auto !important;
+    right:calc(100% + 12px) !important;
+    bottom:25px !important;
+    top:auto !important;
+    flex-direction:column;
+}
+.north-melds{
+    left:calc(100% + 12px) !important;
+    right:auto !important;
+    top:58px !important;
+    bottom:auto !important;
+    flex-direction:row;
+}
+.east-melds{
+    left:calc(100% + 12px) !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:25px !important;
+    flex-direction:column;
+}
+@media(max-width:700px){
+    .north-discards,
+    .south-discards{
+        grid-template-columns:repeat(7, 23px);
+        grid-auto-rows:31px;
+        width:173px !important;
+    }
+    .player-discards .discard-slot{width:23px;height:31px;}
+    .player-discards .discard-slot .discard{width:23px !important;height:31px !important;}
+    .west-discards,
+    .east-discards{
+        grid-template-rows:repeat(7, 23px);
+        grid-auto-columns:31px;
+        width:130px !important;
+        height:173px !important;
+    }
+    .west-discards{left:calc(50% - 90px - 130px - 2px) !important;}
+    .east-discards{right:calc(50% - 90px - 130px - 2px) !important;}
+    .west-discards .discard-slot,
+    .east-discards .discard-slot{width:31px !important;height:23px !important;}
+    .west-discards .discard,
+    .east-discards .discard{width:23px !important;height:31px !important;}
+    .west-melds{right:calc(100% + 6px) !important;}
+    .north-melds,.east-melds{left:calc(100% + 6px) !important;}
+}
+/* North needs flex wrap-reverse (not grid row flow) so its first row sits directly against the center square. */
+.north-discards{
+    display:flex !important;
+    flex-flow:row wrap-reverse !important;
+    align-content:flex-start !important;
+    justify-content:center !important;
+    width:208px !important;
+    height:78px !important;
+    gap:2px !important;
+}
+.south-discards{
+    display:flex !important;
+    flex-flow:row wrap !important;
+    align-content:flex-start !important;
+    justify-content:center !important;
+    width:208px !important;
+    height:78px !important;
+    gap:2px !important;
+}
+@media(max-width:700px){
+    .north-discards,.south-discards{
+        width:173px !important;
+        height:64px !important;
+    }
+}
+
+/* 对家的碰/杠牌也采用与左右两家一致的竖向副露组排列 */
+.north-melds{
+    flex-direction:column !important;
+    align-items:flex-start;
+}
+.north-melds .meld{flex-direction:row;}

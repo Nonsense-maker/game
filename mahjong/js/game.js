@@ -180,7 +180,7 @@ function render(){
     roundInfoEl.textContent = `第 ${currentRound} / ${matchRounds} 局`;
 
     wallEl.textContent =
-        `牌墙：${wall.length}`;
+        `${wall.length}`;
 
 }
 
@@ -249,22 +249,22 @@ function renderMelds(container,melds,hideConcealed){
 
 function addDiscard(tile,seat){
 
-    const el =
-        document.createElement("span");
+    const slot = document.createElement("span");
+    slot.className = "discard-slot";
 
-    el.className =
-        "discard";
-
+    const el = document.createElement("span");
+    el.className = "discard";
     el.textContent = tileLabel(tile);
+    el.title = seat===0 ? "你" : getSeatName(seat);
 
-    el.title =
-        seat===0 ? "你" : getSeatName(seat);
-
-    discardEls[seat].appendChild(el);
+    slot.appendChild(el);
+    discardEls[seat].appendChild(slot);
     discardHistory.push({suit:tile.suit,value:tile.value});
-    lastDiscardEl = el;
+    // Keep the slot as the removable unit so claiming a discard removes
+    // both its visual tile and its layout footprint.
+    lastDiscardEl = slot;
 
-    return el;
+    return slot;
 
 }
 
@@ -301,9 +301,15 @@ function declareWins(seatsToWin,message,continueGame,method="点炮",payerSeat=n
 
         const result = calculateFan(seat,method);
 
+        // 记录“胡牌发生当下”仍在场的结算对象。
+        // 已经胡牌退出的玩家不再参与后续自摸/结算分配。
+        const payerSeats = method === "点炮"
+            ? (payerSeat !== null && activePlayers[payerSeat] ? [payerSeat] : [])
+            : activePlayers.filter(otherSeat=>otherSeat!==seat);
+
         activePlayers[seat] = false;
         winners.push(seat);
-        winRecords.push({seat,method,payerSeat,...result});
+        winRecords.push({seat,method,payerSeat,payerSeats,...result});
 
         if(seatElements[seat]){
 
@@ -358,64 +364,47 @@ function declareWins(seatsToWin,message,continueGame,method="点炮",payerSeat=n
 function showSettlement(message){
 
     resultMessageEl.textContent = message;
-    resultListEl.innerHTML = "";
+    const winResultListEl = document.getElementById("winResultList");
+    const rankingListEl = document.getElementById("rankingList");
+    winResultListEl.innerHTML = "";
+    rankingListEl.innerHTML = "";
 
     const isMatchOver = currentRound>=matchRounds;
     document.querySelector(".result-card h2").textContent =
         isMatchOver ? "赛程结束" : `第 ${currentRound} / ${matchRounds} 局小结`;
 
     if(!winRecords.length){
-
         const item = document.createElement("li");
-
+        item.className = "empty-result";
         item.textContent = "本局流局，没有玩家胡牌";
-
-        resultListEl.appendChild(item);
-
+        winResultListEl.appendChild(item);
     }else{
-
         winRecords.forEach((record,index)=>{
-
             const item = document.createElement("li");
             const name = document.createElement("strong");
             const detail = document.createElement("small");
-
-            name.textContent =
-                `${index+1}. ${record.seat===0 ? "你" : getSeatName(record.seat)} · ${record.fan}番 · ${roundScores[record.seat]>=0 ? "+" : ""}${roundScores[record.seat]}`;
-
+            name.textContent = `${index+1}. ${record.seat===0 ? "你" : getSeatName(record.seat)} · ${record.fan}番`;
             detail.textContent = record.patterns.join("、");
-
             item.append(name,detail);
-            resultListEl.appendChild(item);
-
+            winResultListEl.appendChild(item);
         });
-
     }
 
     const ranking = [0,1,2,3].sort((a,b)=>totalScores[b]-totalScores[a]);
-
     ranking.forEach((seat,index)=>{
-
         const item = document.createElement("li");
         const name = document.createElement("strong");
         const detail = document.createElement("small");
-
-        name.textContent =
-            `${index+1}. ${seat===0 ? "你" : getSeatName(seat)} · 总分 ${totalScores[seat]}`;
-        detail.textContent =
-            `本局 ${roundScores[seat]>=0 ? "+" : ""}${roundScores[seat]}`;
-
+        name.textContent = `${index+1}. ${seat===0 ? "你" : getSeatName(seat)} · 总分 ${totalScores[seat]}`;
+        detail.textContent = `本局 ${roundScores[seat]>=0 ? "+" : ""}${roundScores[seat]}`;
         item.append(name,detail);
-        resultListEl.appendChild(item);
-
+        rankingListEl.appendChild(item);
     });
 
     restartBtn.textContent = isMatchOver ? "重新开始赛程" : "下一局";
-
     resultScreen.classList.remove("hidden");
 
 }
-
 
 function settleRoundScores(){
 
@@ -430,21 +419,24 @@ function settleRoundScores(){
 
         if(record.method==="点炮" && record.payerSeat!==null){
 
-            roundScores[record.seat] += record.fan;
-            roundScores[record.payerSeat] -= record.fan;
+            // 点炮只由当时仍在场的放炮者承担。
+            if(record.payerSeats?.includes(record.payerSeat)){
+                roundScores[record.seat] += record.fan;
+                roundScores[record.payerSeat] -= record.fan;
+            }
 
         }else{
 
-            for(let seat=0;seat<4;seat++){
+            // 自摸只向“胡牌瞬间仍在场”的玩家收分。
+            // 已经胡牌退出的玩家永远不参与后续积分。
+            const payers = Array.isArray(record.payerSeats)
+                ? record.payerSeats
+                : [0,1,2,3].filter(seat=>seat!==record.seat);
 
-                if(seat!==record.seat){
-
-                    roundScores[seat] -= record.fan;
-                    roundScores[record.seat] += record.fan;
-
-                }
-
-            }
+            payers.forEach(seat=>{
+                roundScores[seat] -= record.fan;
+                roundScores[record.seat] += record.fan;
+            });
 
         }
 

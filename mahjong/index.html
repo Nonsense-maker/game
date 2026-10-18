@@ -21,7 +21,6 @@
 <main class="game">
 
 <div class="seat-summary">
-    <div class="seat-summary-item" id="southInfo"></div>
     <div class="seat-summary-item" id="northInfo"></div>
     <div class="seat-summary-item" id="westInfo"></div>
     <div class="seat-summary-item" id="eastInfo"></div>
@@ -43,7 +42,8 @@
 
     <div class="center">
         <div class="round" id="roundInfo">第 1 / 4 局</div>
-        <div class="wall" id="centerWall">牌墙：108</div>
+        <div class="wall-label">剩余张数</div>
+        <div class="wall" id="centerWall">108</div>
     </div>
 
     <div class="player-discards north-discards" id="northDiscards"></div>
@@ -55,23 +55,26 @@
     <div class="table-melds west-melds" id="westMelds"></div>
     <div class="table-melds east-melds" id="eastMelds"></div>
 
-    <div class="my-hand" id="myHand"></div>
     <div class="my-melds" id="myMelds" aria-label="玩家副露"></div>
+    <div class="my-hand" id="myHand"></div>
 
 </div>
 
 <div class="player-ui">
-    <div class="player-prompt">
-        <div class="status" id="status">等待开始</div>
-        <div class="timer" id="timer"></div>
-    </div>
-
     <div class="controls">
         <button id="confirmExchangeBtn">确认换三张</button>
         <button id="pengBtn">碰</button>
         <button id="passBtn">过</button>
         <button id="gangBtn">杠</button>
         <button id="huBtn">胡</button>
+    </div>
+
+    <div class="bottom-status-row">
+        <div class="seat-summary-item south-player-info" id="southInfo"></div>
+        <div class="player-prompt">
+            <div class="status" id="status">等待开始</div>
+            <div class="timer" id="timer"></div>
+        </div>
     </div>
 </div>
 
@@ -98,7 +101,16 @@
     <div class="result-card">
         <h2>本局结束</h2>
         <p class="result-message" id="resultMessage"></p>
-        <ul class="result-list" id="resultList"></ul>
+        <div class="result-modules">
+            <section class="result-module win-module">
+                <h3>胡牌情况</h3>
+                <ul class="result-list" id="winResultList"></ul>
+            </section>
+            <section class="result-module ranking-module">
+                <h3>积分排名</h3>
+                <ul class="result-list" id="rankingList"></ul>
+            </section>
+        </div>
         <button class="primary start-btn" id="restartBtn">再来一局</button>
     </div>
 </div>
