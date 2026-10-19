@@ -6,11 +6,9 @@
 <meta name="theme-color" content="#073528">
 <meta name="description" content="四川麻将·血战到底 单机版">
 <title>四川麻将 · 血战到底</title>
-
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/game.css">
 </head>
-
 <body>
 
 <div class="rotate-overlay" id="rotateOverlay" role="status" aria-live="polite">
@@ -22,109 +20,115 @@
 </div>
 
 <header class="topbar">
-    <div class="title">🀄 四川麻将 · 血战到底</div>
+    <div class="title">四川麻将 · 血战到底</div>
     <a class="back" href="../index.html">← 游戏大厅</a>
 </header>
 
 <main class="game">
+    <section class="table-stage" aria-label="麻将牌桌">
+        <div class="table" id="mahjongTable">
 
-<div class="seat-summary">
-    <div class="seat-summary-item" id="northInfo"></div>
-    <div class="seat-summary-item" id="westInfo"></div>
-    <div class="seat-summary-item" id="eastInfo"></div>
-</div>
+            <!-- 北家：信息 / 手牌 / 弃牌；牌面朝向北家。 -->
+            <div class="seat north-seat">
+                <div class="seat-summary-item" id="northInfo"></div>
+                <div class="ai-position ai-north">
+                    <div class="ai-hand" id="northHand"></div>
+                </div>
+                <div class="player-discards north-discards" id="northDiscards"></div>
+            </div>
 
-<div class="table">
+            <!-- 西家：信息 / 手牌 / 弃牌。 -->
+            <div class="seat west-seat">
+                <div class="seat-summary-item" id="westInfo"></div>
+                <div class="ai-position ai-west vertical">
+                    <div class="ai-hand" id="westHand"></div>
+                </div>
+                <div class="player-discards west-discards" id="westDiscards"></div>
+            </div>
 
-    <div class="ai-position ai-north">
-        <div class="ai-hand" id="northHand"></div>
-    </div>
+            <!-- 东家：信息 / 手牌 / 弃牌。 -->
+            <div class="seat east-seat">
+                <div class="seat-summary-item" id="eastInfo"></div>
+                <div class="ai-position ai-east vertical">
+                    <div class="ai-hand" id="eastHand"></div>
+                </div>
+                <div class="player-discards east-discards" id="eastDiscards"></div>
+            </div>
 
-    <div class="ai-position ai-west vertical">
-        <div class="ai-hand" id="westHand"></div>
-    </div>
+            <!-- 南家 / 玩家：信息 / 手牌 / 弃牌。 -->
+            <div class="seat south-seat">
+                <div class="seat-summary-item" id="southInfo"></div>
+                <div class="player-discards south-discards" id="southDiscards"></div>
+                <div class="my-hand" id="myHand"></div>
+            </div>
 
-    <div class="ai-position ai-east vertical">
-        <div class="ai-hand" id="eastHand"></div>
-    </div>
+            <!-- 中央区域只负责局数和剩余牌数。 -->
+            <div class="center" aria-live="polite">
+                <div class="round" id="roundInfo">第 1 / 4 局</div>
+                <div class="wall-label">剩余张数</div>
+                <div class="wall" id="centerWall">108</div>
+            </div>
 
-    <div class="center">
-        <div class="round" id="roundInfo">第 1 / 4 局</div>
-        <div class="wall-label">剩余张数</div>
-        <div class="wall" id="centerWall">108</div>
-    </div>
+            <!-- 四角副露：严格贴在牌桌四个角的外侧。 -->
+            <div class="table-melds north-melds" id="northMelds"></div>
+            <div class="table-melds east-melds" id="eastMelds"></div>
+            <div class="table-melds west-melds" id="westMelds"></div>
+            <div class="my-melds" id="myMelds" aria-label="玩家副露"></div>
+        </div>
+    </section>
 
-    <div class="player-discards north-discards" id="northDiscards"></div>
-    <div class="player-discards west-discards" id="westDiscards"></div>
-    <div class="player-discards east-discards" id="eastDiscards"></div>
-    <div class="player-discards south-discards" id="southDiscards"></div>
-
-    <div class="table-melds north-melds" id="northMelds"></div>
-    <div class="table-melds west-melds" id="westMelds"></div>
-    <div class="table-melds east-melds" id="eastMelds"></div>
-
-    <div class="my-melds" id="myMelds" aria-label="玩家副露"></div>
-    <div class="my-hand" id="myHand"></div>
-
-</div>
-
-<div class="player-ui">
-    <div class="controls">
-        <button id="confirmExchangeBtn">确认换三张</button>
-        <button id="pengBtn">碰</button>
-        <button id="passBtn">过</button>
-        <button id="gangBtn">杠</button>
-        <button id="huBtn">胡</button>
-    </div>
-
-    <div class="bottom-status-row">
-        <div class="seat-summary-item south-player-info" id="southInfo"></div>
-        <div class="player-prompt">
-            <div class="status" id="status">等待开始</div>
+    <!-- 桌面端右侧只保留状态和操作。 -->
+    <aside class="side-hud" aria-label="游戏控制">
+        <section class="status-panel">
+            <div class="hud-kicker">当前状态</div>
+            <div class="status" id="status">点击「开始游戏」</div>
             <div class="timer" id="timer"></div>
+        </section>
+
+        <section class="action-panel" aria-label="操作">
+            <div class="hud-kicker">操作</div>
+            <div class="controls">
+                <button id="confirmExchangeBtn">确认换三张</button>
+                <button id="pengBtn">碰</button>
+                <button id="passBtn">过</button>
+                <button id="gangBtn">杠</button>
+                <button id="huBtn">胡</button>
+            </div>
+        </section>
+    </aside>
+
+    <div class="start" id="startScreen">
+        <div class="card">
+            <h1>四川麻将</h1>
+            <p>血战到底 · 单机版<br>108 张牌 · 你 + 3 名 AI</p>
+            <div class="round-options" id="roundOptions">
+                <button class="round-option" data-rounds="2">2局</button>
+                <button class="round-option selected" data-rounds="4">4局</button>
+                <button class="round-option" data-rounds="8">8局</button>
+                <button class="round-option" data-rounds="16">16局</button>
+            </div>
+            <button class="primary start-btn" id="startBtn">开始游戏</button>
         </div>
     </div>
-</div>
 
-<div class="start" id="startScreen">
-    <div class="card">
-        <h1>🀄 血战到底</h1>
-        <p>
-            四川麻将单机版<br>
-            108 张牌 · 你 + 3 名 AI
-        </p>
-        <div class="round-options" id="roundOptions">
-            <button class="round-option" data-rounds="2">2局</button>
-            <button class="round-option selected" data-rounds="4">4局</button>
-            <button class="round-option" data-rounds="8">8局</button>
-            <button class="round-option" data-rounds="16">16局</button>
+    <div class="result hidden" id="resultScreen">
+        <div class="result-card">
+            <h2>本局结束</h2>
+            <p class="result-message" id="resultMessage"></p>
+            <div class="result-modules">
+                <section class="result-module win-module">
+                    <h3>胡牌情况</h3>
+                    <ul class="result-list" id="winResultList"></ul>
+                </section>
+                <section class="result-module ranking-module">
+                    <h3>积分排名</h3>
+                    <ul class="result-list" id="rankingList"></ul>
+                </section>
+            </div>
+            <button class="primary start-btn" id="restartBtn">再来一局</button>
         </div>
-        <button class="primary start-btn" id="startBtn">
-            开始游戏
-        </button>
     </div>
-</div>
-
-<div class="result hidden" id="resultScreen">
-    <div class="result-card">
-        <h2>本局结束</h2>
-        <p class="result-message" id="resultMessage"></p>
-        <div class="result-modules">
-            <section class="result-module win-module">
-                <h3>胡牌情况</h3>
-                <ul class="result-list" id="winResultList"></ul>
-            </section>
-            <section class="result-module ranking-module">
-                <h3>积分排名</h3>
-                <ul class="result-list" id="rankingList"></ul>
-            </section>
-        </div>
-        <button class="primary start-btn" id="restartBtn">再来一局</button>
-    </div>
-</div>
-
 </main>
-
 
 <script src="js/tile.js"></script>
 <script src="js/mahjong.js"></script>
