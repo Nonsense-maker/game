@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>空当接龙</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="game">
+<header class="top">
+  <div><h1>空当接龙</h1><p>FreeCell · 随机牌局</p></div>
+  <div class="top-actions"><a class="action-link" href="../index.html">返回大厅</a><button id="undoBtn">撤销</button><button id="newGameBtn">新游戏</button></div>
+</header>
+
+<section class="toolbar">
+  <label>难度
+    <select id="difficulty">
+      <option value="easy">简单</option>
+      <option value="normal" selected>普通</option>
+      <option value="hard">困难</option>
+      <option value="hell">地狱</option>
+      <option value="random">随机</option>
+    </select>
+  </label>
+  <div class="stat"><span>局号</span><b id="gameNo">1</b></div>
+  <div class="stat"><span>步数</span><b id="moves">0</b></div>
+  <div class="stat"><span>时间</span><b id="time">00:00</b></div>
+</section>
+
+<main class="table">
+  <section class="top-area">
+    <div class="freecells" id="freecells"></div>
+    <div class="foundations" id="foundations"></div>
+  </section>
+  <section class="tableau" id="tableau"></section>
+</main>
+
+<div class="hint">点击选牌，再点击目标位置；双击牌可自动归入基础牌堆。</div>
+</div>
+
+<div id="overlay" class="overlay">
+  <div class="dialog">
+    <h2 id="overlayTitle">恭喜通关！</h2>
+    <p id="overlayText"></p>
+    <button id="overlayBtn">再来一局</button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

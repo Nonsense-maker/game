@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>蜘蛛纸牌</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="game">
+<header class="top">
+  <div><h1>蜘蛛纸牌</h1><p>Spider Solitaire · 104 张牌</p></div>
+  <div class="top-actions">
+    <a class="action-link" href="../index.html">返回大厅</a>
+    <button id="undoBtn">撤销</button>
+    <button id="newGameBtn">新游戏</button>
+  </div>
+</header>
+
+<section class="toolbar">
+  <label>难度
+    <select id="difficulty">
+      <option value="1">简单 · 1 花色</option>
+      <option value="2" selected>普通 · 2 花色</option>
+      <option value="4">困难 · 4 花色</option>
+    </select>
+  </label>
+  <div class="stat"><span>步数</span><b id="moves">0</b></div>
+  <div class="stat"><span>完成</span><b id="completed">0/8</b></div>
+  <div class="stat"><span>时间</span><b id="time">00:00</b></div>
+  <div class="stat"><span>牌堆</span><b id="stock">5</b></div>
+  <button class="deal-btn" id="dealBtn">发牌</button>
+</section>
+
+<main class="table">
+  <section class="spider-top">
+    <div class="empty-info">完成牌组：<b id="completedTop">0</b>/8</div>
+    <div class="stock-slot" id="stockBtn"><span>♠</span><small>发牌</small></div>
+  </section>
+  <section class="tableau" id="tableau"></section>
+</main>
+
+<div class="hint">点击选牌，再点击目标列；同花色连续牌可整组移动。完成 K→A 同花色牌组后自动收走。</div>
+</div>
+
+<div id="overlay" class="overlay">
+  <div class="dialog">
+    <h2 id="overlayTitle">恭喜通关！</h2>
+    <p id="overlayText"></p>
+    <button id="overlayBtn">再来一局</button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
