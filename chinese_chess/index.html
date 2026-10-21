@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>中国象棋</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="game">
+<header class="top">
+  <div><h1>中国象棋</h1><p>Chinese Chess · 9×10</p></div>
+  <div class="top-actions">
+    <a class="btn secondary" href="../">返回大厅</a>
+    <button class="btn" id="undo">悔棋</button>
+    <button class="btn" id="new">新游戏</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="stat"><span>当前</span><b id="turn">红方</b></div>
+  <div class="stat difficulty"><span>难度</span>
+    <select id="difficulty"><option value="1">简单</option><option value="2" selected>普通</option><option value="3">困难</option><option value="4">地狱</option></select>
+  </div>
+  <div class="stat"><span>步数</span><b id="moves">0</b></div>
+  <div class="status" id="status">红方先手</div>
+</div>
+
+<main class="table">
+  <div class="board-wrap">
+    <div id="board" class="board">
+      <div class="river river-top">楚 河</div>
+      <div class="river river-bottom">汉 界</div>
+      <div class="palace palace-top"></div>
+      <div class="palace palace-bottom"></div>
+    </div>
+  </div>
+  <p class="hint">点击棋子再点击目标位置 · 红方先手 · 将军、将死、困毙与非法着法均会判断</p>
+</main>
+</div>
+
+<div class="mode-screen" id="modeScreen">
+ <div class="mode-dialog">
+  <div class="mode-title">选择对弈模式</div><p>开始游戏前选择玩法</p>
+  <div class="mode-buttons">
+   <button class="mode-btn" id="aiMode"><strong>人机对弈</strong><span>你执红棋，电脑执黑棋</span></button>
+   <button class="mode-btn" id="pvpMode"><strong>人人对弈</strong><span>红黑双方轮流走棋</span></button>
+  </div>
+ </div>
+</div>
+
+<div class="overlay hidden" id="overlay">
+ <div class="dialog"><div class="result" id="result">红方获胜</div><p id="detail"></p><button class="btn" id="again">再来一局</button></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
