@@ -228,7 +228,9 @@ function renderMelds(container,melds,hideConcealed){
             const tileEl = document.createElement("div");
 
             tileEl.className = "meld-tile";
-            tileEl.textContent = tileLabel(tile);
+            if(!(hideConcealed && meld.concealed)){
+                tileEl.appendChild(makeTileFace(tile));
+            }
             meldEl.appendChild(tileEl);
 
         });
@@ -254,7 +256,7 @@ function addDiscard(tile,seat){
 
     const el = document.createElement("span");
     el.className = "discard";
-    el.textContent = tileLabel(tile);
+    el.appendChild(makeTileFace(tile));
     el.title = seat===0 ? "你" : getSeatName(seat);
 
     slot.appendChild(el);

@@ -346,3 +346,14 @@ button.primary{background:linear-gradient(145deg,#f3d47f,#c99332);color:#3a2a0b;
 @media(max-width:620px){
     .result-modules{grid-template-columns:1fr;gap:10px}.result-card{padding:22px 16px}
 }
+
+/* 自定义牌面 SVG：只替换牌面，不改变原有牌位尺寸、间距和方向。 */
+.tile > img, .discard > img, .meld-tile > img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:fill;
+    pointer-events:none;
+    user-select:none;
+}
+.meld-tile{overflow:hidden;}

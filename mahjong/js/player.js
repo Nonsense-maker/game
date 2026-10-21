@@ -1,5 +1,20 @@
 "use strict";
 
+function tileFaceSrc(tile){
+    const suit = tile.suit === "万" ? "wan" : tile.suit === "条" ? "tiao" : "tong";
+    return `assets/tile-faces/${suit}${tile.value}.svg`;
+}
+
+function makeTileFace(tile, alt=""){
+    const img = document.createElement("img");
+    img.src = tileFaceSrc(tile);
+    img.alt = alt || tileLabel(tile);
+    img.draggable = false;
+    img.setAttribute("aria-hidden", "true");
+    return img;
+}
+
+
 function clearPlayerTimer(){
 
     clearInterval(playerTimerId);
@@ -171,7 +186,7 @@ function renderPlayerHand(){
 
         }
 
-        el.textContent = tileLabel(tile);
+        el.appendChild(makeTileFace(tile));
 
         el.onclick = (event)=>{
 
