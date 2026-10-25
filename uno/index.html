@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>UNO</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="rotateTip">请将设备横屏使用 UNO</div>
+
+<div id="game">
+  <header class="topbar">
+    <div class="brand">UNO</div>
+    <div class="top-info">
+      <span id="roundText">第 1 局</span>
+      <span id="turnText">准备开始</span>
+    </div>
+    <button id="restartBtn" class="small-btn">重新开始</button>
+  </header>
+
+  <main class="table">
+    <section class="player ai top" id="player-1">
+      <div class="player-badge">
+        <span class="turn-dot"></span>
+        <span class="player-name">建国</span>
+        <span class="thinking"></span>
+      </div>
+      <div class="ai-hand" id="hand-1"></div>
+      <div class="count" id="count-1">7 张</div>
+    </section>
+
+    <section class="player ai left" id="player-3">
+      <div class="player-badge">
+        <span class="turn-dot"></span>
+        <span class="player-name">谨珍</span>
+        <span class="thinking"></span>
+      </div>
+      <div class="side-hand" id="hand-3"></div>
+      <div class="count" id="count-3">7 张</div>
+    </section>
+
+    <section class="center">
+      <div class="direction-ring">
+        <div class="turn-arrow" id="turnArrow">→</div>
+      </div>
+      <div class="piles">
+        <div class="pile-wrap">
+          <div class="pile-title">摸牌</div>
+          <button class="deck back-card" id="drawPile" aria-label="摸牌">
+            <span>UNO</span>
+            <span class="deck-count" id="deckCount">108 张</span>
+          </button>
+        </div>
+        <div class="pile-wrap">
+          <div class="pile-title">弃牌</div>
+          <div id="discardPile" class="discard"></div>
+        </div>
+      </div>
+      <div id="status" class="status">点击“开始游戏”</div>
+      <div id="colorPreview" class="color-preview"></div>
+    </section>
+
+    <section class="player ai right" id="player-2">
+      <div class="player-badge">
+        <span class="turn-dot"></span>
+        <span class="player-name">谦礼</span>
+        <span class="thinking"></span>
+      </div>
+      <div class="side-hand" id="hand-2"></div>
+      <div class="count" id="count-2">7 张</div>
+    </section>
+
+    <section class="player you bottom" id="player-0">
+      <div class="player-badge">
+        <span class="turn-dot"></span>
+        <span class="player-name">你</span>
+        <span class="thinking"></span>
+      </div>
+      <div class="your-hand" id="hand-0"></div>
+      <div class="count" id="count-0">7 张</div>
+      <div class="actions">
+        <button id="unoBtn" class="action-btn uno-btn">UNO</button>
+        <button id="drawBtn" class="action-btn">摸牌</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="startModal" class="modal show">
+  <div class="modal-card">
+    <h1>UNO</h1>
+    <p>你 + 3 名 AI</p>
+    <label>难度
+      <select id="difficulty">
+        <option value="easy">简单</option>
+        <option value="normal" selected>普通</option>
+        <option value="hard">困难</option>
+      </select>
+    </label>
+    <button id="startBtn" class="primary-btn">开始游戏</button>
+  </div>
+</div>
+
+<div id="colorModal" class="modal">
+  <div class="modal-card">
+    <h2>选择颜色</h2>
+    <div class="color-buttons">
+      <button data-color="red" class="red">红</button>
+      <button data-color="yellow" class="yellow">黄</button>
+      <button data-color="green" class="green">绿</button>
+      <button data-color="blue" class="blue">蓝</button>
+    </div>
+  </div>
+</div>
+
+<div id="resultModal" class="modal">
+  <div class="modal-card">
+    <h2 id="resultTitle">游戏结束</h2>
+    <p id="resultText"></p>
+    <button id="againBtn" class="primary-btn">再来一局</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
