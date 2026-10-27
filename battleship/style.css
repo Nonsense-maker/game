@@ -51,3 +51,41 @@ button{border:0;border-radius:calc(var(--board)*.025);padding:calc(var(--board)*
  .help{display:none}
  .topbar{height:calc(var(--board)*.11)}
 }
+
+/* 重新开始 + 返回大厅 */
+.topbar{
+  display:flex;
+  align-items:center;
+}
+
+/* 顶部按钮：重新开始和返回大厅完全同款，并排紧挨 */
+.top-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:calc(var(--board)*.015);
+  flex:none;
+}
+.top-actions .top-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  min-height:calc(var(--board)*.075);
+  padding:calc(var(--board)*.022) calc(var(--board)*.035);
+  background:#d8edf5;
+  color:#123044;
+  border:0;
+  border-radius:calc(var(--board)*.025);
+  font:inherit;
+  font-size:calc(var(--board)*.03);
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+  text-decoration:none;
+  cursor:pointer;
+  vertical-align:middle;
+}
+.top-actions .top-btn:hover{
+  filter:brightness(1.04);
+}

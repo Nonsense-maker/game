@@ -37,3 +37,40 @@ button{border:0;cursor:pointer}
   .new-round,#restart{min-height:36px;padding:7px 11px}
   select{min-height:36px;padding:6px 9px}
 }
+
+
+/* 重新开始 + 返回大厅：两个按钮完全同款并排 */
+.controls{
+  justify-content:flex-start;
+}
+.controls > label{
+  margin-right:auto;
+}
+.controls > #restart,
+.controls > .hall-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  background:#d9eee1;
+  color:#173124;
+  border:0;
+  border-radius:10px;
+  padding:10px 15px;
+  min-height:42px;
+  font-weight:700;
+  font:inherit;
+  text-decoration:none;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.controls > .hall-btn:hover{
+  filter:brightness(.97);
+}
+@media (max-width:600px){
+  .controls > #restart,
+  .controls > .hall-btn{
+    min-height:36px;
+    padding:7px 11px;
+  }
+}

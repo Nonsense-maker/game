@@ -98,3 +98,31 @@ h1{margin:2px 0 0;font-size:28px;letter-spacing:-1px}
   pointer-events:none;
   will-change:transform,opacity;
 }
+
+/* 返回大厅：与操作按钮保持同样的按钮风格 */
+
+.actions .hall-btn{
+  min-height:48px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:#303744;
+  font:inherit;
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 16px;
+  text-decoration:none;
+  white-space:nowrap;
+  box-sizing:border-box;
+}
+.actions .hall-btn:hover{
+  background:#f6f7f9;
+}
+@media (max-width:600px){
+  .actions .hall-btn{
+    min-height:46px;
+    font-size:13px;
+  }
+}

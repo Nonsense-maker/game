@@ -142,3 +142,16 @@ h1 span{font-size:.55em;opacity:.7;margin-left:.35em;letter-spacing:.12em}
     background:#10251c;color:#fff;font-size:6vw;font-weight:800;text-align:center;padding:10vw;
   }
 }
+
+
+/* 返回大厅文字垂直居中修正 */
+.action-btn.hall-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:calc(var(--u)*5.2);
+  min-height:calc(var(--u)*5.2);
+  padding:0 calc(var(--u)*1.4);
+  line-height:1;
+  vertical-align:middle;
+}

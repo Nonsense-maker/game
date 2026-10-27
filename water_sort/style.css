@@ -126,3 +126,23 @@ button.primary{background:#fff;color:#172554;border-color:#fff;font-weight:700}
   18%{height:12px;opacity:1}
   100%{height:var(--stream-len);opacity:.9;transform:rotate(var(--stream-angle))}
 }
+
+/* 重开 + 返回大厅：同款并排，文字严格上下居中 */
+.controls #hall{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  padding:11px 16px;
+  border:1px solid #ffffff20;
+  background:#ffffff12;
+  color:#fff;
+  border-radius:13px;
+  font-size:14px;
+  line-height:1;
+  text-decoration:none;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  vertical-align:middle;
+}
+.controls #hall:hover{background:#ffffff1f}
