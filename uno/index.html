@@ -90,7 +90,7 @@
 <div id="startModal" class="modal show">
   <div class="modal-card">
     <h1>UNO</h1>
-    <p>+2、+4无限叠加 叠牌大舞台，有命你就来</p>
+    <p>你 + 3 名 AI</p>
     <label>难度
       <select id="difficulty">
         <option value="easy">简单</option>
@@ -122,6 +122,20 @@
   </div>
 </div>
 
+<script>
+(function(){
+  const BASE_W=1920, BASE_H=1080;
+  function resizeGame(){
+    const w=window.innerWidth, h=window.innerHeight;
+    const scale=Math.min(w/BASE_W, h/BASE_H);
+    document.documentElement.style.setProperty('--ui-scale', Math.max(scale, 0.28));
+  }
+  window.addEventListener('resize', resizeGame);
+  window.addEventListener('orientationchange', resizeGame);
+  resizeGame();
+})();
+</script>
 <script src="game.js"></script>
 </body>
 </html>
+
