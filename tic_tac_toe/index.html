@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>井字棋</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="game">
+  <header class="topbar">
+    <div>
+      <h1>井字棋</h1>
+    </div>
+    <div class="score">
+      <span>你 <b id="playerScore">0</b></span>
+      <span>对手 <b id="aiScore">0</b></span>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="controls">
+      <label>难度
+        <select id="difficulty">
+          <option value="easy">简单</option>
+          <option value="normal" selected>普通</option>
+          <option value="hard">困难</option>
+        </select>
+      </label>
+      <button id="restart" type="button">重新开始</button>
+    </div>
+
+    <div class="status" id="status" aria-live="polite">轮到你</div>
+
+    <div class="board" id="board" aria-label="井字棋棋盘">
+      <button class="cell" data-index="0" aria-label="第1格"></button>
+      <button class="cell" data-index="1" aria-label="第2格"></button>
+      <button class="cell" data-index="2" aria-label="第3格"></button>
+      <button class="cell" data-index="3" aria-label="第4格"></button>
+      <button class="cell" data-index="4" aria-label="第5格"></button>
+      <button class="cell" data-index="5" aria-label="第6格"></button>
+      <button class="cell" data-index="6" aria-label="第7格"></button>
+      <button class="cell" data-index="7" aria-label="第8格"></button>
+      <button class="cell" data-index="8" aria-label="第9格"></button>
+    </div>
+
+    <button class="new-round" id="newRound" type="button">再来一局</button>
+  </section>
+</main>
+<script src="game.js"></script>
+</body>
+</html>

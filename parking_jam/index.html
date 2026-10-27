@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>释放滑块</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="eyebrow">PUZZLE GAME</div>
+      <h1>Parking Jam</h1>
+    </div>
+    <div class="stats">
+      <span>关卡 <b id="level">1</b></span>
+      <span>步数 <b id="moves">0</b></span>
+    </div>
+  </header>
+
+  <div class="tip" id="tip">把所有彩色方块沿箭头方向移出场地</div>
+
+  <main>
+    <div class="board-wrap">
+      <div class="exit-label">EXIT</div>
+      <div class="board" id="board" aria-label="停车场"></div>
+    </div>
+
+    <div class="actions">
+      <button id="undo" type="button">↶ 撤销</button>
+      <button id="restart" type="button">↻ 重来</button>
+      <button id="next" type="button" class="primary" disabled>下一关 →</button>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-card">
+    <div class="win-icon">✓</div>
+    <h2>场地清空！</h2>
+    <p>本关用了 <b id="finalMoves">0</b> 步</p>
+    <button id="modalNext" type="button" class="primary big">下一关</button>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

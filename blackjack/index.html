@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>21点 · Blackjack</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="rotate-tip">请将设备横屏后游玩</div>
+
+<main class="game">
+  <header class="topbar">
+    <div>
+      <h1>21点 <span>BLACKJACK</span></h1>
+      <div class="subtitle">经典黑杰克</div>
+    </div>
+    <div class="bankroll">
+      <span>筹码</span>
+      <strong id="chips">1000</strong>
+    </div>
+  </header>
+
+  <section class="table">
+    <div class="dealer-area">
+      <div class="player-label">庄家 <span id="dealerScore">?</span></div>
+      <div class="cards" id="dealerCards"></div>
+    </div>
+
+    <div class="center-info">
+      <div class="shoe">牌堆 <b id="deckCount">52</b></div>
+      <div class="message" id="message">请下注开始游戏</div>
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="player-area">
+      <div class="cards" id="playerCards"></div>
+      <div class="player-label">你 <span id="playerScore">0</span></div>
+    </div>
+  </section>
+
+  <section class="control-panel">
+    <div class="bet-row">
+      <div class="bet-title">下注</div>
+      <button class="chip-btn" data-bet="10">10</button>
+      <button class="chip-btn" data-bet="50">50</button>
+      <button class="chip-btn" data-bet="100">100</button>
+      <button class="chip-btn" data-bet="250">250</button>
+      <button class="chip-btn" data-bet="500">500</button>
+      <button class="action-btn secondary" id="clearBet">清空</button>
+      <div class="current-bet">本局下注 <b id="bet">0</b></div>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn primary" id="dealBtn">开始游戏</button>
+      <button class="action-btn" id="hitBtn" disabled>要牌</button>
+      <button class="action-btn" id="standBtn" disabled>停牌</button>
+      <button class="action-btn" id="doubleBtn" disabled>双倍</button>
+      <button class="action-btn secondary" id="newRoundBtn" disabled>下一局</button>
+    </div>
+  </section>
+</main>
+
+<div class="modal hidden" id="resultModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">游戏结束</div>
+    <div class="modal-text" id="modalText"></div>
+    <button class="action-btn primary" id="modalBtn">下一局</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

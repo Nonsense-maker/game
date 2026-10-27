@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>海战棋</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="portrait">请将设备横屏后游玩</div>
+<main class="game">
+  <header class="topbar">
+    <div><h1>海战棋</h1><p>击沉敌方全部舰队</p></div>
+    <button id="restart" class="top-btn">重新开始</button>
+  </header>
+
+  <section class="panel">
+    <div class="status" id="status">请先摆放你的舰队</div>
+
+    <div id="setup" class="setup">
+      <div class="setup-left">
+        <h2>摆放你的舰队</h2>
+        <p class="help">选择舰船后点击棋盘放置。可旋转、撤销，也可以随机布阵。</p>
+        <div id="fleetList"></div>
+        <div class="setup-buttons">
+          <button id="rotate">旋转：横向</button>
+          <button id="undo">撤销</button>
+          <button id="random">随机布阵</button>
+          <button id="confirm" class="confirm">完成布阵</button>
+        </div>
+      </div>
+
+      <div class="board-wrap">
+        <h2>我的海域</h2>
+        <div class="board setupBoard" id="setupBoard"></div>
+      </div>
+    </div>
+
+    <div id="battle" class="battle hidden">
+      <div class="board-wrap">
+        <h2>我的海域</h2>
+        <div class="board" id="myBoard"></div>
+      </div>
+      <div class="board-wrap">
+        <h2>敌方海域</h2>
+        <div class="board enemy" id="enemyBoard"></div>
+      </div>
+    </div>
+
+    <div id="result" class="result hidden">
+      <div class="result-box">
+        <div id="resultTitle"></div>
+        <p id="resultText"></p>
+        <button id="again">再来一局</button>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="game.js"></script>
+</body>
+</html>
