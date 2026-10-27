@@ -55,122 +55,112 @@ function directionVector(d){return d==="L"?[0,-1]:d==="R"?[0,1]:d==="U"?[-1,0]:[
   Therefore, in forward play, every piece has a valid route out.
 */
 function generateLevel(seed, count){
-  rngSeed=seed;
-  const placed=[];
-  const candidates=[];
-  for(let h=1;h<=2;h++)for(let w=1;w<=2;w++){
-    if(h===2&&w===2) continue;
-    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-      if(r+h>ROWS||c+w>COLS)continue;
-      for(const d of DIRS){
-        let clear=true;
-        const [dr,dc]=directionVector(d);
-        const edge = d==="L"?c===0:d==="R"?c+w===COLS:d==="U"?r===0:r+h===ROWS;
-        if(edge) continue; // routes should have some travel, making the puzzle less trivial
-        const test=placed.map(p=>p);
-        const occupied=Array.from({length:ROWS},()=>Array(COLS).fill(false));
-        for(const p of placed)for(let y=p.r;y<p.r+p.h;y++)for(let x=p.c;x<p.c+p.w;x++)occupied[y][x]=true;
+  // 每次调用都真正随机，不使用固定 seed。
+  // 采用“反向构造”：先放最后驶出的方块，再放最先驶出的方块。
+  // 每个新方块的整条出口路线都会避开已经放好的方块，因此关卡必定有解。
+  const dirs=["L","R","U","D"];
 
-        let rr=r,cc=c, guard=0;
-        while(true){
-          const nr=rr+dr,nc=cc+dc;
-          if(nr<0||nc<0||nr+h>ROWS||nc+w>COLS)break;
-          for(let y=nr;y<nr+h;y++)for(let x=nc;x<nc+w;x++)if(occupied[y][x])clear=false;
-          if(!clear)break;
-          rr=nr;cc=nc;
-          if(++guard>20){clear=false;break;}
-        }
-        if(clear && (rr!==r||cc!==c || edge)) candidates.push({r,c,h,w,d});
-      }
-    }
-  }
+  for(let attempt=0;attempt<600;attempt++){
+    const result=[];
 
-  while(placed.length<count){
-    const pool=shuffle(candidates.slice());
-    let found=null;
-    for(const cand of pool){
-      const g=gridForGenerated(placed);
-      if(!overlaps(g,cand.r,cand.c,cand.h,cand.w)){
-        // Ensure at least one cell of travel before the edge.
-        let rr=cand.r,cc=cand.c;
-        const [dr,dc]=directionVector(cand.d);
-        let travel=0;
-        while(true){
-          const nr=rr+dr,nc=cc+dc;
-          if(nr<0||nc<0||nr+cand.h>ROWS||nc+cand.w>COLS)break;
-          if(overlaps(g,nr,nc,cand.h,cand.w))break;
-          rr=nr;cc=nc;travel++;
-        }
-        if(travel>=1){found=cand;break;}
-      }
-    }
-    if(!found) break;
-    placed.push({id:placed.length,r:found.r,c:found.c,h:found.h,w:found.w,dir:found.d,
-      color:COLORS[placed.length%COLORS.length],out:false});
-    candidates.splice(0); // regenerate candidate set around the new placed set
-    // Rebuild all possible candidates against the current placed set.
-    for(let h=1;h<=2;h++)for(let w=1;w<=2;w++){
-      if(h===2&&w===2)continue;
-      for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-        if(r+h>ROWS||c+w>COLS)continue;
-        for(const d of DIRS){
-          const g=gridForGenerated(placed);
-          if(overlaps(g,r,c,h,w))continue;
-          const [dr,dc]=directionVector(d);
-          let rr=r,cc=c,clear=true,travel=0;
-          while(true){
-            const nr=rr+dr,nc=cc+dc;
-            if(nr<0||nc<0||nr+h>ROWS||nc+w>COLS)break;
-            if(overlaps(g,nr,nc,h,w)){clear=false;break;}
-            rr=nr;cc=nc;travel++;
+    for(let id=count-1;id>=0;id--){
+      let placed=null;
+
+      for(let tries=0;tries<180;tries++){
+        const dir=dirs[Math.floor(Math.random()*dirs.length)];
+
+        let w=1,h=1;
+        const longChance=Math.min(.72,.38+level*.035);
+        if(Math.random()<longChance){
+          if(dir==="L"||dir==="R"){
+            w=Math.random()<.78?2:3;
+          }else{
+            h=Math.random()<.78?2:3;
           }
-          if(clear&&travel>=1)candidates.push({r,c,h,w,d});
         }
+
+        const r=Math.floor(Math.random()*(ROWS-h+1));
+        const c=Math.floor(Math.random()*(COLS-w+1));
+
+        const candidate={
+          id,r,c,w,h,dir,
+          color:COLORS[id%COLORS.length],
+          out:false,
+          el:null
+        };
+
+        if(result.some(q=>pieceOverlap(candidate,q))) continue;
+
+        // 检查从当前位置沿箭头走到出口的整条路线。
+        // result 中的方块属于更晚才会被移走的方块，不能挡住路线。
+        let cr=r,cc=c,clear=true;
+        const [dr,dc]=directionVector(dir);
+
+        for(let guard=0;guard<20;guard++){
+          const nr=cr+dr,nc=cc+dc;
+
+          if(nr<0||nc<0||nr+h>ROWS||nc+w>COLS){
+            break;
+          }
+
+          if(result.some(q=>pieceOverlapAt(candidate,nr,nc,q))){
+            clear=false;
+            break;
+          }
+
+          cr=nr;cc=nc;
+        }
+
+        if(!clear) continue;
+
+        placed=candidate;
+        break;
       }
+
+      if(!placed){
+        result.length=0;
+        break;
+      }
+      result.push(placed);
+    }
+
+    if(result.length===count && validListNoOverlap(result)){
+      return result;
     }
   }
 
-  // If the random construction stalls, use a deterministic guaranteed layout.
-  if(placed.length<count){
-    return fallbackLevel(count, seed);
-  }
+  // 生成失败时降低密度重新尝试，而不是返回空数组。
+  const smaller=Math.max(6,count-3);
+  if(smaller<count) return generateLevel(Math.random(),smaller);
 
-  // Reverse construction means current array is exit order reversed.
-  // Shuffle IDs/colors only; positions/directions remain tied to guaranteed routes.
-  const out=placed.reverse();
-  out.forEach((p,i)=>p.id=i);
-  return out;
+  return [];
 }
-function gridForGenerated(arr){
-  const g=Array.from({length:ROWS},()=>Array(COLS).fill(-1));
-  for(const p of arr)for(let y=p.r;y<p.r+p.h;y++)for(let x=p.c;x<p.c+p.w;x++)g[y][x]=p.id;
-  return g;
+
+function pieceOverlap(a,b){
+  return !(a.c+a.w<=b.c || b.c+b.w<=a.c ||
+           a.r+a.h<=b.r || b.r+b.h<=a.r);
 }
-function fallbackLevel(count,seed){
-  // Dense but guaranteed: every piece points to a different edge and
-  // later pieces are placed first in reverse order.
-  const layouts=[
-    [ [4,1,1,2,"U"],[6,2,1,2,"L"],[7,5,1,2,"D"],[3,6,2,1,"R"],
-      [5,0,2,1,"L"],[1,4,1,2,"U"],[2,1,2,1,"D"],[8,3,1,3,"R"],
-      [0,6,1,2,"R"],[9,1,1,2,"D"],[6,6,1,2,"R"],[3,2,1,2,"L"],
-      [7,0,1,2,"L"],[1,7,2,1,"R"],[8,6,2,1,"D"],[0,2,1,2,"U"]
-    ],
-    [ [4,1,2,1,"U"],[2,2,1,3,"L"],[6,5,2,1,"R"],[5,0,1,3,"D"],
-      [0,5,1,2,"U"],[7,2,1,3,"L"],[3,0,2,1,"L"],[1,3,1,2,"R"],
-      [8,5,1,3,"D"],[9,0,1,2,"L"],[6,0,1,2,"L"],[2,6,2,1,"R"],
-      [0,1,1,2,"U"],[4,6,1,2,"R"],[7,6,2,1,"D"],[1,0,1,2,"L"]
-    ]
-  ];
-  const raw=layouts[seed%layouts.length];
-  return raw.slice(0,count).map((p,i)=>({id:i,r:p[0],c:p[1],h:p[2],w:p[3],dir:p[4],color:COLORS[i%COLORS.length],out:false}));
+
+function pieceOverlapAt(a,r,c,b){
+  return !(c+a.w<=b.c || b.c+b.w<=c ||
+           r+a.h<=b.r || b.r+b.h<=r);
+}
+
+function validListNoOverlap(list){
+  for(let i=0;i<list.length;i++){
+    for(let j=i+1;j<list.length;j++){
+      if(pieceOverlap(list[i],list[j])) return false;
+    }
+  }
+  return true;
 }
 
 function buildLevel(){
   moves=0;history=[];busy=false;won=false;
   const count=Math.min(16+level*2,22);
-  pieces=generateLevel(9001+level*7919,count);
-  // Validate no overlap. If any unexpected issue occurs, use fallback.
-  if(!validNoOverlap()) pieces=fallbackLevel(count,level+1);
+  pieces=generateLevel(Math.random(),count);
+  // 保险：随机生成失败时使用已有可用布局，不允许出现空棋盘。
+  if(!pieces.length || !validNoOverlap()) pieces=fallbackLevel(Math.min(count,16),Math.floor(Math.random()*2)+1);
   render();
   nextBtn.disabled=true;
   modal.hidden=true;
