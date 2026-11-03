@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6f7">
+  <title>网络环境检测 · 浏览器与网络信息</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="top-inner">
+    <div class="brand"><span class="brand-mark">WHO</span><span>网络环境检测</span></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#network">网络</a>
+      <a href="#fingerprint">指纹</a>
+      <a href="#tools">工具</a>
+    </nav>
+    <div class="top-actions">
+      <span id="modeBadge" class="badge">本地测试</span>
+      <button id="refreshBtn" class="icon-btn" title="重新检测">↻</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <section id="overview" class="hero-grid">
+    <article class="card intro-card">
+      <div class="eyebrow">浏览器环境 · 网络信息 · 指纹</div>
+      <h1>网站知道你的 <span>哪些信息？</span></h1>
+      <p class="lead">
+        这是一个本地优先的网络与浏览器检测工具。浏览器侧信息直接在你的设备上检测；
+        部署 Cloudflare Worker 后，还可以补充公网 IP、请求头和 Cloudflare 网络信息。
+      </p>
+      <div class="status-line">
+        <span class="status-dot"></span>
+        <span id="scanStatus">正在检测浏览器环境…</span>
+      </div>
+      <div class="quick-tags">
+        <span>浏览器</span><span>网络</span><span>WebRTC</span><span>WebGL</span><span>指纹</span>
+      </div>
+    </article>
+
+    <aside class="card score-card">
+      <div class="card-head"><span>检测概况</span><span id="scoreText">检测中</span></div>
+      <div class="score-ring" id="scoreRing"><strong id="score">--</strong><small>/ 100</small></div>
+      <p id="scoreDesc">正在分析当前环境</p>
+      <div class="meter"><i id="scoreMeter"></i></div>
+      <div class="mini-list">
+        <div><span class="dot green"></span>浏览器环境 <b id="browserState">检测中</b></div>
+        <div><span class="dot green"></span>网络 API <b id="networkState">检测中</b></div>
+        <div><span class="dot green"></span>指纹 API <b id="fingerState">检测中</b></div>
+      </div>
+    </aside>
+  </section>
+
+
+
+  <section id="analysisReport" class="card analysis-card">
+    <div class="section-title"><span>检测分析与改进建议</span><span id="reportStatus" class="report-status">正在生成分析…</span></div>
+    <div class="analysis-overview">
+      <div class="analysis-icon" id="analysisIcon">…</div>
+      <div><h2 id="analysisTitle">正在分析当前环境</h2><p id="analysisSummary">正在汇总网络、浏览器和隐私检测结果。</p></div>
+    </div>
+    <div class="analysis-columns">
+      <div class="analysis-column">
+        <h3><span class="good-mark">✓</span> 检测正常</h3>
+        <ul id="analysisGood"><li>检测中…</li></ul>
+      </div>
+      <div class="analysis-column">
+        <h3><span class="warn-mark">!</span> 可关注与改进</h3>
+        <ul id="analysisAdvice"><li>检测中…</li></ul>
+      </div>
+    </div>
+    <p class="analysis-note">说明：建议基于当前浏览器可观察到的结果生成。IP 地理位置可能存在偏差；未检测到某项能力不一定代表网络故障，也不等同于安全风险。</p>
+  </section>
+
+  <section class="card ip-card">
+    <div class="section-title"><span>公网网络信息</span><span class="muted">服务器信息</span></div>
+    <div class="ip-main">
+      <div>
+        <div class="label">公网 IP</div>
+        <div id="publicIp" class="big-value">检测中…</div>
+        <div id="geoText" class="sub-value">正在获取网络信息</div>
+      </div>
+      <div class="ip-actions">
+        <span id="ipMode" class="pill">本地模式</span>
+        <button class="small-btn" id="copyIpBtn">复制 IP</button>
+      </div>
+    </div>
+    <div class="grid-4" id="networkSummary"></div>
+  </section>
+
+  <section id="network" class="card">
+    <div class="section-title"><span>全部网络和浏览器检测</span><button class="small-btn" id="toggleDetails">收起全部</button></div>
+    <div class="two-col">
+      <div class="detail-group">
+        <h3>网络环境</h3>
+        <div id="networkDetails" class="rows"></div>
+      </div>
+      <div class="detail-group">
+        <h3>浏览器环境</h3>
+        <div id="browserDetails" class="rows"></div>
+      </div>
+      <div class="detail-group">
+        <h3>设备与屏幕</h3>
+        <div id="deviceDetails" class="rows"></div>
+      </div>
+      <div class="detail-group">
+        <h3>隐私与能力</h3>
+        <div id="privacyDetails" class="rows"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="fingerprint" class="card">
+    <div class="section-title"><span>浏览器指纹</span><span class="muted">仅用于当前页面展示，不上传</span></div>
+    <div class="finger-grid">
+      <div class="finger-card"><span>Canvas</span><strong id="canvasFp">检测中</strong></div>
+      <div class="finger-card"><span>WebGL</span><strong id="webglFp">检测中</strong></div>
+      <div class="finger-card"><span>Audio</span><strong id="audioFp">检测中</strong></div>
+      <div class="finger-card"><span>字体</span><strong id="fontFp">检测中</strong></div>
+      <div class="finger-card wide"><span>综合指纹</span><strong id="overallFp">检测中</strong></div>
+    </div>
+    <div class="finger-note">指纹结果会受到浏览器版本、隐私模式、字体、硬件和系统设置影响；它不是永久身份标识。</div>
+  </section>
+
+  <section id="capabilities" class="card">
+    <div class="section-title"><span>WebRTC / DNS / 网络能力</span><span class="muted">浏览器可见范围</span></div>
+    <div class="cap-grid">
+      <button class="cap cap-button" type="button" data-detail="webrtc"><span>WebRTC</span><b id="webrtcState">检测中</b><small id="webrtcInfo"></small><em>点击查看详情 →</em></button>
+      <button class="cap cap-button" type="button" data-detail="ipv4"><span>IPv4</span><b id="ipv4State">检测中</b><small id="ipv4Info"></small><em>点击查看详情 →</em></button>
+      <button class="cap cap-button" type="button" data-detail="ipv6"><span>IPv6</span><b id="ipv6State">检测中</b><small id="ipv6Info"></small><em>点击查看详情 →</em></button>
+      <button class="cap cap-button" type="button" data-detail="dns"><span>DNS / DoH</span><b id="dnsState">泄漏检测待配置</b><small>使用一次性域名检测递归 DNS 来源</small><em>点击查看详情 →</em></button>
+      <button class="cap cap-button" type="button" data-detail="http3"><span>HTTP/3</span><b id="http3State">需服务器判断</b><small>点击查看协议说明与测试方法</small><em>点击查看详情 →</em></button>
+      <button class="cap cap-button" type="button" data-detail="cdn"><span>Cloudflare / CDN</span><b id="cdnState">本地模式</b><small id="cdnInfo">部署 Worker 后显示</small><em>点击查看详情 →</em></button>
+    </div>
+  </section>
+
+<section id="detailPanel" class="card detail-panel" hidden aria-live="polite">
+  <div class="section-title"><span id="detailTitle">检测详情</span><button id="closeDetail" class="small-btn" type="button">关闭 ×</button></div>
+  <div id="detailBody" class="detail-body"></div>
+</section>
+
+<footer>
+    <span>本页面默认不保存检测结果。</span>
+    <span>本地测试版 · 可部署到 GitHub Pages + Cloudflare Workers</span>
+  </footer>
+</main>
+<script src="./js/app.js"></script>
+</body>
+</html>
