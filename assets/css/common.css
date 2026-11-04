@@ -240,3 +240,56 @@ body {
         font-size: 12px;
     }
 }
+
+
+/* ===== 大厅模式切换按钮：放置于标题副标题位置 ===== */
+.hall-header > p {
+    margin-top: 12px;
+}
+
+.hall-switch-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    max-width: 100%;
+    padding: 11px 20px;
+    border-radius: 999px;
+    background: #222;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hall-switch-button span {
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.hall-switch-button:hover {
+    color: #fff !important;
+    background: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.16);
+}
+
+.hall-switch-button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .hall-switch-button {
+        gap: 7px;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .hall-switch-button span {
+        font-size: 12px;
+    }
+}
