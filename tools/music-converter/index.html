@@ -65,7 +65,7 @@
         </label>
       </div>
       <div class="settings-note">
-        MP3 是有损格式：如果源文件不是 MP3，转换为 MP3 必须重新编码，无法做到数学意义上的无损。源文件本身为 MP3 时会优先尝试直接复制音频流。
+        MP3 是有损格式：WAV 会在浏览器内重新编码为 MP3；源文件本身为 MP3 时直接复制原文件，不重复编码。FLAC、M4A 等其他格式使用仓库内置的 FFmpeg 单线程核心。
       </div>
       <div class="action-row">
         <button class="primary-button convert-button" id="convert-all" type="button" disabled>开始转换</button>
@@ -83,7 +83,8 @@
     </footer>
   </main>
 
-  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+  <script src="vendor/ffmpeg/ffmpeg.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="js/app.js"></script>
 </body>

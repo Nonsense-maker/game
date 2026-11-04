@@ -110,11 +110,11 @@
     if (ffmpegLoading) return ffmpegLoading;
     ffmpegLoading = (async () => {
       if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
-        throw new Error("FFmpeg.wasm 库加载失败。请检查网络连接，或稍后重试。");
+        throw new Error("FFmpeg 单线程组件未就绪。请确认 vendor/ffmpeg 文件夹已按压缩包说明下载并上传。");
       }
       const instance = window.FFmpeg.createFFmpeg({
         log: false,
-        corePath: "https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js",
+        corePath: new URL("vendor/ffmpeg/ffmpeg-core.js", document.baseURI).href,
         progress: ({ ratio }) => {
           if (activeTask && Number.isFinite(ratio)) {
             activeTask.progress = Math.max(12, Math.min(90, Math.round(12 + ratio * 78)));
@@ -135,6 +135,72 @@
     return `${base}.mp3`;
   }
 
+  async function convertWavToMp3(task) {
+    if (!window.lamejs || !window.lamejs.Mp3Encoder) {
+      throw new Error("MP3 编码组件加载失败，请检查网络后刷新页面重试。");
+    }
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+      throw new Error("当前浏览器不支持 Web Audio，无法读取 WAV。");
+    }
+
+    const audioContext = new AudioContextClass();
+    try {
+      const decoded = await audioContext.decodeAudioData(await task.file.arrayBuffer());
+      const channels = Math.min(2, decoded.numberOfChannels);
+      const supportedRates = [8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000];
+      let audioBuffer = decoded;
+
+      if (!supportedRates.includes(decoded.sampleRate)) {
+        const targetRate = supportedRates.reduce((best, rate) =>
+          Math.abs(rate - decoded.sampleRate) < Math.abs(best - decoded.sampleRate) ? rate : best
+        , 44100);
+        const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        if (!OfflineCtx) throw new Error("当前浏览器无法重采样该 WAV 文件。");
+        const frames = Math.ceil(decoded.duration * targetRate);
+        const offline = new OfflineCtx(channels, frames, targetRate);
+        const source = offline.createBufferSource();
+        source.buffer = decoded;
+        source.connect(offline.destination);
+        source.start(0);
+        audioBuffer = await offline.startRendering();
+      }
+
+      const encoder = new lamejs.Mp3Encoder(channels, audioBuffer.sampleRate, 192);
+      const left = audioBuffer.getChannelData(0);
+      const right = channels > 1 ? audioBuffer.getChannelData(1) : null;
+      const chunkSize = 1152;
+      const mp3Chunks = [];
+      const toInt16 = (data, offset, length) => {
+        const out = new Int16Array(length);
+        for (let i = 0; i < length; i++) {
+          const sample = Math.max(-1, Math.min(1, data[offset + i]));
+          out[i] = sample < 0 ? sample * 32768 : sample * 32767;
+        }
+        return out;
+      };
+
+      for (let offset = 0; offset < left.length; offset += chunkSize) {
+        const length = Math.min(chunkSize, left.length - offset);
+        const leftChunk = toInt16(left, offset, length);
+        const encoded = channels > 1
+          ? encoder.encodeBuffer(leftChunk, toInt16(right, offset, length))
+          : encoder.encodeBuffer(leftChunk);
+        if (encoded.length) mp3Chunks.push(new Uint8Array(encoded));
+        task.progress = Math.min(95, Math.round((offset + length) / left.length * 95));
+        if (offset % (chunkSize * 32) === 0) {
+          render();
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+      const tail = encoder.flush();
+      if (tail.length) mp3Chunks.push(new Uint8Array(tail));
+      return new Blob(mp3Chunks, { type: "audio/mpeg" });
+    } finally {
+      try { await audioContext.close(); } catch (_) {}
+    }
+  }
+
   async function convertTask(task) {
     if (task.state === "unsupported") return;
     if (!ordinaryExtensions.has(task.ext)) {
@@ -143,6 +209,7 @@
       render();
       return;
     }
+
     task.state = "working";
     activeTask = task;
     task.progress = 3;
@@ -150,29 +217,33 @@
     render();
 
     try {
-      const engine = await loadFFmpeg();
-      const inputName = `input_${Date.now()}_${Math.floor(Math.random()*1e6)}.${task.ext}`;
-      const outputName = `output_${Date.now()}_${Math.floor(Math.random()*1e6)}.mp3`;
-      engine.FS("writeFile", inputName, new Uint8Array(await task.file.arrayBuffer()));
-      task.progress = 12;
-      render();
-
-      // MP3 input is stream-copied to avoid another lossy encode.
+      // MP3 -> MP3: already encoded; preserve the original bytes without invoking FFmpeg.
       if (task.ext === "mp3") {
-        await engine.run("-i", inputName, "-map", "0:a:0", "-c:a", "copy", "-map_metadata", "0", "-id3v2_version", "3", outputName);
+        task.output = new Blob([task.file], { type: "audio/mpeg" });
+        task.outputName = safeOutputName(task.file.name);
+      } else if (task.ext === "wav") {
+        // WAV -> MP3: decode and encode in the browser; no SharedArrayBuffer/FFmpeg required.
+        task.output = await convertWavToMp3(task);
+        task.outputName = safeOutputName(task.file.name);
       } else {
-        // Preserve source sample rate and channel layout by not forcing -ar/-ac.
-        // LAME quality setting is fixed to a high-quality VBR target, not an upsampled bitrate.
+        // Other formats still use FFmpeg.wasm and may require cross-origin isolation.
+        const engine = await loadFFmpeg();
+        const inputName = `input_${Date.now()}_${Math.floor(Math.random()*1e6)}.${task.ext}`;
+        const outputName = `output_${Date.now()}_${Math.floor(Math.random()*1e6)}.mp3`;
+        engine.FS("writeFile", inputName, new Uint8Array(await task.file.arrayBuffer()));
+        task.progress = 12;
+        render();
         await engine.run("-i", inputName, "-map", "0:a:0", "-vn", "-c:a", "libmp3lame", "-q:a", "2", "-map_metadata", "0", "-id3v2_version", "3", outputName);
+        task.progress = 92;
+        render();
+        const data = engine.FS("readFile", outputName);
+        task.output = new Blob([data], { type: "audio/mpeg" });
+        task.outputName = safeOutputName(task.file.name);
+        try { engine.FS("unlink", inputName); engine.FS("unlink", outputName); } catch (_) {}
       }
-      task.progress = 92;
-      render();
-      const data = engine.FS("readFile", outputName);
-      task.output = new Blob([data.buffer], { type: "audio/mpeg" });
-      task.outputName = safeOutputName(task.file.name);
+
       task.state = "success";
       task.progress = 100;
-      try { engine.FS("unlink", inputName); engine.FS("unlink", outputName); } catch (_) {}
     } catch (err) {
       task.state = "error";
       task.error = (err && err.message ? err.message : String(err)).slice(0, 350);
