@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f5f5">
+    <title>音乐格式转换 - Nonsense Tools</title>
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <style>
+        .tool-page { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 30px; }
+        .tool-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; }
+        .tool-topbar a { color:#666; text-decoration:none; }
+        .tool-panel { background:#fff; border-radius:16px; padding:28px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+        .tool-panel h2 { margin:0 0 8px; font-size:22px; }
+        .tool-muted { color:#777; line-height:1.7; }
+        .format-tags { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
+        .format-tags span { padding:7px 11px; border-radius:9px; background:#f2f2f2; font-size:13px; }
+        .tool-notice { margin-top:18px; padding:13px 15px; border-radius:10px; background:#f7f7f7; color:#666; font-size:13px; line-height:1.65; }
+        @media(max-width:600px){ .tool-page{padding-top:28px}.tool-panel{padding:20px}.tool-panel h2{font-size:20px} }
+    </style>
+</head>
+<body>
+    <main class="tool-page">
+        <div class="tool-topbar">
+            <a href="../">← 返回工具大厅</a>
+            <a href="../../">游戏站</a>
+        </div>
+
+        <header class="hall-header">
+            <h1>音乐格式转换</h1>
+            <p>将可合法读取的音频文件转换为 MP3</p>
+        </header>
+
+        <section class="tool-panel">
+            <h2>音乐转换器</h2>
+            <p class="tool-muted">这里是转换器的功能页面入口。下一步将接入本地文件读取、格式识别、批量任务、元数据和 MP3 导出。</p>
+            <div class="format-tags" aria-label="计划支持格式">
+                <span>QQ 音乐 · QMC</span>
+                <span>网易云 · NCM</span>
+                <span>酷狗 · KGM</span>
+                <span>MP3</span>
+                <span>FLAC</span>
+                <span>WAV</span>
+            </div>
+            <div class="tool-notice">
+                转换以保持源音频参数为目标，不提供音质增强或升码率功能。MP3 属于有损编码；非 MP3 音源转换为 MP3 时仍会发生有损编码。受 DRM 或其他版权访问限制的文件不会通过绕过保护的方式处理。
+            </div>
+        </section>
+    </main>
+</body>
+</html>
