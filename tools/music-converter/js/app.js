@@ -135,6 +135,8 @@
       }
       const instance = window.FFmpeg.createFFmpeg({
         log: false,
+        // The single-thread core exports "main", not the pthread proxy entry "proxy_main".
+        mainName: "main",
         corePath: new URL("vendor/ffmpeg/ffmpeg-core.js", document.baseURI).href,
         progress: ({ ratio }) => {
           if (activeTask && Number.isFinite(ratio)) {
