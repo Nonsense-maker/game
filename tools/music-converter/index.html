@@ -1,51 +1,90 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f5f5f5">
-    <title>音乐格式转换 - Nonsense Tools</title>
-    <link rel="stylesheet" href="../../assets/css/common.css">
-    <style>
-        .tool-page { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 42px 0 30px; }
-        .tool-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; }
-        .tool-topbar a { color:#666; text-decoration:none; }
-        .tool-panel { background:#fff; border-radius:16px; padding:28px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
-        .tool-panel h2 { margin:0 0 8px; font-size:22px; }
-        .tool-muted { color:#777; line-height:1.7; }
-        .format-tags { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
-        .format-tags span { padding:7px 11px; border-radius:9px; background:#f2f2f2; font-size:13px; }
-        .tool-notice { margin-top:18px; padding:13px 15px; border-radius:10px; background:#f7f7f7; color:#666; font-size:13px; line-height:1.65; }
-        @media(max-width:600px){ .tool-page{padding-top:28px}.tool-panel{padding:20px}.tool-panel h2{font-size:20px} }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f5">
+  <title>音乐格式转换 - Nonsense Tools</title>
+  <link rel="stylesheet" href="../../assets/css/common.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <main class="tool-page">
-        <div class="tool-topbar">
-            <a href="../">← 返回工具大厅</a>
-            <a href="../../">游戏站</a>
+  <main class="converter-page">
+    <nav class="converter-nav">
+      <a href="../">← 返回工具大厅</a>
+      <a href="../../">🎮 游戏站</a>
+    </nav>
+
+    <header class="converter-header">
+      <div class="brand-mark">♫</div>
+      <h1>音乐格式转换</h1>
+      <p>在浏览器本地处理音频文件，不上传到服务器</p>
+    </header>
+
+    <section class="upload-panel" id="drop-zone" tabindex="0" role="button" aria-label="选择或拖放音频文件">
+      <div class="upload-symbol">⇧</div>
+      <h2>拖放音乐文件到这里</h2>
+      <p>也可以点击选择文件，支持一次添加多个文件</p>
+      <button class="primary-button" id="choose-files" type="button">选择文件</button>
+      <input id="file-input" type="file" accept="audio/*,.mp3,.flac,.wav,.m4a,.aac,.ogg,.opus,.ncm,.qmc0,.qmc3,.qmcflac,.mgg,.mgg1,.mflac,.kgm,.kgma,.kgg" multiple hidden>
+      <div class="supported-line">MP3 · FLAC · WAV · M4A · AAC · OGG · NCM · QMC · KGM（加密格式仅识别，暂不解密）</div>
+    </section>
+
+    <section class="queue-section">
+      <div class="section-heading">
+        <div>
+          <h2>转换队列 <span id="task-count" class="count-badge">0</span></h2>
+          <p>普通音频可转换；平台专有加密文件会显示兼容状态</p>
         </div>
+        <button class="text-button" id="clear-all" type="button">清空列表</button>
+      </div>
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">♫</div>
+        <strong>还没有添加文件</strong>
+        <span>选择或拖入音频文件后，会显示在这里</span>
+      </div>
+      <div id="task-list" class="task-list"></div>
+    </section>
 
-        <header class="hall-header">
-            <h1>音乐格式转换</h1>
-            <p>将可合法读取的音频文件转换为 MP3</p>
-        </header>
+    <section class="settings-panel">
+      <div class="section-heading">
+        <div>
+          <h2>输出设置</h2>
+          <p>不提供升码率或音质增强；尽可能沿用源文件采样率和声道</p>
+        </div>
+        <span class="output-tag">MP3</span>
+      </div>
+      <div class="settings-grid">
+        <label class="setting-item">
+          <span>输出格式</span>
+          <input type="text" value="MP3" disabled>
+        </label>
+        <label class="setting-item">
+          <span>编码策略</span>
+          <input type="text" value="自动匹配源参数" disabled>
+        </label>
+      </div>
+      <div class="settings-note">
+        MP3 是有损格式：如果源文件不是 MP3，转换为 MP3 必须重新编码，无法做到数学意义上的无损。源文件本身为 MP3 时会优先尝试直接复制音频流。
+      </div>
+      <div class="action-row">
+        <button class="primary-button convert-button" id="convert-all" type="button" disabled>开始转换</button>
+        <button class="secondary-button" id="download-zip" type="button" disabled>打包下载 ZIP</button>
+      </div>
+      <div class="overall-progress" id="overall-wrap" hidden>
+        <div class="progress-label"><span id="overall-text">准备中…</span><span id="overall-percent">0%</span></div>
+        <div class="progress-track"><div id="overall-bar"></div></div>
+      </div>
+    </section>
 
-        <section class="tool-panel">
-            <h2>音乐转换器</h2>
-            <p class="tool-muted">这里是转换器的功能页面入口。下一步将接入本地文件读取、格式识别、批量任务、元数据和 MP3 导出。</p>
-            <div class="format-tags" aria-label="计划支持格式">
-                <span>QQ 音乐 · QMC</span>
-                <span>网易云 · NCM</span>
-                <span>酷狗 · KGM</span>
-                <span>MP3</span>
-                <span>FLAC</span>
-                <span>WAV</span>
-            </div>
-            <div class="tool-notice">
-                转换以保持源音频参数为目标，不提供音质增强或升码率功能。MP3 属于有损编码；非 MP3 音源转换为 MP3 时仍会发生有损编码。受 DRM 或其他版权访问限制的文件不会通过绕过保护的方式处理。
-            </div>
-        </section>
-    </main>
+    <footer class="converter-footer">
+      <p>文件仅在当前浏览器会话中处理。刷新页面后，未下载的临时结果可能丢失。</p>
+      <p><a href="../">返回工具大厅</a> · <a href="../../">返回游戏大厅</a></p>
+    </footer>
+  </main>
+
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
