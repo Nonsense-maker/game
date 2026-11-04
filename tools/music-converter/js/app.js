@@ -105,12 +105,33 @@
     downloadZipBtn.disabled = busy || !tasks.some(t => t.output);
   }
 
+  function loadScriptOnce(src) {
+    return new Promise((resolve, reject) => {
+      if (window.FFmpeg && window.FFmpeg.createFFmpeg) return resolve();
+      const existing = document.querySelector(`script[data-dynamic-src="${src}"]`);
+      if (existing) {
+        existing.addEventListener("load", resolve, { once: true });
+        existing.addEventListener("error", () => reject(new Error("FFmpeg 加载器下载失败。")), { once: true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      script.dataset.dynamicSrc = src;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("FFmpeg 加载器下载失败，请检查 vendor/ffmpeg/ffmpeg.min.js 是否存在。"));
+      document.head.appendChild(script);
+    });
+  }
+
   async function loadFFmpeg() {
     if (ffmpeg) return ffmpeg;
     if (ffmpegLoading) return ffmpegLoading;
     ffmpegLoading = (async () => {
+      // Load FFmpeg only for formats that actually need it. MP3 and WAV never touch this loader.
+      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js", document.baseURI).href);
       if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
-        throw new Error("FFmpeg 单线程组件未就绪。请确认 vendor/ffmpeg 文件夹已按压缩包说明下载并上传。");
+        throw new Error("FFmpeg 加载器未提供 createFFmpeg；请确认部署的是匹配的 0.11.x 加载器。");
       }
       const instance = window.FFmpeg.createFFmpeg({
         log: false,
@@ -226,7 +247,7 @@
         task.output = await convertWavToMp3(task);
         task.outputName = safeOutputName(task.file.name);
       } else {
-        // Other formats still use FFmpeg.wasm and may require cross-origin isolation.
+        // Other formats use the locally hosted FFmpeg single-thread core.
         const engine = await loadFFmpeg();
         const inputName = `input_${Date.now()}_${Math.floor(Math.random()*1e6)}.${task.ext}`;
         const outputName = `output_${Date.now()}_${Math.floor(Math.random()*1e6)}.mp3`;
