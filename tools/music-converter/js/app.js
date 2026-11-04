@@ -129,14 +129,14 @@
     if (ffmpegLoading) return ffmpegLoading;
     ffmpegLoading = (async () => {
       // Load FFmpeg only for formats that actually need it. MP3 and WAV never touch this loader.
-      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js?v=1.5", document.baseURI).href);
+      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js?v=1.6", document.baseURI).href);
       if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
         throw new Error("FFmpeg 加载器未提供 createFFmpeg；请确认部署的是匹配的 0.11.x 加载器。");
       }
       const instance = window.FFmpeg.createFFmpeg({
         log: false,
         // The single-thread core exports "main", not the pthread proxy entry "proxy_main".
-        mainName: "main",
+        
         corePath: new URL("vendor/ffmpeg/ffmpeg-core.js", document.baseURI).href,
         progress: ({ ratio }) => {
           if (activeTask && Number.isFinite(ratio)) {
