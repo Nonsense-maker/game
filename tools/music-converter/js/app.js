@@ -129,7 +129,7 @@
     if (ffmpegLoading) return ffmpegLoading;
     ffmpegLoading = (async () => {
       // Load FFmpeg only for formats that actually need it. MP3 and WAV never touch this loader.
-      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js", document.baseURI).href);
+      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js?v=1.5", document.baseURI).href);
       if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
         throw new Error("FFmpeg 加载器未提供 createFFmpeg；请确认部署的是匹配的 0.11.x 加载器。");
       }
