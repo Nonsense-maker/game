@@ -129,7 +129,7 @@
     if (ffmpegLoading) return ffmpegLoading;
     ffmpegLoading = (async () => {
       // Load FFmpeg only for formats that actually need it. MP3 and WAV never touch this loader.
-      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js?v=1.6", document.baseURI).href);
+      await loadScriptOnce(new URL("vendor/ffmpeg/ffmpeg.min.js?v=1.8", document.baseURI).href);
       if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
         throw new Error("FFmpeg 加载器未提供 createFFmpeg；请确认部署的是匹配的 0.11.x 加载器。");
       }
@@ -256,7 +256,25 @@
         engine.FS("writeFile", inputName, new Uint8Array(await task.file.arrayBuffer()));
         task.progress = 12;
         render();
-        await engine.run("-i", inputName, "-map", "0:a:0", "-vn", "-c:a", "libmp3lame", "-q:a", "2", "-map_metadata", "0", "-id3v2_version", "3", outputName);
+        // Preserve source tags and embedded cover art when the input container exposes them.
+        // First try mapping the optional attached-picture stream; if the image codec/container
+        // is unsupported by the MP3 muxer, retry audio + metadata without the picture stream.
+        const baseArgs = [
+          "-i", inputName,
+          "-map", "0:a:0",
+          "-c:a", "libmp3lame", "-q:a", "2",
+          "-map_metadata", "0",
+          "-id3v2_version", "3"
+        ];
+        let coverMapped = false;
+        try {
+          await engine.run(...baseArgs, "-map", "0:v?", "-c:v", "copy",
+            "-disposition:v", "attached_pic", outputName);
+          coverMapped = true;
+        } catch (_) {
+          try { engine.FS("unlink", outputName); } catch (_) {}
+          await engine.run(...baseArgs, outputName);
+        }
         task.progress = 92;
         render();
         const data = engine.FS("readFile", outputName);

@@ -65,7 +65,7 @@
         </label>
       </div>
       <div class="settings-note">
-        MP3 是有损格式：WAV 会在浏览器内重新编码为 MP3；源文件本身为 MP3 时直接复制原文件，不重复编码。FLAC、M4A 等其他格式使用仓库内置的 FFmpeg 单线程核心。
+        MP3 是有损格式：WAV 会在浏览器内重新编码为 MP3；源文件本身为 MP3 时直接复制原文件，不重复编码。FLAC、M4A 等其他格式使用仓库内置的 FFmpeg 单线程核心，并尽可能保留源文件标签和内嵌专辑封面；WAV 使用浏览器重新编码，暂不保证保留 WAV 内的元数据或封面。
       </div>
       <div class="action-row">
         <button class="primary-button convert-button" id="convert-all" type="button" disabled>开始转换</button>
@@ -85,6 +85,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="js/app.js?v=20261105-17"></script>
+  <script src="js/app.js?v=20261105-18"></script>
 </body>
 </html>
