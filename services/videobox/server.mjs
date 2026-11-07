@@ -48,12 +48,13 @@ function runYtDlp(args, maxBytes = 8 * 1024 * 1024) {
 
 function formatsFor(info) {
   return (info.formats || [])
-    // A browser download must contain both tracks. Video-only streams would produce
-    // a silent file unless the service merged a separately retrieved audio track.
-    .filter(format => format.format_id && format.vcodec && format.vcodec !== 'none' && format.acodec && format.acodec !== 'none' && format.url && !format.has_drm)
+    // Bilibili and several other platforms commonly expose video and audio as
+    // separate public streams. Keep video-only formats; download() pairs them
+    // with the best public audio stream and merges them into an MP4.
+    .filter(format => format.format_id && format.vcodec && format.vcodec !== 'none' && !format.has_drm)
     .map(format => ({
       id: String(format.format_id),
-      label: [format.height ? `${format.height}p` : '', format.fps ? `${format.fps}fps` : '', format.vcodec !== 'none' && format.acodec !== 'none' ? '音视频' : '视频'].filter(Boolean).join(' · '),
+      label: [format.height ? `${format.height}p` : '', format.fps ? `${format.fps}fps` : '', format.acodec && format.acodec !== 'none' ? '音视频' : '视频＋音频'].filter(Boolean).join(' · '),
       ext: format.ext,
       filesize: format.filesize || format.filesize_approx || null,
       note: format.format_note || ''
@@ -109,14 +110,18 @@ const server = createServer(async (request, response) => {
     try {
       const info = await getInfo(url);
       if (!formatsFor(info).some(format => format.id === formatId)) return send(response, 403, { error: '所选格式不可用。' });
-      const extension = (info.formats || []).find(format => String(format.format_id) === formatId)?.ext || 'mp4';
+      const selectedFormat = (info.formats || []).find(format => String(format.format_id) === formatId);
+      const extension = selectedFormat?.ext || 'mp4';
+      const formatSelector = selectedFormat?.acodec && selectedFormat.acodec !== 'none'
+        ? formatId
+        : `${formatId}+bestaudio/best`;
       response.writeHead(200, {
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(`${safeFilename(info.title)}.${extension}`)}`,
         'Access-Control-Allow-Origin': allowedOrigin,
         'Cache-Control': 'no-store'
       });
-      const child = spawn(ytdlp, ['-f', formatId, '--merge-output-format', 'mp4', '-o', '-', ...publicArgs(url)], { windowsHide: true });
+      const child = spawn(ytdlp, ['-f', formatSelector, '--merge-output-format', 'mp4', '-o', '-', ...publicArgs(url)], { windowsHide: true });
       child.stdout.pipe(response);
       child.stderr.on('data', () => {});
       child.on('error', () => response.destroy());
