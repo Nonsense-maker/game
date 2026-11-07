@@ -45,7 +45,11 @@ function normalizeSourceUrl(urlString) {
 
 function publicArgs(url) {
   // Do not pass cookies, credentials, or a browser profile to yt-dlp.
-  return ['--no-playlist', '--no-warnings', '--no-call-home', '--socket-timeout', '20', url];
+  // Bilibili's public CDN expects ordinary page-request context for media files.
+  const headers = platformFor(url) === 'bilibili'
+    ? ['--referer', 'https://www.bilibili.com/', '--add-header', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36']
+    : [];
+  return ['--no-playlist', '--no-warnings', '--socket-timeout', '20', ...headers, url];
 }
 
 function runYtDlp(args, maxBytes = 8 * 1024 * 1024) {
