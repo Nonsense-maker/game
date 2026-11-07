@@ -28,6 +28,17 @@ function platformFor(urlString) {
   return null;
 }
 
+function normalizeSourceUrl(urlString) {
+  const url = new URL(urlString);
+  // Bilibili's language-prefixed web routes (for example /zh-Hans/video/...)
+  // display normally in a browser, but are not accepted consistently by yt-dlp.
+  if (platformFor(urlString) === 'bilibili') {
+    const match = url.pathname.match(/\/video\/(BV[\w]+)/i);
+    if (match) return `https://www.bilibili.com/video/${match[1]}`;
+  }
+  return url.toString();
+}
+
 function publicArgs(url) {
   // Do not pass cookies, credentials, or a browser profile to yt-dlp.
   return ['--no-playlist', '--no-warnings', '--no-call-home', '--socket-timeout', '20', url];
@@ -67,7 +78,8 @@ function safeFilename(text) {
 }
 
 async function getInfo(url) {
-  const output = await runYtDlp(['--dump-single-json', '--skip-download', ...publicArgs(url)]);
+  const sourceUrl = normalizeSourceUrl(url);
+  const output = await runYtDlp(['--dump-single-json', '--skip-download', ...publicArgs(sourceUrl)]);
   const info = JSON.parse(output);
   if (info._type === 'playlist' || info.is_live) throw new Error('仅支持单个非直播公开视频。');
   if (info.availability && !['public', 'unlisted', 'unknown'].includes(info.availability)) throw new Error('该内容需要权限或不公开，无法下载。');
@@ -108,7 +120,8 @@ const server = createServer(async (request, response) => {
     const platform = platformFor(url);
     if (!platform || !/^[A-Za-z0-9._+-]+$/.test(formatId || '')) return send(response, 400, { error: '下载参数无效。' });
     try {
-      const info = await getInfo(url);
+      const sourceUrl = normalizeSourceUrl(url);
+      const info = await getInfo(sourceUrl);
       if (!formatsFor(info).some(format => format.id === formatId)) return send(response, 403, { error: '所选格式不可用。' });
       const selectedFormat = (info.formats || []).find(format => String(format.format_id) === formatId);
       const extension = selectedFormat?.ext || 'mp4';
@@ -121,7 +134,7 @@ const server = createServer(async (request, response) => {
         'Access-Control-Allow-Origin': allowedOrigin,
         'Cache-Control': 'no-store'
       });
-      const child = spawn(ytdlp, ['-f', formatSelector, '--merge-output-format', 'mp4', '-o', '-', ...publicArgs(url)], { windowsHide: true });
+      const child = spawn(ytdlp, ['-f', formatSelector, '--merge-output-format', 'mp4', '-o', '-', ...publicArgs(sourceUrl)], { windowsHide: true });
       child.stdout.pipe(response);
       child.stderr.on('data', () => {});
       child.on('error', () => response.destroy());
