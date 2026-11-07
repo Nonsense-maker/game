@@ -1,5 +1,9 @@
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
+import { createReadStream } from 'node:fs';
+import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const port = Number(process.env.PORT || 8787);
 const ytdlp = process.env.YTDLP_PATH || 'yt-dlp';
@@ -58,6 +62,11 @@ function runYtDlp(args, maxBytes = 8 * 1024 * 1024) {
 }
 
 function formatsFor(info) {
+  const audioSizes = (info.formats || [])
+    .filter(format => format.format_id && format.acodec && format.acodec !== 'none' && (!format.vcodec || format.vcodec === 'none'))
+    .map(format => format.filesize || format.filesize_approx || 0);
+  const bestAudioSize = Math.max(0, ...audioSizes);
+
   return (info.formats || [])
     // Bilibili and several other platforms commonly expose video and audio as
     // separate public streams. Keep video-only formats; download() pairs them
@@ -67,10 +76,42 @@ function formatsFor(info) {
       id: String(format.format_id),
       label: [format.height ? `${format.height}p` : '', format.fps ? `${format.fps}fps` : '', format.acodec && format.acodec !== 'none' ? '音视频' : '视频＋音频'].filter(Boolean).join(' · '),
       ext: format.ext,
-      filesize: format.filesize || format.filesize_approx || null,
+      // The UI reports the expected final download size. Adaptive streams need
+      // a separate audio track, so include the best available public audio size.
+      filesize: (format.filesize || format.filesize_approx || 0) + (format.acodec && format.acodec !== 'none' ? 0 : bestAudioSize) || null,
       note: format.format_note || ''
     }))
     .sort((a, b) => (b.filesize || 0) - (a.filesize || 0));
+}
+
+function downloadToTemp(args) {
+  return new Promise(async (resolve, reject) => {
+    let directory;
+    try {
+      directory = await mkdtemp(join(tmpdir(), 'videobox-'));
+      const outputTemplate = join(directory, 'video.%(ext)s');
+      const child = spawn(ytdlp, [...args, '-o', outputTemplate], { windowsHide: true });
+      const stderr = [];
+      child.stderr.on('data', chunk => stderr.push(chunk));
+      child.on('error', async error => { await rm(directory, { recursive: true, force: true }); reject(error); });
+      child.on('close', async code => {
+        if (code !== 0) {
+          await rm(directory, { recursive: true, force: true });
+          return reject(new Error(Buffer.concat(stderr).toString('utf8').trim() || '无法准备下载文件。'));
+        }
+        const files = (await readdir(directory)).filter(name => !name.endsWith('.part'));
+        const filename = files.find(name => name.endsWith('.mp4')) || files[0];
+        if (!filename) {
+          await rm(directory, { recursive: true, force: true });
+          return reject(new Error('下载文件未生成。'));
+        }
+        resolve({ directory, path: join(directory, filename), extension: filename.split('.').pop() || 'mp4' });
+      });
+    } catch (error) {
+      if (directory) await rm(directory, { recursive: true, force: true });
+      reject(error);
+    }
+  });
 }
 
 function safeFilename(text) {
@@ -124,21 +165,22 @@ const server = createServer(async (request, response) => {
       const info = await getInfo(sourceUrl);
       if (!formatsFor(info).some(format => format.id === formatId)) return send(response, 403, { error: '所选格式不可用。' });
       const selectedFormat = (info.formats || []).find(format => String(format.format_id) === formatId);
-      const extension = selectedFormat?.ext || 'mp4';
       const formatSelector = selectedFormat?.acodec && selectedFormat.acodec !== 'none'
         ? formatId
-        : `${formatId}+bestaudio/best`;
+        : `${formatId}+bestaudio[ext=m4a]/bestaudio`;
+      const output = await downloadToTemp(['-f', formatSelector, '--merge-output-format', 'mp4', '--remux-video', 'mp4', ...publicArgs(sourceUrl)]);
       response.writeHead(200, {
         'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(`${safeFilename(info.title)}.${extension}`)}`,
+        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(`${safeFilename(info.title)}.${output.extension}`)}`,
         'Access-Control-Allow-Origin': allowedOrigin,
         'Cache-Control': 'no-store'
       });
-      const child = spawn(ytdlp, ['-f', formatSelector, '--merge-output-format', 'mp4', '-o', '-', ...publicArgs(sourceUrl)], { windowsHide: true });
-      child.stdout.pipe(response);
-      child.stderr.on('data', () => {});
-      child.on('error', () => response.destroy());
-      child.on('close', code => { if (code !== 0 && !response.writableEnded) response.end(); });
+      const file = createReadStream(output.path);
+      const cleanUp = () => rm(output.directory, { recursive: true, force: true }).catch(() => {});
+      file.on('error', () => { cleanUp(); response.destroy(); });
+      file.on('close', cleanUp);
+      response.on('close', cleanUp);
+      file.pipe(response);
     } catch (error) { send(response, 422, { error: error.message || '无法开始下载。' }); }
     return;
   }
