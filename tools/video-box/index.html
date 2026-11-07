@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f5">
+  <title>VideoBox 视频解析下载 - Nonsense Tools</title>
+  <link rel="stylesheet" href="../../assets/css/common.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="video-page">
+    <nav class="video-nav">
+      <a href="../">← 返回工具大厅</a>
+      <a href="../../">🎮 游戏站</a>
+    </nav>
+
+    <header class="video-header">
+      <div class="brand-mark">▶</div>
+      <h1>VideoBox</h1>
+      <p>普通公开视频解析与下载</p>
+    </header>
+
+    <section class="resolve-panel" aria-labelledby="resolve-title">
+      <h2 id="resolve-title">粘贴视频链接</h2>
+      <p class="panel-intro">支持 B 站、抖音、快手和西瓜视频。腾讯视频、爱奇艺、优酷仅处理可直接获取的普通公开视频流。</p>
+      <form id="resolve-form" novalidate>
+        <label class="url-field" for="video-url">
+          <span class="sr-only">视频链接</span>
+          <input id="video-url" name="url" type="url" inputmode="url" autocomplete="url" placeholder="粘贴视频分享链接或网页链接" required>
+          <button id="paste-button" class="text-button" type="button">粘贴</button>
+        </label>
+        <button id="resolve-button" class="primary-button" type="submit">开始解析</button>
+      </form>
+      <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+    </section>
+
+    <section id="result" class="result-panel" aria-live="polite" hidden>
+      <div class="video-summary">
+        <div class="cover-wrap"><img id="cover" alt="视频封面"></div>
+        <div class="video-copy">
+          <span id="platform" class="platform-tag"></span>
+          <h2 id="video-title"></h2>
+          <p id="video-meta"></p>
+          <p id="uploader" class="uploader"></p>
+        </div>
+      </div>
+
+      <div class="quality-section">
+        <div class="section-heading">
+          <div>
+            <h2>选择清晰度</h2>
+            <p>只显示当前公开可用的音视频格式。</p>
+          </div>
+        </div>
+        <div id="format-list" class="format-list" role="radiogroup" aria-label="可用清晰度"></div>
+      </div>
+
+      <div class="download-row">
+        <button id="download-button" class="primary-button" type="button" disabled>下载到默认目录</button>
+        <span id="download-hint">选择一个可用格式后开始下载</span>
+      </div>
+    </section>
+
+    <section class="notice-panel" aria-label="使用说明">
+      <h2>使用说明</h2>
+      <ul>
+        <li>文件会由浏览器下载到你的默认下载目录。</li>
+        <li>仅用于你有权保存的普通公开内容；不支持会员、登录、付费、DRM 或其他受访问控制内容。</li>
+        <li>解析失败时，检查链接是否公开可访问，或稍后再试。</li>
+      </ul>
+    </section>
+
+    <footer class="video-footer"><a href="../">返回工具大厅</a> · <a href="../../">返回游戏大厅</a></footer>
+  </main>
+  <script src="js/app.js"></script>
+</body>
+</html>
