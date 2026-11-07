@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: nonsense-game-videobox
+    runtime: docker
+    plan: free
+    dockerfilePath: ./services/videobox/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOWED_ORIGIN
+        value: https://nonsense-maker.github.io
